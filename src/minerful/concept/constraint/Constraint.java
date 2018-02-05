@@ -31,6 +31,7 @@ import minerful.concept.constraint.ConstraintFamily.ConstraintSubFamily;
 import minerful.concept.constraint.existence.ExistenceConstraint;
 import minerful.concept.constraint.relation.RelationConstraint;
 import minerful.io.encdec.TaskCharEncoderDecoder;
+import minerful.separated.automaton.SeparatedAutomaton;
 
 @XmlRootElement(name="constraint")
 @XmlSeeAlso({RelationConstraint.class,ExistenceConstraint.class})
@@ -582,5 +583,23 @@ public abstract class Constraint extends Observable implements Comparable<Constr
 		if (this.getFamily().equals(ConstraintFamily.EXISTENCE)) {
 			this.base = this.getParameters().get(0);
 		}
+	}
+
+	/**
+	 *
+	 * @return parametric separated automaton related to the constraint type
+	 */
+	public SeparatedAutomaton getParametricSeparatedAutomaton(){
+		/* TODO make it abstract and force the specific classes handle it*/
+		return null;
+	}
+
+	/**
+	 *
+	 * @return separated automaton specific for this constraint
+	 */
+	public SeparatedAutomaton getSeparatedAutomaton(){
+		/* TODO make it abstract and force the specific classes handle it*/
+		return null;
 	}
 }

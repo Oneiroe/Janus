@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import minerful.concept.TaskChar;
 import minerful.concept.TaskCharSet;
 import minerful.concept.constraint.Constraint;
+import minerful.separated.automaton.SeparatedAutomaton;
 
 @XmlRootElement
 public class AlternatePrecedence extends Precedence {
@@ -56,5 +57,11 @@ public class AlternatePrecedence extends Precedence {
 	public Constraint copy(TaskCharSet... taskCharSets) {
 		super.checkParams(taskCharSets);
 		return new AlternatePrecedence(taskCharSets[0], taskCharSets[1]);
+	}
+
+	@Override
+	public SeparatedAutomaton getParametricSeparatedAutomaton() {
+		//		Override to avoid using the inherited function from Response
+		return null;
 	}
 }

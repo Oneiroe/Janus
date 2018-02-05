@@ -31,6 +31,8 @@ import minerful.params.ViewCmdParameters;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
 import minerful.utils.MessagePrinter;
 
+import minerful.separated.automaton.ReactiveMinerQueryingCore;
+
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -42,14 +44,14 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 	@Override
 	public Options setupOptions() {
 		Options cmdLineOptions = new Options();
-		
+
 		Options minerfulOptions = MinerFulCmdParameters.parseableOptions(),
 				inputOptions = InputCmdParameters.parseableOptions(),
 				systemOptions = SystemCmdParameters.parseableOptions(),
 				viewOptions = ViewCmdParameters.parseableOptions(),
 				outputOptions = OutputModelParameters.parseableOptions(),
 				postProptions = PostProcessingCmdParameters.parseableOptions();
-		
+
     	for (Object opt: postProptions.getOptions()) {
     		cmdLineOptions.addOption((Option)opt);
     	}
@@ -68,7 +70,7 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
     	for (Object opt: systemOptions.getOptions()) {
     		cmdLineOptions.addOption((Option)opt);
     	}
-		
+
 		return cmdLineOptions;
 	}
 
@@ -182,13 +184,13 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 	}
 
 	public ProcessModel mine(LogParser logParser,
-			MinerFulCmdParameters minerFulParams, 
+			MinerFulCmdParameters minerFulParams,
 			SystemCmdParameters systemParams, PostProcessingCmdParameters postParams, TaskCharArchive taskCharArchive) {
 		return this.mine(logParser, null, minerFulParams, systemParams, postParams, taskCharArchive);
 	}
 
 	public ProcessModel mine(LogParser logParser,
-			InputCmdParameters inputParams, MinerFulCmdParameters minerFulParams, 
+			InputCmdParameters inputParams, MinerFulCmdParameters minerFulParams,
 			SystemCmdParameters systemParams, PostProcessingCmdParameters postParams, TaskCharArchive taskCharArchive) {
 		GlobalStatsTable globalStatsTable = new GlobalStatsTable(taskCharArchive, minerFulParams.branchingLimit);
 		globalStatsTable = computeKB(logParser, minerFulParams,
@@ -197,7 +199,7 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 		System.gc();
 
 		ProcessModel proMod = ProcessModel.generateNonEvaluatedBinaryModel(taskCharArchive);
-		
+
 		String processModelName = (
 				(inputParams != null && inputParams.inputLogFile != null ) ?
 					String.format(MinerFulMinerStarter.PROCESS_MODEL_NAME_PATTERN, inputParams.inputLogFile.getName()) :
@@ -205,7 +207,9 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 		);
 		proMod.setName(processModelName);
 
-		proMod.bag = queryForConstraints(logParser, minerFulParams, postParams,
+		/* Sustitution of mining core with the reactiveMiner */
+//		proMod.bag = queryForConstraints(logParser, minerFulParams, postParams,
+		proMod.bag = reactiveQueryForConstraints(logParser, minerFulParams, postParams,
 				taskCharArchive, globalStatsTable, proMod.bag);
 
 		System.gc();
@@ -286,7 +290,7 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 				subBag = bag.slice(taskCharSubset);
 				listOfMinerFulCores.add(
 						new MinerFulQueryingCore(coreNum++,
-								logParser, minerFulParams, postPrarams, 
+								logParser, minerFulParams, postPrarams,
 								taskCharArchive, globalStatsTable, taskCharSubset, subBag));
 			}
 
@@ -310,7 +314,7 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 				System.exit(1);
 			}
 			executor.shutdown();
-		} else {
+        } else {  //  Prefer this to the multi-executor one: more time spent in syncing than mining
 			MinerFulQueryingCore minerFulQueryingCore = new MinerFulQueryingCore(coreNum++,
 					logParser, minerFulParams, postPrarams, taskCharArchive,
 					globalStatsTable, bag);
@@ -318,9 +322,34 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 			minerFulQueryingCore.discover();
 			after = System.currentTimeMillis();
 		}
-		logger.info("Total KB querying time: " + (after - before));
-		return bag;
-	}
+        logger.info("Total KB querying time: " + (after - before));
+        return bag;
+    }
+
+    private ConstraintsBag reactiveQueryForConstraints(
+            LogParser logParser, MinerFulCmdParameters minerFulParams,
+            PostProcessingCmdParameters postPrarams, TaskCharArchive taskCharArchive,
+            GlobalStatsTable globalStatsTable, ConstraintsBag bag) {
+        int coreNum = 0;
+        long before = 0, after = 0;
+        if (minerFulParams.isParallelQueryProcessingRequired() && minerFulParams.isBranchingRequired()) {
+            logger.warn("Parallel querying of branched constraints not yet implemented. Proceeding with the single-core operations...");
+        }
+
+         /* JReactiveMiner Querying Core
+         *
+         * @author Alessio
+         * */
+        ReactiveMinerQueryingCore minerFulQueryingCore = new ReactiveMinerQueryingCore(coreNum++,
+                logParser, minerFulParams, postPrarams, taskCharArchive,
+                globalStatsTable, bag);
+        before = System.currentTimeMillis();
+        minerFulQueryingCore.discover();
+        after = System.currentTimeMillis();
+
+        logger.info("Total KB querying time: " + (after - before));
+        return bag;
+    }
 
 	private ProcessModel pruneConstraints(
 			ProcessModel processModel,
@@ -331,7 +360,7 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 //			// TODO
 //		} else {
 		MinerFulPruningCore pruniCore = new MinerFulPruningCore(processModel, processModel.bag.getTaskChars(), postPrarams);
-			
+
 		processModel.bag = pruniCore.massageConstraints();
 //		}
 		return processModel;
