@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 
@@ -73,7 +72,7 @@ public class ReactiveMinerQueryingCore implements Callable<ConstraintsBag> {
 		}
 
 //        Step by step run of the automata
-		while (!logTraceParser.isParsingOver()){
+		while (!logTraceParser.isParsingOver()) {
 			char transition = logTraceParser.parseSubsequentAndEncode();
 			for (SeparatedAutomatonRunner automatonRunner : automata) {
 				automatonRunner.step(transition);
@@ -83,7 +82,7 @@ public class ReactiveMinerQueryingCore implements Callable<ConstraintsBag> {
 //        Retrieve result
 		int i = 0;
 		for (SeparatedAutomatonRunner automatonRunner : automata) {
-			results[i] = automatonRunner.getSupport();
+			results[i] = automatonRunner.getDegreeOfTruth();
 			i++;
 		}
 
@@ -97,35 +96,39 @@ public class ReactiveMinerQueryingCore implements Callable<ConstraintsBag> {
 	 * @param automata  set of separatedAutomata to test over the log
 	 * @return ordered Array of supports for the full log for each automaton
 	 */
-	public static double[] runLog(LogParser logParser, List<SeparatedAutomatonRunner> automata) {
+	public void runLog(LogParser logParser, List<SeparatedAutomatonRunner> automata) {
 		double[] finalResults = new double[automata.size()]; // TODO case length=0
-		double[] finalConidences = new double[automata.size()]; // TODO
+
 		int numberOfTraces = 0;
+		int[] activeTraces = new int[automata.size()];
+
 		for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
 			LogTraceParser tr = it.next();
 			numberOfTraces++;
 			double[] partialResults = runTrace(tr, automata);
 			for (int i = 0; i < finalResults.length; i++) {
 				finalResults[i] += partialResults[i];
+				if (automata.get(i).isActivated()) activeTraces[i]++;
 			}
 		}
 
-		// Support of each constraint which respect to te log
+		// Support and confidence of each constraint which respect to te log
 		for (int i = 0; i < finalResults.length; i++) {
-			finalResults[i] = finalResults[i] / numberOfTraces;
-			logger.info(automata.get(i).toString() + " = " + finalResults[i]);
+			double support = finalResults[i] / numberOfTraces;
+			double confidence = finalResults[i] / activeTraces[i];
+			this.bag.getConstraintOfRunner(automata.get(i)).setSupport(support);
+			this.bag.getConstraintOfRunner(automata.get(i)).setConfidence(confidence);
 		}
-
-		return finalResults;
 	}
 
 	/**
 	 * Launcher for mining
+	 *
 	 * @return
 	 */
 	public ConstraintsBag discover() {
 		runLog(this.logParser, this.bag.getSeparatedAutomataRunners());
-		return null;
+		return this.bag;
 	}
 
 	@Override

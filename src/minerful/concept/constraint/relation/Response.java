@@ -81,7 +81,7 @@ public class Response extends RespondedExistence {
 	}
 
 	@Override
-	public SeparatedAutomaton getParametricSeparatedAutomaton() {
+	public SeparatedAutomaton buildParametricSeparatedAutomaton() {
 		char[] alphabet = {'a', 'b', 'z'};
 		Automaton activator = getSingleCharActivatorAutomaton(alphabet[0], alphabet);
 

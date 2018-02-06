@@ -59,7 +59,7 @@ public class AlternateResponse extends Response {
 	}
 
 	@Override
-	public SeparatedAutomaton getParametricSeparatedAutomaton() {
+	public SeparatedAutomaton buildParametricSeparatedAutomaton() {
 //		Override to avoid using the inherited function from Response
 		return null;
 	}

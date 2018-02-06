@@ -586,19 +586,10 @@ public abstract class Constraint extends Observable implements Comparable<Constr
 	}
 
 	/**
-	 *
+	 * Constructs and returns the separated automaton for this constraint
 	 * @return parametric separated automaton related to the constraint type
 	 */
-	public SeparatedAutomaton getParametricSeparatedAutomaton(){
-		/* TODO make it abstract and force the specific classes handle it*/
-		return null;
-	}
-
-	/**
-	 *
-	 * @return separated automaton specific for this constraint
-	 */
-	public SeparatedAutomaton getSeparatedAutomaton(){
+	public SeparatedAutomaton buildParametricSeparatedAutomaton(){
 		/* TODO make it abstract and force the specific classes handle it*/
 		return null;
 	}

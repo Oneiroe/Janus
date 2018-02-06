@@ -100,7 +100,7 @@ public class Precedence extends RespondedExistence {
 	}
 
 	@Override
-	public SeparatedAutomaton getParametricSeparatedAutomaton() {
+	public SeparatedAutomaton buildParametricSeparatedAutomaton() {
 		char[] alphabet = {'a', 'b', 'z'};
 		Automaton activator = getSingleCharActivatorAutomaton(alphabet[1], alphabet);
 

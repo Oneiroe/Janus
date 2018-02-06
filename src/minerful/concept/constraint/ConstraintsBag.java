@@ -41,9 +41,15 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 	private Map<String, SeparatedAutomaton> automataBag;
 
 	/**
-	 * Set containing the runners for the specific constraints over the parametric automata
+	 * Container of the runners for the specific constraints over the parametric automata
 	 */
 	private List<SeparatedAutomatonRunner> automataRunnersBag;
+
+	/**
+	 * Map to link separated automata runners to their respective constraint object
+	 * TODO embed it directly into constraint/runner object
+	 */
+	private Map<SeparatedAutomatonRunner, Constraint> runnersConstraintsMatching;
 
 	public ConstraintsBag() {
 		this(new TreeSet<TaskChar>());
@@ -64,7 +70,7 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 			this.add(con.base, con);
 		}
 		this.initAutomataBag(taskChars, constraints);
-		this.initAutomataRunnersBag();
+//		this.initAutomataRunnersBag();
 	}
 
 	private void initBag() {
@@ -73,46 +79,88 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 
 	/**
 	 * Initialize the parametric separate automata related to the constraints of the bag
-	 */
+	 *//*
 	private void initAutomataBag(Set<TaskChar> taskChars, Collection<Constraint> constraints) {
 		this.automataBag = new HashMap<>();
 		for (Constraint constr : getAllConstraints()) {
 			if (automataBag.containsKey(constr.type)) continue;
-			SeparatedAutomaton parametricAut = constr.getParametricSeparatedAutomaton();
+			SeparatedAutomaton parametricAut = constr.buildParametricSeparatedAutomaton();
 			if (parametricAut == null) continue;
-			automataBag.put(constr.type, constr.getParametricSeparatedAutomaton());
+			automataBag.put(constr.type, constr.buildParametricSeparatedAutomaton());
+		}
+	}*/
+
+	/**
+	 * Initialize the parametric separate automata and the runners related to the constraints of the bag
+	 */
+	private void initAutomataBag(Set<TaskChar> taskChars, Collection<Constraint> constraints) {
+		this.automataBag = new HashMap<>();
+		this.automataRunnersBag = new ArrayList<>();
+		this.runnersConstraintsMatching = new HashMap<>();
+		for (Constraint constr : getAllConstraints()) {
+			SeparatedAutomaton parametricAut = constr.buildParametricSeparatedAutomaton();
+			if (parametricAut == null) continue;
+			if (!automataBag.containsKey(constr.type)) {
+				automataBag.put(constr.type, parametricAut);
+			}
+			/* TODO BEWARE
+			* use constraint.parameters to construct the runners is unsecured:
+			* it is ok for precedence and response but it is not know for other or general constraints.
+			* */
+			List<Character> specificAlphabet = new ArrayList<>();
+			for (TaskCharSet cs : constr.parameters) {
+				for (TaskChar c : cs.getTaskCharsArray()) {
+					specificAlphabet.add(c.identifier);
+				}
+			}
+			SeparatedAutomatonRunner runner = new SeparatedAutomatonRunner(parametricAut, specificAlphabet);
+			automataRunnersBag.add(runner);
+			runnersConstraintsMatching.put(runner,constr);
 		}
 	}
 
 	/**
-	 * Initialize the specific runners for the parametric automata structures
+	 * Initialize the runners for the parametric automata structures given an alphabet.
 	 */
-	private void initAutomataRunnersBag() {
-		this.automataRunnersBag = new ArrayList<>();
-		// TODO do not hardcode the maximal number of combination grouping
-		int maxCombinationSize = 2;
-		// Generate the combination of 2 elements from the alphabet
-		Set<Character> alphabet = new HashSet<>();
-		for (Iterator<TaskChar> it = taskChars.iterator(); it.hasNext(); ) {
-			alphabet.add(it.next().identifier);
-		}
-		ICombinatoricsVector<Character> initialVector = Factory.createVector(alphabet);
-		Generator<Character> gen = Factory.createSimpleCombinationGenerator(initialVector, maxCombinationSize);
-		for (SeparatedAutomaton aut : this.automataBag.values()) {
-			for (ICombinatoricsVector<Character> combination : gen) {
-				List<Character> specificAlphabet = combination.getVector();
-				if (aut == null) continue;
-				// One way i.e. a-b
-				automataRunnersBag.add(new SeparatedAutomatonRunner(aut, new ArrayList(specificAlphabet)));
-				// Other way i.e. b-a
-				Collections.reverse(specificAlphabet);
-				automataRunnersBag.add(new SeparatedAutomatonRunner(aut, specificAlphabet));
-			}
-		}
-	}
+//	private void initAutomataRunnersBag() {
+//		this.automataRunnersBag = new ArrayList<>();
+//		// do not hardcode the maximal number of combination grouping
+//		int maxCombinationSize = 2;
+//
+//		// Generate the combination of 2 elements from the alphabet
+//		Set<Character> alphabet = new HashSet<>();
+//		for (Iterator<TaskChar> it = taskChars.iterator(); it.hasNext(); ) {
+//			alphabet.add(it.next().identifier);
+//		}
+//		ICombinatoricsVector<Character> initialVector = Factory.createVector(alphabet);
+//		Generator<Character> gen = Factory.createSimpleCombinationGenerator(initialVector, maxCombinationSize);
+//
+//		for (SeparatedAutomaton aut : this.automataBag.values()) {
+//			for (ICombinatoricsVector<Character> combination : gen) {
+//				List<Character> specificAlphabet = combination.getVector();
+//				if (aut == null) continue;
+//				// One way i.e. a-b
+//				automataRunnersBag.add(new SeparatedAutomatonRunner(aut, new ArrayList(specificAlphabet)));
+//				// Other way i.e. b-a
+//				Collections.reverse(specificAlphabet);
+//				automataRunnersBag.add(new SeparatedAutomatonRunner(aut, specificAlphabet));
+//			}
+//		}
+//	}
 
+	/**
+	 * @return List of the runners for the separated automata of this bag
+	 */
 	public List<SeparatedAutomatonRunner> getSeparatedAutomataRunners() {
 		return this.automataRunnersBag;
+	}
+
+	/**
+	 * @param runner
+	 * @return constraint of the given runner
+	 */
+	public Constraint getConstraintOfRunner(SeparatedAutomatonRunner runner){
+		return runnersConstraintsMatching.get(runner);
 	}
 
 	public boolean add(Constraint c) {

@@ -207,14 +207,15 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 		);
 		proMod.setName(processModelName);
 
-		/* Sustitution of mining core with the reactiveMiner */
+		/* Substitution of mining core with the reactiveMiner */
 //		proMod.bag = queryForConstraints(logParser, minerFulParams, postParams,
 		proMod.bag = reactiveQueryForConstraints(logParser, minerFulParams, postParams,
 				taskCharArchive, globalStatsTable, proMod.bag);
 
 		System.gc();
 
-		pruneConstraints(proMod, minerFulParams, postParams);
+		/* TODO take back the post processing and adapt it to the separation technique*/
+//		pruneConstraints(proMod, minerFulParams, postParams);
 		return proMod;
 	}
 
