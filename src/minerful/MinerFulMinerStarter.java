@@ -29,6 +29,7 @@ import minerful.params.InputCmdParameters;
 import minerful.params.SystemCmdParameters;
 import minerful.params.ViewCmdParameters;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
+import minerful.separated.automaton.ReactiveMinerPruningCore;
 import minerful.utils.MessagePrinter;
 
 import minerful.separated.automaton.ReactiveMinerQueryingCore;
@@ -214,8 +215,9 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 
 		System.gc();
 
-		/* TODO take back the post processing and adapt it to the separation technique*/
+		/* TODO take back the full post processing and adapt it to the separation technique*/
 //		pruneConstraints(proMod, minerFulParams, postParams);
+		new ReactiveMinerPruningCore(proMod).pruneNonActiveConstraints();
 		return proMod;
 	}
 
