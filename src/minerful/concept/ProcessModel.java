@@ -156,13 +156,16 @@ public class ProcessModel extends Observable implements Observer {
 		
 		Iterator<TaskChar>
 			actIter = taskCharArchive.getTaskChars().iterator(),
-			auxActIter = null;
+			auxActIter = null,
+			extraActIter = null;
 		TaskChar
 			auxActiParam1 = null,
-			auxActiParam2 = null;
+			auxActiParam2 = null,
+			extraActiParam3 = null;
 		Collection<Constraint>
 			conSet = new TreeSet<Constraint>(),
-			auxConSet = null;
+			auxConSet = null,
+			extraConSet = null;
 		Collection<TaskChar> activitiesLeftToCombine = new TreeSet<TaskChar>(taskCharArchive.getTaskChars());
 
 		while (actIter.hasNext()) {
@@ -185,6 +188,18 @@ public class ProcessModel extends Observable implements Observer {
 
 				auxConSet = MetaConstraintUtils.createHierarchicalLinks(auxConSet);
 				conSet.addAll(auxConSet);
+
+				// Alessio: injection for non-DECLARE constraint with 3 variables
+				extraActIter = activitiesLeftToCombine.iterator();
+				while(extraActIter.hasNext()){
+					extraActiParam3 = extraActIter.next();
+					extraConSet = MetaConstraintUtils.getAllDiscoverableExtraConstraints(auxActiParam1, auxActiParam2, extraActiParam3);
+					extraConSet.addAll(MetaConstraintUtils.getAllDiscoverableExtraConstraints(auxActiParam1, extraActiParam3, auxActiParam2));
+
+//					extraConSet = MetaConstraintUtils.createHierarchicalLinks(extraConSet);
+					conSet.addAll(extraConSet);
+
+				}
 			}
 		}
 		ConstraintsBag bag = new ConstraintsBag(taskCharArchive.getTaskChars(), conSet);

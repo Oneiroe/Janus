@@ -36,9 +36,9 @@ import minerful.concept.constraint.relation.RespondedExistence;
 import minerful.concept.constraint.relation.Response;
 import minerful.concept.constraint.relation.Succession;
 
-import org.reflections.Reflections;
+import minerful.concept.constraint.nonDeclare.BeforeThisOrLaterThat;
 
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
+import org.reflections.Reflections;
 
 public class MetaConstraintUtils {
 	public static Collection<Class<? extends Constraint>> ALL_DISCOVERABLE_CONSTRAINT_TEMPLATES = getAllDiscoverableConstraintTemplates();
@@ -235,6 +235,18 @@ public class MetaConstraintUtils {
 		return constraintTemplates;
 	}
 
+	/**
+	 * Returns the template of all non-DECLARE constraints
+	 * @return
+	 */
+	public static Collection<Class<? extends Constraint>> getAllNonDeclareConstraintTemplates() {
+		ArrayList<Class<? extends Constraint>> constraintTemplates = new ArrayList<Class<? extends Constraint>>();
+		// Mutual relation
+		constraintTemplates.add(BeforeThisOrLaterThat.class);
+
+		return constraintTemplates;
+	}
+
 	public static boolean isExistenceConstraint(Constraint c) {
 		return c instanceof ExistenceConstraint;
 	}
@@ -420,5 +432,33 @@ public class MetaConstraintUtils {
 			}
 		}
 		return exiCons;
+	}
+
+
+	/**
+	 * Returns all the possible non-DECLARE constraints with 1 activator and 2 variables.
+	 * First method with a JavaDoc that says what it does.
+	 * @param auxActiParam1 Activator event
+	 * @param auxActiParam2 first event
+	 * @param extraActiParam3 second event
+	 * @return
+	 */
+	public static Collection<Constraint> getAllDiscoverableExtraConstraints(TaskChar auxActiParam1, TaskChar auxActiParam2, TaskChar extraActiParam3) {
+		Collection<Constraint> extraCons = new ArrayList<Constraint>();
+		Constructor<? extends Constraint> tmpConstructor = null;
+
+		try {
+			for (Class<? extends Constraint> nonDeclareConstraintTypeClass : getAllNonDeclareConstraintTemplates()) {
+				tmpConstructor = nonDeclareConstraintTypeClass.getConstructor(
+						TaskChar.class, TaskChar.class, TaskChar.class);
+				extraCons.add(tmpConstructor.newInstance(auxActiParam1, auxActiParam2, extraActiParam3));
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+
+			System.exit(1);
+		}
+		return extraCons;
 	}
 }

@@ -28,8 +28,8 @@ public class ReactiveMinerPruningCore {
 	public void pruneNonActiveConstraints(){
 		logger.info("Pruning non active constraints...");
 		for(Constraint c: this.processModel.bag.getAllConstraints()){
-			if(c.getSupport()>0 || c.getConfidence()>0) continue;
-
+//			if(c.getSupport()>0 || c.getConfidence()>0) continue;
+			if(c.getConfidence()>0.8) continue;
 			this.processModel.bag.remove(c);
 		}
 	}

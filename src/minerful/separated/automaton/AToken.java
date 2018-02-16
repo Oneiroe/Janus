@@ -4,6 +4,7 @@ import dk.brics.automaton.State;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Class to manage a set of token of different future automata related by the same activation.
@@ -16,7 +17,7 @@ public class AToken {
      * Initialize an empty AToken
      */
     public AToken() {
-        this.tokensCollection = new HashSet<State>();
+        this.tokensCollection = new TreeSet<State>();
     }
 
     /**

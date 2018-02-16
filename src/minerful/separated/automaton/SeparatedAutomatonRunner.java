@@ -1,5 +1,7 @@
 package minerful.separated.automaton;
 
+import dk.brics.automaton.State;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -104,6 +106,7 @@ public class SeparatedAutomatonRunner {
 		if (this.activated(transition)) {
 			activationCounter++;
 			AToken standReadyAToken = new AToken();
+			ArrayList<State> standReadyATokensTemp = new ArrayList<>();
 			boolean solved = false;
 			boolean unclear = false;
 			for (ConjunctAutomataRunner car : disjunctAutomataRunners) {
@@ -122,13 +125,17 @@ public class SeparatedAutomatonRunner {
 
 					} else {
 						unclear = true; //if at least one solution need to be checked in the future (if no positive certain answer)
-						standReadyAToken.addTokenToCollection(car.getAToken());
+//						standReadyAToken.addTokenToCollection(car.getAToken());
+						standReadyATokensTemp.add(car.getAToken());
 					}
 				}
 
 			}
 			// If no positive certain result and at least one result need to be checked in the future, launch AToken!
 			if (!solved && unclear) {
+				for(State s:standReadyATokensTemp){
+					standReadyAToken.addTokenToCollection(s);
+				}
 				aTokensRunners.add(new ATokenRunner(standReadyAToken));
 			}
 
