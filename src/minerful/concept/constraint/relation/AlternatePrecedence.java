@@ -68,7 +68,8 @@ public class AlternatePrecedence extends Precedence {
 	@Override
 	public SeparatedAutomaton buildParametricSeparatedAutomaton() {
 		char[] alphabet = {'a', 'b', 'z'};
-		Automaton activator = Utils.getSingleCharActivatorAutomaton(alphabet[1], alphabet);
+		char[] alphabetOthers = {alphabet[0], alphabet[2]};
+		Automaton activator = Utils.getSingleCharActivatorAutomaton(alphabet[1], alphabetOthers);
 
 		List<ConjunctAutomata> disjunctAutomata = new ArrayList<ConjunctAutomata>();
 

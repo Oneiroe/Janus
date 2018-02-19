@@ -84,7 +84,8 @@ public class Response extends RespondedExistence {
 	@Override
 	public SeparatedAutomaton buildParametricSeparatedAutomaton() {
 		char[] alphabet = {'a', 'b', 'z'};
-		Automaton activator = Utils.getSingleCharActivatorAutomaton(alphabet[0], alphabet);
+		char[] alphabetOthers = {alphabet[1], alphabet[2]};
+		Automaton activator = Utils.getSingleCharActivatorAutomaton(alphabet[0], alphabetOthers);
 
 		List<ConjunctAutomata> disjunctAutomata = new ArrayList<ConjunctAutomata>();
 
