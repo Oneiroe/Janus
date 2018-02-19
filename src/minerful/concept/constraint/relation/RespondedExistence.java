@@ -7,11 +7,18 @@ package minerful.concept.constraint.relation;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import dk.brics.automaton.Automaton;
 import minerful.concept.TaskChar;
 import minerful.concept.TaskCharSet;
 import minerful.concept.constraint.Constraint;
 import minerful.concept.constraint.ConstraintFamily.ConstraintImplicationVerse;
 import minerful.concept.constraint.ConstraintFamily.RelationConstraintSubFamily;
+import minerful.separated.automaton.ConjunctAutomata;
+import minerful.separated.automaton.SeparatedAutomaton;
+import minerful.separated.automaton.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 public class RespondedExistence extends RelationConstraint {
@@ -105,5 +112,28 @@ public class RespondedExistence extends RelationConstraint {
 	public Constraint copy(TaskCharSet... taskCharSets) {
 		super.checkParams(taskCharSets);
 		return new RespondedExistence(taskCharSets[0], taskCharSets[1]);
+	}
+
+	@Override
+	public SeparatedAutomaton buildParametricSeparatedAutomaton() {
+		char[] alphabet = {'a', 'b', 'z'};
+		Automaton activator = Utils.getSingleCharActivatorAutomaton(alphabet[0], alphabet);
+
+		List<ConjunctAutomata> disjunctAutomata = new ArrayList<ConjunctAutomata>();
+
+		char[] others = {alphabet[0], alphabet[2]};
+//		Eventually in the future B
+		Automaton futureAutomaton = Utils.getEventualityAutomaton(alphabet[1], others);
+		ConjunctAutomata conjunctAutomatonFut = new ConjunctAutomata(null, null, futureAutomaton);
+		disjunctAutomata.add(conjunctAutomatonFut);
+
+//		Eventually in the past B
+		Automaton pastAutomaton = Utils.getEventualityAutomaton(alphabet[1], others);
+		ConjunctAutomata conjunctAutomatonPast = new ConjunctAutomata(pastAutomaton, null, null);
+		disjunctAutomata.add(conjunctAutomatonPast);
+
+		SeparatedAutomaton res = new SeparatedAutomaton(activator, disjunctAutomata, alphabet);
+		res.setNominalID(this.type);
+		return res;
 	}
 }

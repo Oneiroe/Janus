@@ -9,6 +9,7 @@ import minerful.concept.constraint.Constraint;
 import minerful.concept.constraint.ConstraintFamily;
 import minerful.separated.automaton.ConjunctAutomata;
 import minerful.separated.automaton.SeparatedAutomaton;
+import minerful.separated.automaton.Utils;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -103,19 +104,19 @@ public class BeforeThisOrLaterThat extends Constraint {
 	@Override
 	public SeparatedAutomaton buildParametricSeparatedAutomaton() {
 		char[] alphabet = {'a', 'b', 'c', 'z'};
-		Automaton activator = getSingleCharActivatorAutomaton(alphabet[0], alphabet);
+		Automaton activator = Utils.getSingleCharActivatorAutomaton(alphabet[0], alphabet);
 
 		List<ConjunctAutomata> disjunctAutomata = new ArrayList<ConjunctAutomata>();
 
 //		Eventually in the future B
 		char[] othersFut = {alphabet[0], alphabet[2], alphabet[3]};
-		Automaton futureAutomaton = getEventualityAutomaton(alphabet[1], othersFut);
+		Automaton futureAutomaton = Utils.getEventualityAutomaton(alphabet[1], othersFut);
 		ConjunctAutomata conjunctAutomatonFut = new ConjunctAutomata(null, null, futureAutomaton);
 		disjunctAutomata.add(conjunctAutomatonFut);
 
 //		Eventually in the past C
 		char[] othersPast = {alphabet[0], alphabet[1], alphabet[3]};
-		Automaton pastAutomaton = getEventualityAutomaton(alphabet[2], othersPast);
+		Automaton pastAutomaton = Utils.getEventualityAutomaton(alphabet[2], othersPast);
 		ConjunctAutomata conjunctAutomatonPast = new ConjunctAutomata(pastAutomaton, null, null);
 		disjunctAutomata.add(conjunctAutomatonPast);
 
@@ -124,57 +125,4 @@ public class BeforeThisOrLaterThat extends Constraint {
 		return res;
 	}
 
-	/**
-	 * Returns an automaton accepting only if the transition is equal to a specific activator character
-	 *
-	 * @param activator parametric character representing the activator in the parametric automaton
-	 * @param others    all the parametric characters of the alphabet but the activator
-	 * @return activator automaton
-	 */
-	private static Automaton getSingleCharActivatorAutomaton(char activator, char[] others) {
-		State accepting = new State();
-		accepting.setAccept(true);
-
-		State notAccepting = new State();
-
-		notAccepting.addTransition(new Transition(activator, accepting));
-		accepting.addTransition(new Transition(activator, accepting));
-
-		for (char o : others) {
-			notAccepting.addTransition(new Transition(o, notAccepting));
-			accepting.addTransition(new Transition(o, notAccepting));
-		}
-
-		Automaton res = new Automaton();
-
-		res.setInitialState(notAccepting);
-		return res;
-	}
-
-	/**
-	 * Get the automaton representing the <>A eventuality constraint for a desired letter of an alphabet
-	 *
-	 * @param desired desired character
-	 * @param others  alphabet without the desired character
-	 * @return automaton for <>desired
-	 */
-	private static Automaton getEventualityAutomaton(char desired, char[] others) {
-		State NonAcceptingState = new State();
-		State AcceptingState = new State();
-		AcceptingState.setAccept(true);
-
-		NonAcceptingState.addTransition(new Transition(desired, AcceptingState));
-		for (char other : others) {
-			NonAcceptingState.addTransition(new Transition(other, NonAcceptingState));
-		}
-		AcceptingState.addTransition(new Transition(desired, AcceptingState));
-		for (char other : others) {
-			AcceptingState.addTransition(new Transition(other, AcceptingState));
-		}
-
-		Automaton resAutomaton = new Automaton();
-		resAutomaton.setInitialState(NonAcceptingState);
-
-		return resAutomaton;
-	}
 }

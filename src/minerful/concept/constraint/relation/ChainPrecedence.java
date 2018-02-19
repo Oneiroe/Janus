@@ -6,9 +6,16 @@ package minerful.concept.constraint.relation;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import dk.brics.automaton.Automaton;
 import minerful.concept.TaskChar;
 import minerful.concept.TaskCharSet;
 import minerful.concept.constraint.Constraint;
+import minerful.separated.automaton.ConjunctAutomata;
+import minerful.separated.automaton.SeparatedAutomaton;
+import minerful.separated.automaton.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 public class ChainPrecedence extends AlternatePrecedence {
@@ -56,5 +63,23 @@ public class ChainPrecedence extends AlternatePrecedence {
 	public Constraint copy(TaskCharSet... taskCharSets) {
 		super.checkParams(taskCharSets);
 		return new ChainPrecedence(taskCharSets[0], taskCharSets[1]);
+	}
+
+	@Override
+	public SeparatedAutomaton buildParametricSeparatedAutomaton() {
+		char[] alphabet = {'a', 'b', 'z'};
+		Automaton activator = Utils.getSingleCharActivatorAutomaton(alphabet[1], alphabet);
+
+		List<ConjunctAutomata> disjunctAutomata = new ArrayList<ConjunctAutomata>();
+
+		char[] others = {alphabet[1],alphabet[2]};
+		Automaton pastAutomaton = Utils.getReversedNextAutomaton(alphabet[0], others);
+
+		ConjunctAutomata conjunctAutomaton = new ConjunctAutomata(pastAutomaton, null, null);
+
+		disjunctAutomata.add(conjunctAutomaton);
+		SeparatedAutomaton res = new SeparatedAutomaton(activator, disjunctAutomata, alphabet);
+		res.setNominalID(this.type);
+		return res;
 	}
 }
