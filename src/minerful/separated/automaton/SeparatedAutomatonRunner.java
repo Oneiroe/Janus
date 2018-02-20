@@ -12,6 +12,7 @@ import java.util.Map;
  */
 public class SeparatedAutomatonRunner {
 	private SeparatedAutomaton automaton;
+	private State activatorPointer;
 
 	//    REMEMBER that separated automaton is a disjunction of conjunction!!!
 	private List<ConjunctAutomataRunner> disjunctAutomataRunners; //ATokens!!!
@@ -50,6 +51,8 @@ public class SeparatedAutomatonRunner {
 
 		this.activationCounter = 0;
 		this.fulfilledActivationCounter = 0;
+
+		this.activatorPointer = automaton.getActivator().getInitialState();
 	}
 
 
@@ -101,7 +104,7 @@ public class SeparatedAutomatonRunner {
 //        getOrDefault java8 required
 //        TODO parametrize the default character instead of hardcoding
 		char transition = parametricMapping.getOrDefault(realTransition, 'z');
-
+		this.activatorPointer = this.activatorPointer.step(transition);
 //        Activation step
 		if (this.activated(transition)) {
 			activationCounter++;
@@ -133,7 +136,7 @@ public class SeparatedAutomatonRunner {
 			}
 			// If no positive certain result and at least one result need to be checked in the future, launch AToken!
 			if (!solved && unclear) {
-				for(State s:standReadyATokensTemp){
+				for (State s : standReadyATokensTemp) {
 					standReadyAToken.addTokenToCollection(s);
 				}
 				aTokensRunners.add(new ATokenRunner(standReadyAToken));
@@ -164,7 +167,8 @@ public class SeparatedAutomatonRunner {
 	}
 
 	private boolean activated(char transition) {
-		return automaton.getActivator().getInitialState().step(transition).isAccept();
+//		return automaton.getActivator().getInitialState().step(transition).isAccept();
+		return activatorPointer.isAccept();
 	}
 
 
@@ -178,6 +182,7 @@ public class SeparatedAutomatonRunner {
 		for (ConjunctAutomataRunner car : disjunctAutomataRunners) {
 			car.reset();
 		}
+		activatorPointer = automaton.getActivator().getInitialState();
 	}
 
 	/**

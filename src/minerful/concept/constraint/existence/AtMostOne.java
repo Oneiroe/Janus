@@ -2,10 +2,17 @@ package minerful.concept.constraint.existence;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import dk.brics.automaton.Automaton;
 import minerful.concept.TaskChar;
 import minerful.concept.TaskCharSet;
 import minerful.concept.constraint.Constraint;
 import minerful.concept.constraint.ConstraintFamily.ExistenceConstraintSubFamily;
+import minerful.separated.automaton.ConjunctAutomata;
+import minerful.separated.automaton.SeparatedAutomaton;
+import minerful.separated.automaton.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 public class AtMostOne extends ExistenceConstraint {
@@ -51,5 +58,23 @@ public class AtMostOne extends ExistenceConstraint {
 	public Constraint copy(TaskCharSet... taskCharSets) {
 		super.checkParams(taskCharSets);
 		return new AtMostOne(taskCharSets[0]);
+	}
+
+	@Override
+	public SeparatedAutomaton buildParametricSeparatedAutomaton() {
+		char[] alphabet = {'a', 'z'};
+		char[] others = {alphabet[1]};
+		Automaton activator = Utils.getSingleCharActivatorAutomaton(alphabet[0], others);
+
+		List<ConjunctAutomata> disjunctAutomata = new ArrayList<ConjunctAutomata>();
+
+		Automaton futureAutomaton = Utils.getNextNegativeEventualityAutomaton(alphabet[0], others);
+		Automaton pastAutomaton = Utils.getReversedNextNegativeEventualityAutomaton(alphabet[0], others);
+		ConjunctAutomata conjunctAutomaton = new ConjunctAutomata(pastAutomaton, null, futureAutomaton);
+
+		disjunctAutomata.add(conjunctAutomaton);
+		SeparatedAutomaton res = new SeparatedAutomaton(activator, disjunctAutomata, alphabet);
+		res.setNominalID(this.type);
+		return res;
 	}
 }

@@ -33,6 +33,32 @@ public class Utils {
 	}
 
 	/**
+	 * Returns an automaton accepting only at the beginning of the trace
+	 *
+	 * @param all all the parametric characters of the alphabet
+	 * @return activator automaton
+	 */
+	public static Automaton getExistentialActivatorAutomaton(char[] all) {
+		State initial = new State();
+		initial.setAccept(true);
+		State accepting = new State();
+		accepting.setAccept(true);
+
+		State notAccepting = new State();
+
+		for (char o : all) {
+			initial.addTransition(new Transition(o, accepting));
+			accepting.addTransition(new Transition(o, notAccepting));
+			notAccepting.addTransition(new Transition(o, notAccepting));
+		}
+
+		Automaton res = new Automaton();
+
+		res.setInitialState(initial);
+		return res;
+	}
+
+	/**
 	 * Get the automaton representing the <>A eventuality constraint for a desired letter of an alphabet
 	 *
 	 * @param desired desired character
@@ -59,12 +85,83 @@ public class Utils {
 		return resAutomaton;
 	}
 
+
+	/**
+	 * Get the automaton representing the ()(!<>A) constraint for a desired letter of an alphabet
+	 *
+	 * @param notDesired desired character
+	 * @param others     alphabet without the desired character
+	 * @return automaton for ()(!<>desired)
+	 */
+	public static Automaton getNextNegativeEventualityAutomaton(char notDesired, char[] others) {
+		State NonAcceptingStateInitial = new State();
+		State NonAcceptingStateSink = new State();
+		State AcceptingState = new State();
+		AcceptingState.setAccept(true);
+
+		NonAcceptingStateInitial.addTransition(new Transition(notDesired, AcceptingState));
+		for (char other : others) {
+			NonAcceptingStateInitial.addTransition(new Transition(other, AcceptingState));
+		}
+		AcceptingState.addTransition(new Transition(notDesired, NonAcceptingStateSink));
+		for (char other : others) {
+			AcceptingState.addTransition(new Transition(other, AcceptingState));
+		}
+		NonAcceptingStateSink.addTransition(new Transition(notDesired, NonAcceptingStateSink));
+		for (char other : others) {
+			NonAcceptingStateSink.addTransition(new Transition(other, NonAcceptingStateSink));
+		}
+
+		Automaton resAutomaton = new Automaton();
+		resAutomaton.setInitialState(NonAcceptingStateInitial);
+
+		return resAutomaton;
+	}
+
+	/**
+	 * Get the automaton representing the reverse of ()(!<>A) constraint for a desired letter of an alphabet
+	 *
+	 * @param notDesired desired character
+	 * @param others     alphabet without the desired character
+	 * @return reversed automaton for ()(!<>desired)
+	 */
+	public static Automaton getReversedNextNegativeEventualityAutomaton(char notDesired, char[] others) {
+		State NonAcceptingStateInitial = new State();
+		State NonAcceptingStateSink = new State();
+		State AcceptingStateOk = new State();
+		State AcceptingStateLast = new State();
+		AcceptingStateOk.setAccept(true);
+		AcceptingStateLast.setAccept(true);
+
+		NonAcceptingStateInitial.addTransition(new Transition(notDesired, AcceptingStateLast));
+		for (char other : others) {
+			NonAcceptingStateInitial.addTransition(new Transition(other, AcceptingStateOk));
+		}
+		AcceptingStateOk.addTransition(new Transition(notDesired, AcceptingStateLast));
+		for (char other : others) {
+			AcceptingStateOk.addTransition(new Transition(other, AcceptingStateOk));
+		}
+		AcceptingStateLast.addTransition(new Transition(notDesired, NonAcceptingStateSink));
+		for (char other : others) {
+			AcceptingStateLast.addTransition(new Transition(other, NonAcceptingStateSink));
+		}
+		NonAcceptingStateSink.addTransition(new Transition(notDesired, NonAcceptingStateSink));
+		for (char other : others) {
+			NonAcceptingStateSink.addTransition(new Transition(other, NonAcceptingStateSink));
+		}
+
+		Automaton resAutomaton = new Automaton();
+		resAutomaton.setInitialState(NonAcceptingStateInitial);
+
+		return resAutomaton;
+	}
+
 	/**
 	 * Get the automaton representing the reverse of !A Until B constraint for two desired letters of an alphabet
 	 *
 	 * @param notHold character to hold false Until halt
-	 * @param halt halting character
-	 * @param others alphabet without the characters involved in the operation
+	 * @param halt    halting character
+	 * @param others  alphabet without the characters involved in the operation
 	 * @return reversed automaton for !A Until B
 	 */
 	public static Automaton getReversedNegativeUntilAutomaton(char notHold, char halt, char[] others) {
@@ -93,8 +190,8 @@ public class Utils {
 	 * Get the automaton representing the reverse of ()(!A Until B) constraint for two desired letters of an alphabet
 	 *
 	 * @param notHold character to hold false Until halt
-	 * @param halt halting character
-	 * @param others alphabet without the characters involved in the operation
+	 * @param halt    halting character
+	 * @param others  alphabet without the characters involved in the operation
 	 * @return reversed automaton for ()(!A Until B)
 	 */
 	public static Automaton getReversedNextNegativeUntilAutomaton(char notHold, char halt, char[] others) {
@@ -173,7 +270,108 @@ public class Utils {
 		return resAutomaton;
 	}
 
+	/**
+	 * Get the automaton representing the []<>A constraint for a desired letter of an alphabet
+	 *
+	 * @param desired desired character
+	 * @param others  alphabet without the desired character
+	 * @return automaton for []<>desired
+	 */
+	public static Automaton getLastAutomaton(char desired, char[] others) {
+		State NonAcceptingState = new State();
+		State AcceptingState = new State();
+		AcceptingState.setAccept(true);
+
+		NonAcceptingState.addTransition(new Transition(desired, AcceptingState));
+		for (char other : others) {
+			NonAcceptingState.addTransition(new Transition(other, NonAcceptingState));
+		}
+		AcceptingState.addTransition(new Transition(desired, AcceptingState));
+		for (char other : others) {
+			AcceptingState.addTransition(new Transition(other, NonAcceptingState));
+		}
+
+		Automaton resAutomaton = new Automaton();
+		resAutomaton.setInitialState(NonAcceptingState);
+
+		return resAutomaton;
+	}
+
+	/**
+	 * Get the automaton representing the []<->A constraint FROM START for a desired letter of an alphabet
+	 *
+	 * @param desired desired character
+	 * @param others  alphabet without the desired character
+	 * @return automaton for []<->desired
+	 */
+	public static Automaton getFirstAutomaton(char desired, char[] others) {
+		State NonAcceptingStateInitial = new State();
+		State NonAcceptingState = new State();
+		State AcceptingState = new State();
+		AcceptingState.setAccept(true);
+
+		NonAcceptingStateInitial.addTransition(new Transition(desired, AcceptingState));
+		for (char other : others) {
+			NonAcceptingStateInitial.addTransition(new Transition(other, NonAcceptingState));
+		}
+		NonAcceptingState.addTransition(new Transition(desired, NonAcceptingState));
+		for (char other : others) {
+			NonAcceptingState.addTransition(new Transition(other, NonAcceptingState));
+		}
+		AcceptingState.addTransition(new Transition(desired, AcceptingState));
+		for (char other : others) {
+			AcceptingState.addTransition(new Transition(other, AcceptingState));
+		}
+
+		Automaton resAutomaton = new Automaton();
+		resAutomaton.setInitialState(NonAcceptingStateInitial);
+
+		return resAutomaton;
+	}
 
 
+	/**
+	 * Get the automaton representing the "exactly N occurrences of A" constraint for a desired letter of an alphabet
+	 *
+	 * @param desired desired character
+	 * @param others  alphabet without the desired character
+	 * @param n       precise number of participation desired
+	 * @return automaton for "exactly N occurrences of desired"
+	 */
+	public static Automaton getPreciseParticipationAutomaton(char desired, char[] others, int n) {
+		/* TODO check n>0*/
+		State NonAcceptingStateInitial = new State();
+		State NonAcceptingStateSink = new State();
+
+		State lastState = NonAcceptingStateInitial;
+
+		for (int i = 0; i < n; i++) {
+			for (char other : others) {
+				lastState.addTransition(new Transition(other, lastState));
+			}
+
+			State nextState = new State();
+
+			lastState.addTransition(new Transition(desired, nextState));
+			lastState = nextState;
+		}
+
+		lastState.setAccept(true);
+
+		lastState.addTransition(new Transition(desired, NonAcceptingStateSink));
+		for (char other : others) {
+			lastState.addTransition(new Transition(other, lastState));
+		}
+
+		NonAcceptingStateSink.addTransition(new Transition(desired, NonAcceptingStateSink));
+		for (char other : others) {
+			NonAcceptingStateSink.addTransition(new Transition(other, NonAcceptingStateSink));
+		}
+
+		Automaton resAutomaton = new Automaton();
+		resAutomaton.setInitialState(NonAcceptingStateInitial);
+
+		return resAutomaton;
+	}
 
 }
