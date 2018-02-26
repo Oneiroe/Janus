@@ -187,6 +187,51 @@ public class Utils {
 	}
 
 	/**
+	 * Get the automaton representing the ()(!A Until B) constraint for two desired letters of an alphabet
+	 *
+	 * @param notHold character to hold false Until halt
+	 * @param halt    halting character
+	 * @param others  alphabet without the characters involved in the operation
+	 * @return automaton for ()(!A Until B)
+	 */
+	public static Automaton getNextNegativeUntilAutomaton(char notHold, char halt, char[] others) {
+		State NonAcceptingState_initial = new State();
+		State NonAcceptingState = new State();
+		State NonAcceptingState_sink = new State();
+		State AcceptingState_b = new State();
+		AcceptingState_b.setAccept(true);
+
+		NonAcceptingState_initial.addTransition(new Transition(halt, NonAcceptingState));
+		NonAcceptingState_initial.addTransition(new Transition(notHold, NonAcceptingState));
+		for (char other : others) {
+			NonAcceptingState_initial.addTransition(new Transition(other, NonAcceptingState));
+		}
+
+		NonAcceptingState.addTransition(new Transition(halt, AcceptingState_b));
+		NonAcceptingState.addTransition(new Transition(notHold, NonAcceptingState_sink));
+		for (char other : others) {
+			NonAcceptingState.addTransition(new Transition(other, NonAcceptingState));
+		}
+
+		NonAcceptingState_sink.addTransition(new Transition(halt, NonAcceptingState_sink));
+		NonAcceptingState_sink.addTransition(new Transition(notHold, NonAcceptingState_sink));
+		for (char other : others) {
+			NonAcceptingState_sink.addTransition(new Transition(other, NonAcceptingState_sink));
+		}
+
+		AcceptingState_b.addTransition(new Transition(halt, AcceptingState_b));
+		AcceptingState_b.addTransition(new Transition(notHold, AcceptingState_b));
+		for (char other : others) {
+			AcceptingState_b.addTransition(new Transition(other, AcceptingState_b));
+		}
+
+		Automaton resAutomaton = new Automaton();
+		resAutomaton.setInitialState(NonAcceptingState_initial);
+
+		return resAutomaton;
+	}
+
+	/**
 	 * Get the automaton representing the reverse of ()(!A Until B) constraint for two desired letters of an alphabet
 	 *
 	 * @param notHold character to hold false Until halt
@@ -224,6 +269,43 @@ public class Utils {
 		AcceptingState_a.addTransition(new Transition(notHold, NonAcceptingState_initial));
 		for (char other : others) {
 			AcceptingState_a.addTransition(new Transition(other, NonAcceptingState_initial));
+		}
+
+		Automaton resAutomaton = new Automaton();
+		resAutomaton.setInitialState(NonAcceptingState_initial);
+
+		return resAutomaton;
+	}
+
+	/**
+	 * Get the automaton representing the ()A constraint for the desired letter of an alphabet
+	 *
+	 * @param desired character
+	 * @param others  alphabet without the desired character
+	 * @return automaton for ()desired
+	 */
+	public static Automaton getNextAutomaton(char desired, char[] others) {
+		State NonAcceptingState_initial = new State();
+		State NonAcceptingState_middle = new State();
+		State NonAcceptingState_sink = new State();
+		State AcceptingState = new State();
+		AcceptingState.setAccept(true);
+
+		NonAcceptingState_initial.addTransition(new Transition(desired, NonAcceptingState_middle));
+		for (char other : others) {
+			NonAcceptingState_initial.addTransition(new Transition(other, NonAcceptingState_middle));
+		}
+		NonAcceptingState_middle.addTransition(new Transition(desired, AcceptingState));
+		for (char other : others) {
+			NonAcceptingState_middle.addTransition(new Transition(other, NonAcceptingState_sink));
+		}
+		AcceptingState.addTransition(new Transition(desired, AcceptingState));
+		for (char other : others) {
+			AcceptingState.addTransition(new Transition(other, AcceptingState));
+		}
+		NonAcceptingState_sink.addTransition(new Transition(desired, NonAcceptingState_sink));
+		for (char other : others) {
+			NonAcceptingState_sink.addTransition(new Transition(other, NonAcceptingState_sink));
 		}
 
 		Automaton resAutomaton = new Automaton();
