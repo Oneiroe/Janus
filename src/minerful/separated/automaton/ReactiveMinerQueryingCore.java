@@ -70,8 +70,8 @@ public class ReactiveMinerQueryingCore implements Callable<ConstraintsBag> {
 		for (SeparatedAutomatonRunner automatonRunner : automata) {
 			automatonRunner.reset();
 		}
-
 //        Step by step run of the automata
+		logTraceParser.init();
 		while (!logTraceParser.isParsingOver()) {
 			char transition = logTraceParser.parseSubsequentAndEncode();
 			for (SeparatedAutomatonRunner automatonRunner : automata) {
@@ -118,6 +118,7 @@ public class ReactiveMinerQueryingCore implements Callable<ConstraintsBag> {
 			double confidence = finalResults[i] / activeTraces[i];
 			this.bag.getConstraintOfRunner(automata.get(i)).setSupport(support);
 			this.bag.getConstraintOfRunner(automata.get(i)).setConfidence(confidence);
+			this.bag.getConstraintOfRunner(automata.get(i)).setInterestFactor(confidence);
 		}
 	}
 
