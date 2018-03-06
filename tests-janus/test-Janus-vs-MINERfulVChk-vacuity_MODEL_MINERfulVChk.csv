@@ -1,0 +1,9 @@
+Template;Constraint;Support;VacuousSupport;Satisfactions;VacuousSatisfactions;Violations
+Participation;Participation(a);0.881;0.881;881;0;119
+Precedence;Precedence(a, b);0.881;1.0;881;119;0
+AlternatePrecedence;AlternatePrecedence(a, b);0.847;0.966;847;119;34
+RespondedExistence;RespondedExistence(b, a);0.881;1.0;881;119;0
+RespondedExistence;RespondedExistence(c, a);0.881;0.957;881;76;43
+RespondedExistence;RespondedExistence(d, a);0.881;0.92;881;39;80
+RespondedExistence;RespondedExistence(e, a);0.881;0.92;881;39;80
+RespondedExistence;RespondedExistence(f, a);0.881;0.954;881;73;46

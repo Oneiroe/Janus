@@ -5,6 +5,8 @@
 package minerful;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -96,7 +98,7 @@ public class MinerFulVacuityChecker {
 				"Press any key to continue..."
 		);
 		
-		System.in.read();
+//		System.in.read();
 
 		MessagePrinter.configureLogging(DebugLevel.all);
 
@@ -118,6 +120,19 @@ public class MinerFulVacuityChecker {
 		evalon.runOnTheLog();
 
 		MessagePrinter.printlnOut(evalon.printEvaluationsCSV());
+
+		/*Alessio save output model as CSV, not just print it*/
+
+		try {
+			PrintWriter outWriter = new PrintWriter(args[3]);
+			outWriter.print(evalon.printEvaluationsCSV());
+			outWriter.flush();
+			outWriter.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/**/
 
 		if (args.length > 2) {
 			logger.debug("Storing fully-supported default-Declare constraints as a Declare map on " + args[2]);

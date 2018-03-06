@@ -3,6 +3,8 @@ package minerful.separated.automaton;
 import minerful.concept.ProcessModel;
 import minerful.concept.constraint.Constraint;
 import minerful.core.MinerFulQueryingCore;
+import minerful.miner.params.MinerFulCmdParameters;
+import minerful.postprocessing.params.PostProcessingCmdParameters;
 import org.apache.log4j.Logger;
 
 /**
@@ -11,6 +13,8 @@ import org.apache.log4j.Logger;
 public class ReactiveMinerPruningCore {
 	protected static Logger logger;
 	protected ProcessModel processModel;
+	protected MinerFulCmdParameters minerFulParams;
+	protected PostProcessingCmdParameters postParams;
 
 	{
 		if (logger == null) {
@@ -18,18 +22,20 @@ public class ReactiveMinerPruningCore {
 		}
 	}
 
-	public ReactiveMinerPruningCore(ProcessModel processModel) {
-		this.processModel=processModel;
+	public ReactiveMinerPruningCore(ProcessModel processModel, MinerFulCmdParameters minerFulParams, PostProcessingCmdParameters postParams) {
+		this.processModel = processModel;
+		this.minerFulParams = minerFulParams;
+		this.postParams = postParams;
 	}
 
 	/**
 	 * Removes the constraints not considered in the mining process
 	 */
-	public void pruneNonActiveConstraints(){
+	public void pruneNonActiveConstraints() {
 		logger.info("Pruning non active constraints...");
-		for(Constraint c: this.processModel.bag.getAllConstraints()){
+		for (Constraint c : this.processModel.bag.getAllConstraints()) {
 //			if(c.getSupport()>0 || c.getConfidence()>0) continue;
-			if(c.getConfidence()>0.8) continue;
+			if (c.getConfidence() >= postParams.confidenceThreshold) continue;
 			this.processModel.bag.remove(c);
 		}
 	}

@@ -1,0 +1,3 @@
+'Name';'Constraint template';'Implying activity';'Implied activity';'Support';'Confidence level';'Interest factor'
+'Precedence(a, b)';'Precedence';'b';'a';23.100;100.000;100.000
+'RespondedExistence(b, a)';'RespondedExistence';'b';'a';23.100;100.000;100.000
