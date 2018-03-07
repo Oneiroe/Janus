@@ -20,6 +20,7 @@ TEST_BASE_NAME="test-Janus-equal-MINERful"
 
 ## Runtime environment constants
 TRACES_MAINCLASS="minerful.MinerFulTracesMakerStarter"
+TXT2XES_MAINCLASS="minerful.MinerFulTracesToXesConverterStarter"
 JANUS_MAINCLASS="minerful.MinerFulMinerStarter"
 MINERFUL_VACUITY_MAINCLASS="minerful.MinerFulVacuityChecker"
 
@@ -28,11 +29,12 @@ MIN_STRLEN=2
 MAX_STRLEN=10
 TESTBED_SIZE=1000
 MEMORY_MAX="2048m"
-OUTPUT_FILE=${TEST_FOLDER}/${TEST_BASE_NAME}".xes"
+XES_FILE=${TEST_FOLDER}/${TEST_BASE_NAME}".xes"
+
+## Hand written log
+TEXT_FILE=${TEST_FOLDER}/${TEST_BASE_NAME}".txt"
 
 ## Miners Configs
-INPUT_FILE=$OUTPUT_FILE
-#INPUT_FILE=${TEST_FOLDER}/${TEST_BASE_NAME}".txt -iE strings "
 
 Mf_SUPP=0.95
 Mf_CONF=0
@@ -42,7 +44,7 @@ MfV_SUPP=${Mf_SUPP}
 MfV_CONF=${Mf_CONF}
 MfV_INTE=${Mf_INTE}
 
-DMM_SUPP=80
+DMM_SUPP=95
 DMM_ALPHA=100
 
 J_SUPP=0
@@ -98,9 +100,20 @@ alphabetCharacters=("a" "b" "c" "d" "e" "f")
 ## Auxiliary variable
 alphabet=`echo ${alphabetCharacters[@]} | sed 's/ /:/g'`
 
-## Run!
+####################
+### GENERATE LOG
 . ./libs.cfg
-java -Xmx$MEMORY_MAX -cp MINERful.jar $TRACES_MAINCLASS -a $alphabet -m $MIN_STRLEN -M $MAX_STRLEN -L $TESTBED_SIZE -oLF $OUTPUT_FILE -oE "xes" -r `Participation a` `ChainResponse a b`
+java -Xmx$MEMORY_MAX -cp MINERful.jar $TRACES_MAINCLASS -a $alphabet -m $MIN_STRLEN -M $MAX_STRLEN -L $TESTBED_SIZE -oLF $XES_FILE -oE "xes" -r `Participation a` `ChainResponse a b`
+
+### COVERT TXT TO XES
+#java -Xmx$MEMORY_MAX -cp MINERful.jar $TXT2XES_MAINCLASS -iLF ${TEXT_FILE} -oLF ${XES_FILE} -oE "xes"
+
+####################
+### INPUT LOG
+## XES log (generated or converted from hand written one)
+INPUT_FILE=${XES_FILE}
+## hand written txt
+#INPUT_FILE=${TEST_FOLDER}/${TEST_BASE_NAME}".txt -iE strings "
 
 ##################################################################
 ##################################################################

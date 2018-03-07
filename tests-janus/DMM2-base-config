@@ -1,0 +1,124 @@
+% ABSOLUTE PATH OF THE INPUT LOGS
+
+% COMMA SEPARATED TEMPLATE NAMES
+% Possible values are:
+% Absence
+% Absence2
+% Absence3
+% Alternate_Precedence
+% Alternate_Response
+% Alternate_Succession
+% Chain_Precedence
+% Chain_Response
+% Chain_Succession
+% Choice
+% CoExistence
+% Exactly1
+% Exactly2
+% Exclusive_Choice
+% Existence
+% Existence2
+% Existence3
+% Init
+% Precedence
+% Responded_Existence
+% Response
+% Succession
+% Not_Succession
+% Not_Chain_Succession
+% Not_CoExistence
+
+% DECLARE PERSPECTIVE
+% Currently the only supported value is:
+% Control_Flow
+perspectives=Control_Flow
+
+% ACTIVITY DISCOVERY OPTIONS
+% Currently the only supported value is:
+% DiscoverProvidedTemplatesAcrossAllActivitesInLog
+map_template_configuration=DiscoverProvidedTemplatesAcrossAllActivitesInLog
+
+% MINIMUM SUPPORT
+% Number between 0 and 100
+
+% VACUITY DETECTION
+% Possible values are:
+% 0: vacuity detection enabled
+% 100: vacuity detection disabled
+
+% APRIORI CRITERIA
+% Possible values are:
+% Diversity
+% InterGroup
+% IntraGroup
+% AllActivitiesIgnoringEventTypes
+% AllActivitiesWithEventTypes
+criterias=AllActivitiesWithEventTypes
+
+% OUTPUT PROCESS MODEL FILE PATH
+
+% OUTPUT PROCESS MODEL ENCODING TYPE.
+% Possible values are:
+% XML
+% TEXT
+% REPORT
+% NONE
+% Set to NONE to avoid model transcription.
+% Known issue: the generation of the XML model can throw exceptions in the stand-alone version of DeclareMiner2.
+
+% MINER TYPE
+% Currently the only supported value is:
+% DeclareMinerNoTrans
+miner_type=DeclareMinerNoRed
+
+% TIME PERFORMANCE TESTING: timing output
+% KNOWN ISSUE: Please set it to /dev/null as the timings are not stable with this mechanism. Check out "output/performance.csv" instead. Sorry, not customisable.
+unified_log_path=/dev/null
+
+% MEMORY USAGE TESTING: MEMORY USAGE LOGGING FILE PATH
+unified_memory_log_path=output/mem.csv
+
+% MEMORY USAGE TESTING: MEMORY USAGE TRANSCRIPTION ENABLING
+memory_check=true
+
+% VERBOSE OUTPUT
+verbose=false
+
+% PRE-PROCESSING AUXILIARY FILE PATH
+logging_preprocessing_file=output/preprocessing.log
+
+% TIME PERFORMANCE TESTING: NUMBER OF ATTEMPTS PER INPUT EVENT LOG
+iteration_number=1
+
+% TIME PERFORMANCE TESTING: EVENT LOG FILE UPLOAD TIMING FILE PATH
+unified_upload_log_path=output/upload.csv
+
+% APRIORI ALGORITHM'S AUXILIARY FILE
+logging_apriori_file=output/apriori.log
+
+% TIME PERFORMANCE TESTING: APRIORI ALGORITHM'S TIME PERFORMANCE LOGGING FILE PATH
+unified_apriori_log_path=output/apriori.csv
+
+% TOOL VARIANT.
+% Possible values are:
+% v1
+% v2
+% v3
+% v4
+% where:
+% "v1" is the basic (non-parallel) variant;
+%    the JAR package is in "/jars/DeclareMiner-v1.jar";
+% "v2" is another non-parallel variant, adding pre-processing operations which however proves worse than "v1";
+% "v3" is a parallel version of "v1" over the search space (i.e., constraint templates);
+%    the JAR package is in "/jars/DeclareMiner-parallel-over-searchspace.jar";
+% "v4" is a parallel version merging "v1" and "v2" and parallelising over the database (i.e., traces);
+%    the JAR package is in "/jars/DeclareMiner-parallel-over-database.jar".
+version=v1
+
+% NUMBER OF THREADS.
+% Affects only "v3" and "v4".
+% Our suggestion: set it to 4 (here below it is 1 because we are using the "v1" version)
+thread_number=1
+
+% FILTERING OF CONSTRAINTS BASED ON THEIR HIERARCHICAL SORTING
+hierarchy_based_filter=false
