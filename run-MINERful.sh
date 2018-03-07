@@ -27,7 +27,7 @@ fi
 . ./libs.cfg
 
 ## Clean up the screen
-clear
+#clear
 
 ## Runtime environment constants
 MAINCLASS="minerful.MinerFulMinerStarter"
