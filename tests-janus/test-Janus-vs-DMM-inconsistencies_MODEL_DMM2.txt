@@ -1,0 +1,8 @@
+Alternate_Precedence(a-complete, b-complete): 1.0
+Responded_Existence(b-complete, a-complete): 1.0
+Responded_Existence(a-complete, b-complete): 1.0
+Chain_Precedence(a-complete, b-complete): 1.0
+Init(a-complete, a-complete): 1.0
+Existence(a-complete, a-complete): 1.0
+Existence(b-complete, b-complete): 1.0
+Precedence(a-complete, b-complete): 1.0

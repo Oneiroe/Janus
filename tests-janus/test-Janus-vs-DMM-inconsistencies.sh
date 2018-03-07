@@ -16,7 +16,7 @@ clear
 ##################################################################
 ## script variables
 TEST_FOLDER="./tests-janus"
-TEST_BASE_NAME="test-Janus-vs-MINERful-longTracesBias"
+TEST_BASE_NAME="test-Janus-vs-DMM-inconsistencies"
 
 ## Runtime environment constants
 TRACES_MAINCLASS="minerful.MinerFulTracesMakerStarter"
@@ -50,11 +50,11 @@ MfV_SUPP=${Mf_SUPP}
 MfV_CONF=${Mf_CONF}
 MfV_INTE=${Mf_INTE}
 
-DMM_SUPP=10
-DMM_ALPHA=0
+DMM_SUPP=95
+DMM_ALPHA=100
 
 J_SUPP=0
-J_CONF=0.1
+J_CONF=0.95
 
 ##################################################################
 ## DMM setup
@@ -121,7 +121,7 @@ java -cp out/artifacts/MINERful_jar/MINERful.jar $TXT2XES_MAINCLASS -iLF ${TEXT_
 # MINERful
 echo "################### MINERFUL"
 # -ppAT none to avoid post processing
-./run-MINERful.sh -iLF $INPUT_FILE -s $Mf_SUPP -c $Mf_CONF -i $Mf_INTE -condec ${TEST_FOLDER}/${TEST_BASE_NAME}_MODEL_MINERful.xml -CSV ${TEST_FOLDER}/${TEST_BASE_NAME}_MODEL_MINERful.csv
+./run-MINERful.sh -ppAT none -iLF $INPUT_FILE -s $Mf_SUPP -c $Mf_CONF -i $Mf_INTE -condec ${TEST_FOLDER}/${TEST_BASE_NAME}_MODEL_MINERful.xml -CSV ${TEST_FOLDER}/${TEST_BASE_NAME}_MODEL_MINERful.csv
 
 # MINERful-Vacuity Check
 echo "################### MINERFUL VACUITY CHECK"

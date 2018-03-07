@@ -1,0 +1,37 @@
+'Name';'Constraint template';'Implying activity';'Implied activity';'Support';'Confidence level';'Interest factor'
+'AtMostOne(a)';'AtMostOne';'a';'';25.000;25.000;25.000
+'End(a)';'End';'a';'';25.000;25.000;25.000
+'Init(a)';'Init';'a';'';100.000;100.000;100.000
+'Participation(a)';'Participation';'a';'';100.000;100.000;100.000
+'CoExistence(a, b)';'CoExistence';'a';'b';100.000;100.000;100.000
+'Succession(a, b)';'Succession';'a';'b';97.222;97.222;97.222
+'AlternateSuccession(a, b)';'AlternateSuccession';'a';'b';22.222;22.222;22.222
+'ChainSuccession(a, b)';'ChainSuccession';'a';'b';22.222;22.222;22.222
+'RespondedExistence(a, b)';'RespondedExistence';'a';'b';100.000;100.000;100.000
+'Response(a, b)';'Response';'a';'b';96.875;96.875;96.875
+'AlternateResponse(a, b)';'AlternateResponse';'a';'b';12.500;12.500;12.500
+'ChainResponse(a, b)';'ChainResponse';'a';'b';12.500;12.500;12.500
+'NotChainSuccession(a, b)';'NotChainSuccession';'a';'b';77.778;77.778;77.778
+'NotSuccession(a, b)';'NotSuccession';'a';'b';2.778;2.778;2.778
+'NotCoExistence(a, b)';'NotCoExistence';'a';'b';0.000;0.000;0.000
+'Precedence(b, a)';'Precedence';'a';'b';3.125;3.125;3.125
+'AlternatePrecedence(b, a)';'AlternatePrecedence';'a';'b';3.125;3.125;3.125
+'ChainPrecedence(b, a)';'ChainPrecedence';'a';'b';3.125;3.125;3.125
+'AtMostOne(b)';'AtMostOne';'b';'';100.000;100.000;100.000
+'End(b)';'End';'b';'';75.000;75.000;75.000
+'Init(b)';'Init';'b';'';0.000;0.000;0.000
+'Participation(b)';'Participation';'b';'';100.000;100.000;100.000
+'Precedence(a, b)';'Precedence';'b';'a';100.000;100.000;100.000
+'AlternatePrecedence(a, b)';'AlternatePrecedence';'b';'a';100.000;100.000;100.000
+'ChainPrecedence(a, b)';'ChainPrecedence';'b';'a';100.000;100.000;100.000
+'CoExistence(b, a)';'CoExistence';'b';'a';100.000;100.000;100.000
+'Succession(b, a)';'Succession';'b';'a';5.556;5.556;5.556
+'AlternateSuccession(b, a)';'AlternateSuccession';'b';'a';5.556;5.556;5.556
+'ChainSuccession(b, a)';'ChainSuccession';'b';'a';5.556;5.556;5.556
+'RespondedExistence(b, a)';'RespondedExistence';'b';'a';100.000;100.000;100.000
+'Response(b, a)';'Response';'b';'a';25.000;25.000;25.000
+'AlternateResponse(b, a)';'AlternateResponse';'b';'a';25.000;25.000;25.000
+'ChainResponse(b, a)';'ChainResponse';'b';'a';25.000;25.000;25.000
+'NotChainSuccession(b, a)';'NotChainSuccession';'b';'a';94.444;94.444;94.444
+'NotSuccession(b, a)';'NotSuccession';'b';'a';94.444;94.444;94.444
+'NotCoExistence(b, a)';'NotCoExistence';'b';'a';0.000;0.000;0.000
