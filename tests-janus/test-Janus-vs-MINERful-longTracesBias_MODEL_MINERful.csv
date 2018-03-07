@@ -1,0 +1,7 @@
+'Name';'Constraint template';'Implying activity';'Implied activity';'Support';'Confidence level';'Interest factor'
+'Init(a)';'Init';'a';'';100.000;100.000;100.000
+'Response(a, b)';'Response';'a';'b';96.897;96.897;9.690
+'NotChainSuccession(a, b)';'NotChainSuccession';'a';'b';99.313;9.931;9.931
+'AtMostOne(b)';'AtMostOne';'b';'';100.000;10.000;1.000
+'ChainPrecedence(a, b)';'ChainPrecedence';'b';'a';100.000;100.000;10.000
+'NotSuccession(b, a)';'NotSuccession';'b';'a';100.000;10.000;10.000

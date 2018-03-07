@@ -16,7 +16,7 @@ clear
 ##################################################################
 ## script variables
 TEST_FOLDER="./tests-janus"
-TEST_BASE_NAME="test-Janus-equal-MINERful"
+TEST_BASE_NAME="test-Janus-vs-MINERful-longTracesBias"
 
 ## Runtime environment constants
 TRACES_MAINCLASS="minerful.MinerFulTracesMakerStarter"
@@ -109,10 +109,10 @@ alphabet=`echo ${alphabetCharacters[@]} | sed 's/ /:/g'`
 ####################
 ### GENERATE LOG
 . ./libs.cfg
-java -Xmx$MEMORY_MAX -cp MINERful.jar $TRACES_MAINCLASS -a $alphabet -m $MIN_STRLEN -M $MAX_STRLEN -L $TESTBED_SIZE -oLF $XES_FILE -oE "xes" -r `Participation a` `ChainResponse a b`
+#java -Xmx$MEMORY_MAX -cp MINERful.jar $TRACES_MAINCLASS -a $alphabet -m $MIN_STRLEN -M $MAX_STRLEN -L $TESTBED_SIZE -oLF $XES_FILE -oE "xes" -r `Participation a` `ChainResponse a b`
 
 ### COVERT TXT TO XES
-#java -cp out/artifacts/MINERful_jar/MINERful.jar $TXT2XES_MAINCLASS -iLF ${TEXT_FILE} -oLF ${XES_FILE} -oE "xes"
+java -cp out/artifacts/MINERful_jar/MINERful.jar $TXT2XES_MAINCLASS -iLF ${TEXT_FILE} -oLF ${XES_FILE} -oE "xes"
 
 ##################################################################
 ##################################################################

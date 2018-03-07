@@ -1,0 +1,8 @@
+'Name';'Constraint template';'Implying activity';'Implied activity';'Support';'Confidence level';'Interest factor'
+'Init(a)';'Init';'a';'';100.000;100.000;100.000
+'Participation(a)';'Participation';'a';'';100.000;100.000;100.000
+'AtMostOne(b)';'AtMostOne';'b';'';10.000;100.000;100.000
+'Precedence(a, b)';'Precedence';'b';'a';10.000;100.000;100.000
+'AlternatePrecedence(a, b)';'AlternatePrecedence';'b';'a';10.000;100.000;100.000
+'ChainPrecedence(a, b)';'ChainPrecedence';'b';'a';10.000;100.000;100.000
+'RespondedExistence(b, a)';'RespondedExistence';'b';'a';10.000;100.000;100.000
