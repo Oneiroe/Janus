@@ -50,31 +50,31 @@ MfV_SUPP=${Mf_SUPP}
 MfV_CONF=${Mf_CONF}
 MfV_INTE=${Mf_INTE}
 
-DMM_SUPP=95
-DMM_ALPHA=100
+DMM2_SUPP=95
+DMM2_ALPHA=0
 
 J_SUPP=0
 J_CONF=0.95
 
 ##################################################################
-## DMM setup
-DMM_CONF=${TEST_FOLDER}/"DeclareMiner2-master/config.properties.example"
-DMM_PATH=${TEST_FOLDER}/"DeclareMiner2-master/"
-DMM_SCRIPT="./run-DeclareMiner2-example.sh"
-cp ${TEST_FOLDER}/DMM2-base-config $DMM_CONF
+## DMM2 setup
+DMM2_CONF=${TEST_FOLDER}/"DeclareMiner2-master/config.properties.example"
+DMM2_PATH=${TEST_FOLDER}/"DeclareMiner2-master/"
+DMM2_SCRIPT="./run-DeclareMiner2-example.sh"
+cp ${TEST_FOLDER}/DMM2-base-config $DMM2_CONF
 
 # output path
-echo output_path=../../${TEST_FOLDER}/${TEST_BASE_NAME}_MODEL_DMM2.txt >> ${DMM_CONF}
+echo output_path=../../${TEST_FOLDER}/${TEST_BASE_NAME}_MODEL_DMM2.txt >> ${DMM2_CONF}
 # output file type: XML; TEXT; REPORT; NONE
-echo output_file_type=TEXT >> ${DMM_CONF}
+echo output_file_type=TEXT >> ${DMM2_CONF}
 # input log
-echo log_file_path=../../${INPUT_FILE} >> ${DMM_CONF}
+echo log_file_path=../../${INPUT_FILE} >> ${DMM2_CONF}
 # templates
-echo templates=Alternate_Precedence,Alternate_Response,Chain_Precedence,Chain_Response,Existence,Init,Precedence,Responded_Existence,Response >> ${DMM_CONF}
+echo templates=Alternate_Precedence,Alternate_Response,Chain_Precedence,Chain_Response,Existence,Init,Precedence,Responded_Existence,Response,Absence2 >> ${DMM2_CONF}
 # support: 0-100
-echo min_support=${DMM_SUPP} >> ${DMM_CONF}
+echo min_support=${DMM2_SUPP} >> ${DMM2_CONF}
 # alpha: 0: vacuity detection enabled;100: vacuity detection disabled
-echo alpha=${DMM_ALPHA} >> ${DMM_CONF}
+echo alpha=${DMM2_ALPHA} >> ${DMM2_CONF}
 
 ##################################################################
 ##################################################################
@@ -133,6 +133,6 @@ java -jar out/artifacts/MINERful_jar/MINERful.jar $JANUS_MAINCLASS -iLF $INPUT_F
 
 # DMM2
 echo "################### DMM2"
-cd ${DMM_PATH}
-${DMM_SCRIPT}
+cd ${DMM2_PATH}
+${DMM2_SCRIPT}
 
