@@ -11,7 +11,6 @@ import java.util.Observer;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -58,7 +57,6 @@ public abstract class Constraint extends Observable implements Comparable<Constr
 	@XmlTransient
     public static final double RANGE_FOR_SUPPORT = (MAX_SUPPORT - MIN_SUPPORT);
 	@XmlIDREF
-//	@XmlTransient
     protected TaskCharSet base;
 	@XmlElement
 	protected double support;
