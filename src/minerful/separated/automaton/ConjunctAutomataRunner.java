@@ -36,7 +36,8 @@ public class ConjunctAutomataRunner {
             currentPastState = currentPastState.step(transition);
         }
 
-//        PRESENT step not needed because it's only evaluated from starting state at evaluation time
+//        PRESENT step not needed because it's only evaluated from its starting state at evaluation/activation time
+//        (see getCurrentResult method)
 //            Future Research: present violation imply activation?
 
 //        FUTURE step carried out by AToken object

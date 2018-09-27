@@ -59,6 +59,37 @@ public class Utils {
 	}
 
 	/**
+	 * Returns an automaton accepting only if the transition is contained in a set of activator characters
+     * e.g. A or B -> C , in this case the constrain is activated is the transition is A or B
+	 *
+	 * @param activators all the parametric characters representing the possible activators in the parametric automaton
+	 * @param others    all the parametric characters of the alphabet but the activators
+	 * @return activator automaton
+	 */
+	public static Automaton getMultiCharActivatorAutomaton(char[] activators, char[] others) {
+		State accepting = new State();
+		accepting.setAccept(true);
+
+		State notAccepting = new State();
+
+        for (char activator: activators
+             ) {
+            notAccepting.addTransition(new Transition(activator, accepting));
+            accepting.addTransition(new Transition(activator, accepting));
+        }
+
+		for (char o : others) {
+			notAccepting.addTransition(new Transition(o, notAccepting));
+			accepting.addTransition(new Transition(o, notAccepting));
+		}
+
+		Automaton res = new Automaton();
+
+		res.setInitialState(notAccepting);
+		return res;
+	}
+
+	/**
 	 * Get the automaton representing the <>A eventuality constraint for a desired letter of an alphabet
 	 *
 	 * @param desired desired character
@@ -455,5 +486,30 @@ public class Utils {
 
 		return resAutomaton;
 	}
+
+    /**
+     * Get the automaton checking is the current transition is equal to a desired letter of an alphabet
+     * i.e. checks the present
+     *
+     * @param desired desired character
+     * @param others  alphabet without the desired character
+     * @return automaton for []<->desired
+     */
+    public static Automaton getPresentAutomaton(char desired, char[] others) {
+        State NonAcceptingState_initial = new State();
+        State NonAcceptingState_sink = new State();
+        State AcceptingState = new State();
+        AcceptingState.setAccept(true);
+
+        NonAcceptingState_initial.addTransition(new Transition(desired, AcceptingState));
+        for (char other : others) {
+            NonAcceptingState_initial.addTransition(new Transition(other, NonAcceptingState_sink));
+        }
+
+        Automaton resAutomaton = new Automaton();
+        resAutomaton.setInitialState(NonAcceptingState_initial);
+
+        return resAutomaton;
+    }
 
 }

@@ -153,7 +153,7 @@ public class ProcessModel extends Observable implements Observer {
 
 	public static ProcessModel generateNonEvaluatedBinaryModel(TaskCharArchive taskCharArchive) {
 		ProcessModel proMod = null;
-		
+
 		Iterator<TaskChar>
 			actIter = taskCharArchive.getTaskChars().iterator(),
 			auxActIter = null,
@@ -190,6 +190,7 @@ public class ProcessModel extends Observable implements Observer {
 				conSet.addAll(auxConSet);
 
 				// Alessio: injection for non-DECLARE constraint with 3 variables
+				/*
 				extraActIter = activitiesLeftToCombine.iterator();
 				while(extraActIter.hasNext()){
 					extraActiParam3 = extraActIter.next();
@@ -200,6 +201,7 @@ public class ProcessModel extends Observable implements Observer {
 					conSet.addAll(extraConSet);
 
 				}
+				*/
 			}
 		}
 		ConstraintsBag bag = new ConstraintsBag(taskCharArchive.getTaskChars(), conSet);
