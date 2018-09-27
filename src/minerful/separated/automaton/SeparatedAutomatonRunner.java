@@ -129,7 +129,10 @@ public class SeparatedAutomatonRunner {
 					} else {
 						unclear = true; //if at least one solution need to be checked in the future (if no positive certain answer)
 //						standReadyAToken.addTokenToCollection(car.getAToken());
-						standReadyATokensTemp.add(car.getAToken());
+						//  check the future of the conjunction only if past and present are ok (or absent)
+						if(car.getCurrentResult(transition)){
+							standReadyATokensTemp.add(car.getAToken());
+						}
 					}
 				}
 
