@@ -116,6 +116,32 @@ public class Utils {
 		return resAutomaton;
 	}
 
+    /**
+     * Get the automaton representing the !<>A negative eventuality constraint for a desired letter of an alphabet
+     *
+     * @param desired desired character
+     * @param others  alphabet without the desired character
+     * @return automaton for <>desired
+     */
+    public static Automaton getNegativeEventualityAutomaton(char desired, char[] others) {
+        State NonAcceptingState = new State();
+        State AcceptingState = new State();
+        AcceptingState.setAccept(true);
+
+        AcceptingState.addTransition(new Transition(desired, NonAcceptingState));
+        for (char other : others) {
+            AcceptingState.addTransition(new Transition(other, AcceptingState));
+        }
+        NonAcceptingState.addTransition(new Transition(desired, NonAcceptingState));
+        for (char other : others) {
+            NonAcceptingState.addTransition(new Transition(other, NonAcceptingState));
+        }
+
+        Automaton resAutomaton = new Automaton();
+        resAutomaton.setInitialState(AcceptingState);
+
+        return resAutomaton;
+    }
 
 	/**
 	 * Get the automaton representing the ()(!<>A) constraint for a desired letter of an alphabet
