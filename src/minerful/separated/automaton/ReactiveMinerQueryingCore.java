@@ -102,15 +102,19 @@ public class ReactiveMinerQueryingCore implements Callable<ConstraintsBag> {
 		int numberOfTraces = 0;
 		int[] activeTraces = new int[automata.size()];
 
+		int numberOfTotalTraces = logParser.length();
+
 		for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
 			LogTraceParser tr = it.next();
 			numberOfTraces++;
+            System.out.print("\rTraces: " + numberOfTraces + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
 			double[] partialResults = runTrace(tr, automata);
 			for (int i = 0; i < finalResults.length; i++) {
 				finalResults[i] += partialResults[i];
 				if (automata.get(i).isActivated()) activeTraces[i]++;
 			}
 		}
+        System.out.println();
 
 		// Support and confidence of each constraint which respect to te log
 		for (int i = 0; i < finalResults.length; i++) {
