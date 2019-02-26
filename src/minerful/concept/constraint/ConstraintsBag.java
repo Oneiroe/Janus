@@ -11,6 +11,7 @@ import minerful.concept.TaskCharSet;
 import minerful.concept.constraint.xmlenc.ConstraintsBagAdapter;
 
 import minerful.separated.automaton.SeparatedAutomaton;
+import minerful.separated.automaton.SeparatedAutomatonOfflineRunner;
 import minerful.separated.automaton.SeparatedAutomatonRunner;
 import org.apache.log4j.Logger;
 import org.paukov.combinatorics.Factory;
@@ -46,10 +47,21 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 	private List<SeparatedAutomatonRunner> automataRunnersBag;
 
 	/**
+	 * Container of the offline runners for the specific constraints over the parametric automata
+	 */
+	private List<SeparatedAutomatonOfflineRunner> automataOfflineRunnersBag;
+
+	/**
 	 * Map to link separated automata runners to their respective constraint object
 	 * TODO embed it directly into constraint/runner object
 	 */
 	private Map<SeparatedAutomatonRunner, Constraint> runnersConstraintsMatching;
+
+	/**
+	 * Map to link separated automata runners to their respective constraint object
+	 * TODO embed it directly into constraint/runner object
+	 */
+	private Map<SeparatedAutomatonOfflineRunner, Constraint> offlineRunnersConstraintsMatching;
 
 	public ConstraintsBag() {
 		this(new TreeSet<TaskChar>());
@@ -96,7 +108,9 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 	private void initAutomataBag(Set<TaskChar> taskChars, Collection<Constraint> constraints) {
 		this.automataBag = new HashMap<>();
 		this.automataRunnersBag = new ArrayList<>();
+		this.automataOfflineRunnersBag = new ArrayList<>();
 		this.runnersConstraintsMatching = new HashMap<>();
+		this.offlineRunnersConstraintsMatching = new HashMap<>();
 		for (Constraint constr : getAllConstraints()) {
 			SeparatedAutomaton parametricAut = constr.buildParametricSeparatedAutomaton();
 			if (parametricAut == null) continue;
@@ -115,7 +129,11 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 			}
 			SeparatedAutomatonRunner runner = new SeparatedAutomatonRunner(parametricAut, specificAlphabet);
 			automataRunnersBag.add(runner);
-			runnersConstraintsMatching.put(runner,constr);
+            runnersConstraintsMatching.put(runner,constr);
+
+            SeparatedAutomatonOfflineRunner offlineRunner = new SeparatedAutomatonOfflineRunner(parametricAut, specificAlphabet);
+            automataOfflineRunnersBag.add(offlineRunner);
+            offlineRunnersConstraintsMatching.put(offlineRunner, constr);
 		}
 	}
 
@@ -156,11 +174,26 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 	}
 
 	/**
+	 * @return List of the runners for the separated automata of this bag
+	 */
+	public List<SeparatedAutomatonOfflineRunner> getSeparatedAutomataOfflineRunners() {
+		return this.automataOfflineRunnersBag;
+	}
+
+	/**
 	 * @param runner
 	 * @return constraint of the given runner
 	 */
 	public Constraint getConstraintOfRunner(SeparatedAutomatonRunner runner){
 		return runnersConstraintsMatching.get(runner);
+	}
+
+	/**
+	 * @param runner
+	 * @return constraint of the given runner
+	 */
+	public Constraint getConstraintOfOfflineRunner(SeparatedAutomatonOfflineRunner runner){
+		return offlineRunnersConstraintsMatching.get(runner);
 	}
 
 	public boolean add(Constraint c) {

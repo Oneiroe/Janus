@@ -29,6 +29,7 @@ import minerful.params.InputCmdParameters;
 import minerful.params.SystemCmdParameters;
 import minerful.params.ViewCmdParameters;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
+import minerful.separated.automaton.ReactiveMinerOfflineQueryingCore;
 import minerful.separated.automaton.ReactiveMinerPruningCore;
 import minerful.utils.MessagePrinter;
 
@@ -209,8 +210,8 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 
 		/* Substitution of mining core with the reactiveMiner */
 //		proMod.bag = queryForConstraints(logParser, minerFulParams, postParams,
-		proMod.bag = reactiveQueryForConstraints(logParser, minerFulParams, postParams,
-				taskCharArchive, globalStatsTable, proMod.bag);
+//		proMod.bag = reactiveQueryForConstraints(logParser, minerFulParams, postParams, taskCharArchive, globalStatsTable, proMod.bag);
+        proMod.bag = reactiveOfflineQueryForConstraints(logParser, minerFulParams, postParams, taskCharArchive, globalStatsTable, proMod.bag);
 
 		System.gc();
 
@@ -352,6 +353,31 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 		logger.info("Total KB querying time: " + (after - before));
 		return bag;
 	}
+
+    private ConstraintsBag reactiveOfflineQueryForConstraints(
+            LogParser logParser, MinerFulCmdParameters minerFulParams,
+            PostProcessingCmdParameters postPrarams, TaskCharArchive taskCharArchive,
+            GlobalStatsTable globalStatsTable, ConstraintsBag bag) {
+        int coreNum = 0;
+        long before = 0, after = 0;
+        if (minerFulParams.isParallelQueryProcessingRequired() && minerFulParams.isBranchingRequired()) {
+            logger.warn("Parallel querying of branched constraints not yet implemented. Proceeding with the single-core operations...");
+        }
+
+        /* Janus Offline Querying Core
+         *
+         * @author Alessio
+         * */
+        ReactiveMinerOfflineQueryingCore minerFulQueryingCore = new ReactiveMinerOfflineQueryingCore(coreNum++,
+                logParser, minerFulParams, postPrarams, taskCharArchive,
+                globalStatsTable, bag);
+        before = System.currentTimeMillis();
+        minerFulQueryingCore.discover();
+        after = System.currentTimeMillis();
+
+        logger.info("Total KB querying time: " + (after - before));
+        return bag;
+    }
 
 	private ProcessModel pruneConstraints(
 			ProcessModel processModel,
