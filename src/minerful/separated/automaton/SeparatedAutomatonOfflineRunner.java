@@ -16,12 +16,6 @@ public class SeparatedAutomatonOfflineRunner {
     //    REMEMBER that separated automaton is a disjunction of conjunction!!!
     private List<ConjunctAutomataOfflineRunner> disjunctAutomataOfflineRunners; //  it takes care of past and present
 
-    private LogTraceParser logTraceParser;
-    private char[] trace;
-
-    private boolean[] pastResultVector;    //TODO boolean array or BitSet?
-    private boolean[] futureResultVector;   //TODO boolean array or BitSet?
-
     private List<Character> specificAlphabet;
     private Map<Character, Character> parametricMapping;
 
@@ -54,17 +48,15 @@ public class SeparatedAutomatonOfflineRunner {
     /**
      * Perform a single step in the separated automata using the given transition
      */
-    public boolean[] runTrace(char[] trace, LogTraceParser logTraceParser) {
-//        run the trace onward for the future evaluation
-        boolean[] result = new boolean[trace.length];
+    public boolean[] runTrace(char[] trace, int traceLength, LogTraceParser logTraceParser) {
+        boolean[] result = new boolean[traceLength];
         for (ConjunctAutomataOfflineRunner car : disjunctAutomataOfflineRunners) {
             int i = 0;
-            for (boolean eval : car.evaluateTrace(trace, parametricMapping)) {
-                result[i] = result[i] || eval;
+            for (boolean eval : car.evaluateTrace(trace, traceLength, parametricMapping)) {
+                result[i] |= eval;
                 i++;
             }
         }
-//        run the trace backward for the future evaluation
         return result;
     }
 

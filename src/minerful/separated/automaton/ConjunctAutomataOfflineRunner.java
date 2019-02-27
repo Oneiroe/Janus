@@ -1,7 +1,6 @@
 package minerful.separated.automaton;
 
 import dk.brics.automaton.State;
-import minerful.logparser.LogTraceParser;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -18,6 +17,11 @@ public class ConjunctAutomataOfflineRunner {
     private State currentFutureState = null;
 
 
+    private State initialPastState = null;
+    private State initialPresentState = null;
+    private State initialFutureState = null;
+
+
     /**
      * Initialize a runner for a given conjunct automata
      *
@@ -26,9 +30,18 @@ public class ConjunctAutomataOfflineRunner {
     public ConjunctAutomataOfflineRunner(ConjunctAutomata automata) {
         this.automata = automata;
 
-        if (automata.hasPast()) this.currentPastState = automata.getPastAutomaton().getInitialState();
-        if (automata.hasPresent()) this.currentPresentState = automata.getPresentAutomaton().getInitialState();
-        if (automata.hasFuture()) this.currentFutureState = automata.getFutureAutomaton().getInitialState();
+        if (automata.hasPast()) {
+            this.initialPastState = automata.getPastAutomaton().getInitialState();
+            this.currentPastState = this.initialPastState;
+        }
+        if (automata.hasPresent()) {
+            this.initialPresentState = automata.getPresentAutomaton().getInitialState();
+            this.currentPresentState = this.initialPresentState;
+        }
+        if (automata.hasFuture()) {
+            this.initialFutureState = automata.getFutureAutomaton().getInitialState();
+            this.currentFutureState = this.initialFutureState;
+        }
     }
 
     /**
@@ -36,31 +49,28 @@ public class ConjunctAutomataOfflineRunner {
      *
      * @param trace trace as char[] to be evaluate by the conjunct automata.
      */
-    public boolean[] evaluateTrace(char[] trace, Map<Character, Character> parametricMapping) {
-//        BitSet result = new BitSet(trace.length);
-        boolean[] result = new boolean[trace.length];
+    public boolean[] evaluateTrace(char[] trace, int traceLength, Map<Character, Character> parametricMapping) {
+
+        boolean[] result = new boolean[traceLength];
         Arrays.fill(result, Boolean.TRUE);
 
-        //        run the trace onward for the past and present evaluation
-
-        for (int i = 0; i < trace.length; i++) {
+        for (int i = 0; i < traceLength; i++) {
             char transition_onward = parametricMapping.getOrDefault(trace[i], 'z');
-            char transition_backward = parametricMapping.getOrDefault(trace[trace.length-1-i], 'z');
 
             //        PAST
             if (currentPastState != null) {
                 currentPastState = currentPastState.step(transition_onward);
-                result[i] = result[i] && currentPastState.isAccept();
+                result[i] &= currentPastState.isAccept();
             }
             //        PRESENT
             if (currentPresentState != null) {
                 currentPresentState = currentPresentState.step(transition_onward);
-                result[i] = result[i] && currentPresentState.isAccept();
+                result[i] &= currentPresentState.isAccept();
             }
             //        FUTURE (backward)
             if (currentFutureState != null) {
-                currentFutureState = currentFutureState.step(transition_backward);
-                result[trace.length-1-i] = result[trace.length-1-i] && currentFutureState.isAccept();
+                currentFutureState = currentFutureState.step(parametricMapping.getOrDefault(trace[traceLength - 1 - i], 'z'));
+                result[traceLength - 1 - i] &= currentFutureState.isAccept();
             }
         }
 
@@ -72,9 +82,9 @@ public class ConjunctAutomataOfflineRunner {
      * Reset the automata state to make it ready for a new trace
      */
     public void reset() {
-        if (automata.hasPast()) this.currentPastState = automata.getPastAutomaton().getInitialState();
-        if (automata.hasPresent()) this.currentPresentState = automata.getPresentAutomaton().getInitialState();
-        if (automata.hasFuture()) this.currentFutureState = automata.getFutureAutomaton().getInitialState();
+        this.currentPastState = this.initialPastState;
+        this.currentPresentState = this.initialPresentState;
+        this.currentFutureState = this.initialFutureState;
     }
 
 }

@@ -74,17 +74,11 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
 //      retrieve the entire trace
         logTraceParser.init();
         char[] trace = logTraceParser.encodeTrace().toCharArray();
-//        char[] trace = new char[logTraceParser.length()];
-//        int i = 0;
-//        while (!logTraceParser.isParsingOver()) {
-////            char transition = logTraceParser.parseSubsequentAndEncode();
-//            trace[i++] = logTraceParser.parseSubsequentAndEncode();
-//        }
 
 //        evaluate the trace with each constraint (i.e. separated automaton)
         int i = 0;
         for (SeparatedAutomatonOfflineRunner automatonOfflineRunner : automata) {
-            results[i++] = automatonOfflineRunner.runTrace(trace, logTraceParser);
+            results[i++] = automatonOfflineRunner.runTrace(trace, trace.length, logTraceParser);
         }
 
         return results;
