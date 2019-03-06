@@ -110,7 +110,7 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
         System.out.println();
 
 //        EXPORT MegaMonster Data Structure to XML/JSON
-        exportToJson(finalResults);
+        exportToJson(finalResults, "tests-janus-offline/log-offline-test-00.json"); // TODO remove hard-coded output path
 
         // Support and confidence of each constraint which respect to te log
         for (int i = 0; i < automata.size(); i++) {
@@ -127,12 +127,12 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
      *
      * @param dataMatrix
      */
-    private void exportToJson(byte[][][] dataMatrix) {
+    private void exportToJson(byte[][][] dataMatrix, String outputPath) {
 //        Gson gson=new Gson();
         System.out.print("JSON serialization...");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try {
-            gson.toJson(dataMatrix, new FileWriter("tests-janus-offline/log-offline-test-00.json"));
+            gson.toJson(dataMatrix, new FileWriter(outputPath));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,5 +1,7 @@
 package minerful.separated.automaton;
 
+import dk.brics.automaton.State;
+
 import java.util.*;
 
 /**
@@ -46,6 +48,7 @@ public class SeparatedAutomatonOfflineRunner {
      * run the separatedAutomaton on the given trace
      */
     public void runTrace(char[] trace, int traceLength, byte[] result) {
+        //        Target
         for (ConjunctAutomataOfflineRunner car : disjunctAutomataOfflineRunners) {
             int i = 0;
             for (boolean eval : car.evaluateTrace(trace, traceLength, parametricMapping)) {
@@ -53,6 +56,14 @@ public class SeparatedAutomatonOfflineRunner {
                 i++;
             }
         }
+        //        Activation
+        State activatorPointer = automaton.getActivator().getInitialState();
+        for (int i = 0; i < traceLength; i++) {
+            char transition_onward = parametricMapping.getOrDefault(trace[i], 'z');
+            activatorPointer=activatorPointer.step(transition_onward);
+            result[i] += (activatorPointer.isAccept()) ? 2 : 0; // we are adding the second bit on the left, i.e., [activator-bit][target-bit]
+        }
+
     }
 
 
