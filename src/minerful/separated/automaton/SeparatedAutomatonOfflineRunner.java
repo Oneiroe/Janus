@@ -1,8 +1,5 @@
 package minerful.separated.automaton;
 
-import dk.brics.automaton.State;
-import minerful.logparser.LogTraceParser;
-
 import java.util.*;
 
 /**
@@ -46,18 +43,18 @@ public class SeparatedAutomatonOfflineRunner {
     }
 
     /**
-     * Perform a single step in the separated automata using the given transition
+     * run the separatedAutomaton on the given trace
      */
-    public boolean[] runTrace(char[] trace, int traceLength, LogTraceParser logTraceParser) {
-        boolean[] result = new boolean[traceLength];
+    public void runTrace(char[] trace, int traceLength, boolean[][] result) {
         for (ConjunctAutomataOfflineRunner car : disjunctAutomataOfflineRunners) {
             int i = 0;
             for (boolean eval : car.evaluateTrace(trace, traceLength, parametricMapping)) {
-                result[i] |= eval;
+                result[0][i] |= eval;
                 i++;
+                byte a = 2;
+
             }
         }
-        return result;
     }
 
 

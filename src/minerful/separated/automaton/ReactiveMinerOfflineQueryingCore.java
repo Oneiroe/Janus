@@ -64,8 +64,7 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
      * @param automata       set of separatedAutomata to test over the trace
      * @return boolean matrix with the evaluation in each single event of all the constraints
      */
-    public static boolean[][] runTrace(LogTraceParser logTraceParser, List<SeparatedAutomatonOfflineRunner> automata) {
-        boolean[][] results = new boolean[automata.size()][logTraceParser.length()];
+    public static void runTrace(LogTraceParser logTraceParser, List<SeparatedAutomatonOfflineRunner> automata, boolean[][][] results) {
 //        reset automata for a clean run
         for (SeparatedAutomatonOfflineRunner automatonOfflineRunner : automata) {
             automatonOfflineRunner.reset();
@@ -78,10 +77,11 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
 //        evaluate the trace with each constraint (i.e. separated automaton)
         int i = 0;
         for (SeparatedAutomatonOfflineRunner automatonOfflineRunner : automata) {
-            results[i++] = automatonOfflineRunner.runTrace(trace, trace.length, logTraceParser);
+            results[i][0] = new boolean[trace.length];
+            automatonOfflineRunner.runTrace(trace, trace.length, results[i++]);
         }
 
-        return results;
+//        return results;
     }
 
     /**
@@ -92,14 +92,15 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
      * @return ordered Array of supports for the full log for each automaton
      */
     public void runLog(LogParser logParser, List<SeparatedAutomatonOfflineRunner> automata) {
-        boolean[][][] finalResults = new boolean[logParser.length()][automata.size()][]; // TODO case length=0
+        boolean[][][][] finalResults = new boolean[logParser.length()][automata.size()][2][]; // TODO case length=0
+        System.out.println("Basic result matrix created! [" +  logParser.length() + "][" + automata.size() + "][2][*]");
 
         int currentTraceNumber = 0;
         int numberOfTotalTraces = logParser.length();
 
         for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
             LogTraceParser tr = it.next();
-            finalResults[currentTraceNumber] = runTrace(tr, automata);
+            runTrace(tr, automata, finalResults[currentTraceNumber]);
             currentTraceNumber++;
             System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
         }
@@ -122,7 +123,7 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
      * @param constraintFinalResult
      * @return
      */
-    private double computeSupport(boolean[][][] constraintFinalResult, int constraintNumber) {
+    private double computeSupport(boolean[][][][] constraintFinalResult, int constraintNumber) {
 //        TODO
 //        constraintFinalResult[][i][]
         return 0.0;
@@ -134,7 +135,7 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
      * @param constraintFinalResult
      * @return
      */
-    private double computeConfidence(boolean[][][] constraintFinalResult, int constraintNumber) {
+    private double computeConfidence(boolean[][][][] constraintFinalResult, int constraintNumber) {
 //        TODO
 //        constraintFinalResult[][i][]
         return 0.0;
