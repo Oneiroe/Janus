@@ -1,5 +1,6 @@
 package minerful.separated.automaton;
 
+import com.google.gson.GsonBuilder;
 import minerful.concept.TaskCharArchive;
 import minerful.concept.constraint.ConstraintsBag;
 import minerful.logparser.LogParser;
@@ -9,10 +10,12 @@ import minerful.miner.stats.GlobalStatsTable;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
 import org.apache.log4j.Logger;
 
+import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import com.google.gson.Gson;
 
 /**
  * Class to manage and organize the run of automata over a Log/Trace
@@ -64,7 +67,7 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
      * @param automata       set of separatedAutomata to test over the trace
      * @return boolean matrix with the evaluation in each single event of all the constraints
      */
-    public static void runTrace(LogTraceParser logTraceParser, List<SeparatedAutomatonOfflineRunner> automata, boolean[][][] results) {
+    public static void runTrace(LogTraceParser logTraceParser, List<SeparatedAutomatonOfflineRunner> automata, byte[][] results) {
 //        reset automata for a clean run
         for (SeparatedAutomatonOfflineRunner automatonOfflineRunner : automata) {
             automatonOfflineRunner.reset();
@@ -77,7 +80,7 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
 //        evaluate the trace with each constraint (i.e. separated automaton)
         int i = 0;
         for (SeparatedAutomatonOfflineRunner automatonOfflineRunner : automata) {
-            results[i][0] = new boolean[trace.length];
+            results[i] = new byte[trace.length];
             automatonOfflineRunner.runTrace(trace, trace.length, results[i++]);
         }
 
@@ -92,8 +95,8 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
      * @return ordered Array of supports for the full log for each automaton
      */
     public void runLog(LogParser logParser, List<SeparatedAutomatonOfflineRunner> automata) {
-        boolean[][][][] finalResults = new boolean[logParser.length()][automata.size()][2][]; // TODO case length=0
-        System.out.println("Basic result matrix created! [" +  logParser.length() + "][" + automata.size() + "][2][*]");
+        byte[][][] finalResults = new byte[logParser.length()][automata.size()][]; // TODO case length=0
+        System.out.println("Basic result matrix created! [" + logParser.length() + "][" + automata.size() + "][*]");
 
         int currentTraceNumber = 0;
         int numberOfTotalTraces = logParser.length();
@@ -106,6 +109,9 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
         }
         System.out.println();
 
+//        EXPORT MegaMonster Data Structure to XML/JSON
+        exportToJson(finalResults);
+
         // Support and confidence of each constraint which respect to te log
         for (int i = 0; i < automata.size(); i++) {
             double support = computeSupport(finalResults, i);
@@ -116,6 +122,24 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
         }
     }
 
+    /**
+     * Serialize the 3D matrix into a Json file
+     *
+     * @param dataMatrix
+     */
+    private void exportToJson(byte[][][] dataMatrix) {
+//        Gson gson=new Gson();
+        System.out.print("JSON serialization...");
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try {
+            gson.toJson(dataMatrix, new FileWriter("tests-janus-offline/log-offline-test-00.json"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("DONE!");
+
+    }
+
 
     /**
      * Compute the support measure of a constraint wrt a log
@@ -123,7 +147,7 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
      * @param constraintFinalResult
      * @return
      */
-    private double computeSupport(boolean[][][][] constraintFinalResult, int constraintNumber) {
+    private double computeSupport(byte[][][] constraintFinalResult, int constraintNumber) {
 //        TODO
 //        constraintFinalResult[][i][]
         return 0.0;
@@ -135,7 +159,7 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
      * @param constraintFinalResult
      * @return
      */
-    private double computeConfidence(boolean[][][][] constraintFinalResult, int constraintNumber) {
+    private double computeConfidence(byte[][][] constraintFinalResult, int constraintNumber) {
 //        TODO
 //        constraintFinalResult[][i][]
         return 0.0;

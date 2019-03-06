@@ -45,14 +45,12 @@ public class SeparatedAutomatonOfflineRunner {
     /**
      * run the separatedAutomaton on the given trace
      */
-    public void runTrace(char[] trace, int traceLength, boolean[][] result) {
+    public void runTrace(char[] trace, int traceLength, byte[] result) {
         for (ConjunctAutomataOfflineRunner car : disjunctAutomataOfflineRunners) {
             int i = 0;
             for (boolean eval : car.evaluateTrace(trace, traceLength, parametricMapping)) {
-                result[0][i] |= eval;
+                result[i] |= (eval) ? 1 : 0;
                 i++;
-                byte a = 2;
-
             }
         }
     }
