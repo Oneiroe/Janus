@@ -90,6 +90,15 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
     /**
      * Run a set of separatedAutomata over a full Log
      *
+     * About variable finalResult (byte[][][]) bytes meaning:
+     * Each byte stores the results of both Activator and target of a given constraint in a specific trace.
+     * The left bit is for the activator, the right bit for the target,i.e.,[activator-bit][target-bit]
+     * In details:
+     *  0 -> 00 -> Activator: False, Target: False
+     *  1 -> 01 -> Activator: False, Target: true
+     *  2 -> 10 -> Activator: True,  Target: False
+     *  3 -> 11 -> Activator: True,  Target: True
+     *
      * @param logParser log reader
      * @param automata  set of separatedAutomata to test over the log
      * @return ordered Array of supports for the full log for each automaton
@@ -110,7 +119,11 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
         System.out.println();
 
 //        EXPORT MegaMonster Data Structure to XML/JSON
+        long before = System.currentTimeMillis();
+
         exportToJson(finalResults, "tests-janus-offline/log-offline-test-00.json"); // TODO remove hard-coded output path
+        long after = System.currentTimeMillis();
+        logger.info("Total JSON serialization time: " + (after - before));
 
         // Support and confidence of each constraint which respect to te log
         for (int i = 0; i < automata.size(); i++) {
@@ -128,11 +141,12 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
      * @param dataMatrix
      */
     private void exportToJson(byte[][][] dataMatrix, String outputPath) {
-//        Gson gson=new Gson();
         System.out.print("JSON serialization...");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try {
-            gson.toJson(dataMatrix, new FileWriter(outputPath));
+            FileWriter fw = new FileWriter(outputPath);
+            gson.toJson(dataMatrix, fw);
+            fw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
