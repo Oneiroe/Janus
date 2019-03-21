@@ -87,45 +87,45 @@ public class CoExistence extends MutualRelationConstraint {
         return new CoExistence(taskCharSets[0], taskCharSets[1]);
     }
 
-    @Override
-    public SeparatedAutomaton buildParametricSeparatedAutomaton() {
-        char[] alphabet = {'a', 'b', 'z'};
-        char[] alphabetActivators = {alphabet[0], alphabet[1]};
-        char[] alphabetOthers = {alphabet[2]};
-        Automaton activator = Utils.getMultiCharActivatorAutomaton(alphabetActivators, alphabetOthers);
-
-        List<ConjunctAutomata> disjunctAutomata = new ArrayList<ConjunctAutomata>();
-
-        char[] others_0 = {alphabet[1], alphabet[2]}; // B Z
-        char[] others_1 = {alphabet[0], alphabet[2]};  //A Z
-
-        Automaton presentAutomaton_0 = Utils.getPresentAutomaton(alphabet[0], others_0); // now A
-        Automaton presentAutomaton_1 = Utils.getPresentAutomaton(alphabet[1], others_1); // now B
-
-        Automaton futureAutomaton_0 = Utils.getEventualityAutomaton(alphabet[0], others_0); // eventually future A
-        Automaton futureAutomaton_1 = Utils.getEventualityAutomaton(alphabet[1], others_1); // eventually future B
-
-        Automaton pastAutomaton_0 = Utils.getEventualityAutomaton(alphabet[0], others_0);  // eventually past A
-        Automaton pastAutomaton_1 = Utils.getEventualityAutomaton(alphabet[1], others_1); // eventually past B
-
-        //		A & Eventually in the future B
-        ConjunctAutomata conjunctAutomatonFut_0 = new ConjunctAutomata(null, presentAutomaton_0, futureAutomaton_1);
-        disjunctAutomata.add(conjunctAutomatonFut_0);
-
-        //		A & Eventually in the past B
-        ConjunctAutomata conjunctAutomatonPast_0 = new ConjunctAutomata(pastAutomaton_1, presentAutomaton_0, null);
-        disjunctAutomata.add(conjunctAutomatonPast_0);
-
-        //		B & Eventually in the future A
-        ConjunctAutomata conjunctAutomatonFut_1 = new ConjunctAutomata(null, presentAutomaton_1, futureAutomaton_0);
-        disjunctAutomata.add(conjunctAutomatonFut_1);
-
-        //		B & Eventually in the past A
-        ConjunctAutomata conjunctAutomatonPast_1 = new ConjunctAutomata(pastAutomaton_0, presentAutomaton_1, null);
-        disjunctAutomata.add(conjunctAutomatonPast_1);
-
-        SeparatedAutomaton res = new SeparatedAutomaton(activator, disjunctAutomata, alphabet);
-        res.setNominalID(this.type);
-        return res;
-    }
+//    @Override
+//    public SeparatedAutomaton buildParametricSeparatedAutomaton() {
+//        char[] alphabet = {'a', 'b', 'z'};
+//        char[] alphabetActivators = {alphabet[0], alphabet[1]};
+//        char[] alphabetOthers = {alphabet[2]};
+//        Automaton activator = Utils.getMultiCharActivatorAutomaton(alphabetActivators, alphabetOthers);
+//
+//        List<ConjunctAutomata> disjunctAutomata = new ArrayList<ConjunctAutomata>();
+//
+//        char[] others_0 = {alphabet[1], alphabet[2]}; // B Z
+//        char[] others_1 = {alphabet[0], alphabet[2]};  //A Z
+//
+//        Automaton presentAutomaton_0 = Utils.getPresentAutomaton(alphabet[0], others_0); // now A
+//        Automaton presentAutomaton_1 = Utils.getPresentAutomaton(alphabet[1], others_1); // now B
+//
+//        Automaton futureAutomaton_0 = Utils.getEventualityAutomaton(alphabet[0], others_0); // eventually future A
+//        Automaton futureAutomaton_1 = Utils.getEventualityAutomaton(alphabet[1], others_1); // eventually future B
+//
+//        Automaton pastAutomaton_0 = Utils.getEventualityAutomaton(alphabet[0], others_0);  // eventually past A
+//        Automaton pastAutomaton_1 = Utils.getEventualityAutomaton(alphabet[1], others_1); // eventually past B
+//
+//        //		A & Eventually in the future B
+//        ConjunctAutomata conjunctAutomatonFut_0 = new ConjunctAutomata(null, presentAutomaton_0, futureAutomaton_1);
+//        disjunctAutomata.add(conjunctAutomatonFut_0);
+//
+//        //		A & Eventually in the past B
+//        ConjunctAutomata conjunctAutomatonPast_0 = new ConjunctAutomata(pastAutomaton_1, presentAutomaton_0, null);
+//        disjunctAutomata.add(conjunctAutomatonPast_0);
+//
+//        //		B & Eventually in the future A
+//        ConjunctAutomata conjunctAutomatonFut_1 = new ConjunctAutomata(null, presentAutomaton_1, futureAutomaton_0);
+//        disjunctAutomata.add(conjunctAutomatonFut_1);
+//
+//        //		B & Eventually in the past A
+//        ConjunctAutomata conjunctAutomatonPast_1 = new ConjunctAutomata(pastAutomaton_0, presentAutomaton_1, null);
+//        disjunctAutomata.add(conjunctAutomatonPast_1);
+//
+//        SeparatedAutomaton res = new SeparatedAutomaton(activator, disjunctAutomata, alphabet);
+//        res.setNominalID(this.type);
+//        return res;
+//    }
 }

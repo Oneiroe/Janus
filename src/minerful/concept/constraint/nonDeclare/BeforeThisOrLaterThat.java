@@ -101,28 +101,28 @@ public class BeforeThisOrLaterThat extends Constraint {
 	}
 
 
-	@Override
-	public SeparatedAutomaton buildParametricSeparatedAutomaton() {
-		char[] alphabet = {'a', 'b', 'c', 'z'};
-		Automaton activator = Utils.getSingleCharActivatorAutomaton(alphabet[0], alphabet);
-
-		List<ConjunctAutomata> disjunctAutomata = new ArrayList<ConjunctAutomata>();
-
-//		Eventually in the future B
-		char[] othersFut = {alphabet[0], alphabet[2], alphabet[3]};
-		Automaton futureAutomaton = Utils.getEventualityAutomaton(alphabet[1], othersFut);
-		ConjunctAutomata conjunctAutomatonFut = new ConjunctAutomata(null, null, futureAutomaton);
-		disjunctAutomata.add(conjunctAutomatonFut);
-
-//		Eventually in the past C
-		char[] othersPast = {alphabet[0], alphabet[1], alphabet[3]};
-		Automaton pastAutomaton = Utils.getEventualityAutomaton(alphabet[2], othersPast);
-		ConjunctAutomata conjunctAutomatonPast = new ConjunctAutomata(pastAutomaton, null, null);
-		disjunctAutomata.add(conjunctAutomatonPast);
-
-		SeparatedAutomaton res = new SeparatedAutomaton(activator, disjunctAutomata, alphabet);
-		res.setNominalID(this.type);
-		return res;
-	}
+//	@Override
+//	public SeparatedAutomaton buildParametricSeparatedAutomaton() {
+//		char[] alphabet = {'a', 'b', 'c', 'z'};
+//		Automaton activator = Utils.getSingleCharActivatorAutomaton(alphabet[0], alphabet);
+//
+//		List<ConjunctAutomata> disjunctAutomata = new ArrayList<ConjunctAutomata>();
+//
+////		Eventually in the future B
+//		char[] othersFut = {alphabet[0], alphabet[2], alphabet[3]};
+//		Automaton futureAutomaton = Utils.getEventualityAutomaton(alphabet[1], othersFut);
+//		ConjunctAutomata conjunctAutomatonFut = new ConjunctAutomata(null, null, futureAutomaton);
+//		disjunctAutomata.add(conjunctAutomatonFut);
+//
+////		Eventually in the past C
+//		char[] othersPast = {alphabet[0], alphabet[1], alphabet[3]};
+//		Automaton pastAutomaton = Utils.getEventualityAutomaton(alphabet[2], othersPast);
+//		ConjunctAutomata conjunctAutomatonPast = new ConjunctAutomata(pastAutomaton, null, null);
+//		disjunctAutomata.add(conjunctAutomatonPast);
+//
+//		SeparatedAutomaton res = new SeparatedAutomaton(activator, disjunctAutomata, alphabet);
+//		res.setNominalID(this.type);
+//		return res;
+//	}
 
 }
