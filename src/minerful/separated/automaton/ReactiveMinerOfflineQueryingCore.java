@@ -120,8 +120,7 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
 
 //        EXPORT MegaMonster Data Structure to XML/JSON
         long before = System.currentTimeMillis();
-
-        exportToJson(finalResults, "tests-janus-offline/log-offline-test-00.json"); // TODO remove hard-coded output path
+        exportEncodedReadable3DMatrixToJson(finalResults, "tests-janus-offline/log-offline-test-00.json"); // TODO remove hard-coded output path
         long after = System.currentTimeMillis();
         logger.info("Total JSON serialization time: " + (after - before));
 
@@ -136,12 +135,12 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
     }
 
     /**
-     * Serialize the 3D matrix into a Json file
+     * Serialize the 3D matrix as-is into a Json file
      *
      * @param dataMatrix
      */
-    private void exportToJson(byte[][][] dataMatrix, String outputPath) {
-        System.out.print("JSON serialization...");
+    private void exportRaw3DMatrixToJson(byte[][][] dataMatrix, String outputPath) {
+        logger.info("JSON serialization...");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try {
             FileWriter fw = new FileWriter(outputPath);
@@ -150,7 +149,137 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("DONE!");
+        logger.debug("JSON serialization...DONE!");
+
+    }
+
+    /**
+     * Serialize the 3D matrix into a Json file to have a readable result, but encoded events
+     *
+     * @param dataMatrix
+     */
+    private void exportEncodedReadable3DMatrixToJson(byte[][][] dataMatrix, String outputPath) {
+        logger.info("JSON encoded readable serialization...");
+        try {
+            FileWriter fw = new FileWriter(outputPath);
+            fw.write("{\n");
+
+            Iterator<LogTraceParser> it = logParser.traceIterator();
+            List<SeparatedAutomatonOfflineRunner> automata = this.bag.getSeparatedAutomataOfflineRunners();
+
+//        for the entire log
+            for (int trace = 0; trace < dataMatrix.length; trace++) {
+                LogTraceParser tr = it.next();
+                String traceString = tr.encodeTrace();
+                fw.write("\t\"" + traceString + "\": [\n");
+
+//              for each trace
+                for (int constraint = 0; constraint < dataMatrix[trace].length; constraint++) {
+
+//                  for each constraint
+                    String constraintString = automata.get(constraint).toString();
+                    fw.write("\t\t{\"" + constraintString + "\": [ ");
+                    for (int eventResult = 0; eventResult < dataMatrix[trace][constraint].length; eventResult++) {
+                        char event = traceString.charAt(eventResult);
+                        byte result = dataMatrix[trace][constraint][eventResult];
+                        if (eventResult == (dataMatrix[trace][constraint].length - 1)) {
+                            fw.write("{\"" + event + "\": " + result + "}");
+                        } else {
+                            fw.write("{\"" + event + "\": " + result + "},");
+                        }
+                    }
+                    if (constraint == (dataMatrix[trace].length - 1)) {
+                        fw.write(" ]}\n");
+                    } else {
+                        fw.write(" ]},\n");
+                    }
+
+                }
+
+                if (trace == (dataMatrix.length - 1)) {
+                    fw.write("\t]\n");
+                } else {
+                    fw.write("\t],\n");
+                }
+
+            }
+            fw.write("}");
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logger.debug("JSON encoded readable serialization...DONE!");
+
+    }
+
+    /**
+     * Serialize the 3D matrix into a Json file to have a readable result
+     *
+     * @param dataMatrix
+     */
+    private void exportReadable3DMatrixToJson(byte[][][] dataMatrix, String outputPath) {
+        logger.info("JSON readable serialization...");
+        try {
+            FileWriter fw = new FileWriter(outputPath);
+            fw.write("{\n");
+
+            Iterator<LogTraceParser> it = logParser.traceIterator();
+            List<SeparatedAutomatonOfflineRunner> automata = this.bag.getSeparatedAutomataOfflineRunners();
+
+//        for the entire log
+            for (int trace = 0; trace < dataMatrix.length; trace++) {
+                LogTraceParser tr = it.next();
+                tr.init();
+                fw.write("\t\"<");
+                int i = 0;
+                while (i < tr.length()) {
+                    String traceString = tr.parseSubsequent().getEvent().getTaskClass().toString();
+                    if (i == (tr.length() - 1)) {
+                        fw.write(traceString);
+                    } else {
+                        fw.write(traceString + ",");
+                    }
+                    i++;
+                }
+                fw.write(">\": [\n");
+
+//              for each trace
+                for (int constraint = 0; constraint < dataMatrix[trace].length; constraint++) {
+                    tr.init();
+//                  for each constraint
+                    String constraintString = automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById());
+
+                    fw.write("\t\t{\"" + constraintString + "\": [ ");
+                    for (int eventResult = 0; eventResult < dataMatrix[trace][constraint].length; eventResult++) {
+                        String event = tr.parseSubsequent().getEvent().getTaskClass().toString();
+                        byte result = dataMatrix[trace][constraint][eventResult];
+                        if (eventResult == (dataMatrix[trace][constraint].length - 1)) {
+                            fw.write("{\"" + event + "\": " + result + "}");
+                        } else {
+                            fw.write("{\"" + event + "\": " + result + "},");
+                        }
+                    }
+                    if (constraint == (dataMatrix[trace].length - 1)) {
+                        fw.write(" ]}\n");
+                    } else {
+                        fw.write(" ]},\n");
+                    }
+
+                }
+
+                if (trace == (dataMatrix.length - 1)) {
+                    fw.write("\t]\n");
+                } else {
+                    fw.write("\t],\n");
+                }
+
+            }
+            fw.write("}");
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logger.debug("JSON readable serialization...DONE!");
 
     }
 

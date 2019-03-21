@@ -88,4 +88,24 @@ public class SeparatedAutomatonOfflineRunner {
         return automaton.toString() + a.substring(0, a.length() - 1) + ")";
     }
 
+    /**
+     * @return nominal name of the automaton concatenated with the specific letters substituted with the real events
+     */
+    public String toStringDecoded(Map map) {
+        StringBuffer a = new StringBuffer("(");
+        for (char c : specificAlphabet) {
+            a.append(map.get(c) + ",");
+        }
+        return automaton.toString() + a.substring(0, a.length() - 1) + ")";
+    }
+
+    /**
+     * Get the Separated automaton object of the runner
+     *
+     * @return
+     */
+    public SeparatedAutomaton getAutomaton() {
+        return automaton;
+    }
+
 }
