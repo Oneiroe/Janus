@@ -2,7 +2,7 @@ package minerful.separated.automaton;
 
 import minerful.concept.ProcessModel;
 import minerful.concept.constraint.Constraint;
-import minerful.core.MinerFulQueryingCore;
+import minerful.miner.core.MinerFulQueryingCore;
 import minerful.miner.params.MinerFulCmdParameters;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
 import org.apache.log4j.Logger;

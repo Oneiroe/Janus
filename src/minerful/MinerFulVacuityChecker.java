@@ -1,7 +1,6 @@
 package minerful;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -153,7 +152,7 @@ public class MinerFulVacuityChecker {
 
 		try {
 			PrintWriter outWriter = new PrintWriter(args[3]);
-			outWriter.print(evalon.printEvaluationsCSV());
+			outWriter.print(evalon.printCSV());
 			outWriter.flush();
 			outWriter.close();
 		} catch (Exception e) {
