@@ -120,7 +120,7 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
 
 //        EXPORT MegaMonster Data Structure to XML/JSON
         long before = System.currentTimeMillis();
-        exportEncodedReadable3DMatrixToJson(finalResults, "tests-janus-offline/log-offline-test-00.json"); // TODO remove hard-coded output path
+        exportEncodedReadable3DMatrixToJson(finalResults, "output.json"); // TODO remove hard-coded output path
         long after = System.currentTimeMillis();
         logger.info("Total JSON serialization time: " + (after - before));
 
