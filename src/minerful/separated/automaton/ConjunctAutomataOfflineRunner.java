@@ -1,9 +1,8 @@
 package minerful.separated.automaton;
 
-import dk.brics.automaton.State;
+import dk.brics.automaton.*;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -11,6 +10,7 @@ import java.util.Map;
  */
 public class ConjunctAutomataOfflineRunner {
     private ConjunctAutomata automata;
+    private Collection<Character> alphabet;
 
     private State currentPastState = null;
     private State currentPresentState = null;
@@ -24,11 +24,12 @@ public class ConjunctAutomataOfflineRunner {
 
     /**
      * Initialize a runner for a given conjunct automata
-     *
-     * @param automata Conjunct Automata to be run
+     *  @param automata Conjunct Automata to be run
+     * @param alphabet
      */
-    public ConjunctAutomataOfflineRunner(ConjunctAutomata automata) {
+    public ConjunctAutomataOfflineRunner(ConjunctAutomata automata, Collection<Character> alphabet) {
         this.automata = automata;
+        this.alphabet =alphabet;
 
         if (automata.hasPast()) {
             this.initialPastState = automata.getPastAutomaton().getInitialState();
@@ -39,7 +40,9 @@ public class ConjunctAutomataOfflineRunner {
             this.currentPresentState = this.initialPresentState;
         }
         if (automata.hasFuture()) {
-            this.initialFutureState = automata.getFutureAutomaton().getInitialState();
+//            Reversed future for offline settings
+            Automaton newFut = Utils.getReversedAutomaton(automata.getFutureAutomaton(), (Set) alphabet);
+            this.initialFutureState = newFut.getInitialState();
             this.currentFutureState = this.initialFutureState;
         }
     }
@@ -68,6 +71,7 @@ public class ConjunctAutomataOfflineRunner {
                 result[i] &= currentPresentState.isAccept();
             }
             //        FUTURE (backward)
+//            TODO BROKEN: the future automaton MUST be reversed to make this technique working!!!
             if (currentFutureState != null) {
                 currentFutureState = currentFutureState.step(parametricMapping.getOrDefault(trace[traceLength - 1 - i], 'z'));
                 result[traceLength - 1 - i] &= currentFutureState.isAccept();

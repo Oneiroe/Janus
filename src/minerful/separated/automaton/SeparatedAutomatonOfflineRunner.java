@@ -36,10 +36,10 @@ public class SeparatedAutomatonOfflineRunner {
         for (int i = 0; i < specificAlphabet.size(); i++) {
             parametricMapping.put(specificAlphabet.get(i), par[i]);
         }
-//        it is better to put the present automaton as first of the list for performance speedup
-//        BUT pasts must be carried on any way
+//        (parametric)Alphabet required in order to reverse the future automata
+        LinkedHashSet<Character> alphabet =  new LinkedHashSet<>(parametricMapping.values());
         for (ConjunctAutomata ca : automaton.getDisjunctAutomata()) {
-            this.disjunctAutomataOfflineRunners.add(new ConjunctAutomataOfflineRunner(ca));
+            this.disjunctAutomataOfflineRunners.add(new ConjunctAutomataOfflineRunner(ca, alphabet));
         }
 
     }
@@ -60,7 +60,7 @@ public class SeparatedAutomatonOfflineRunner {
         State activatorPointer = automaton.getActivator().getInitialState();
         for (int i = 0; i < traceLength; i++) {
             char transition_onward = parametricMapping.getOrDefault(trace[i], 'z');
-            activatorPointer=activatorPointer.step(transition_onward);
+            activatorPointer = activatorPointer.step(transition_onward);
             result[i] += (activatorPointer.isAccept()) ? 2 : 0; // we are adding the second bit on the left, i.e., [activator-bit][target-bit]
         }
 
