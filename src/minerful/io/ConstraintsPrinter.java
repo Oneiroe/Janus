@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.NavigableMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -35,6 +34,10 @@ import minerful.logparser.LogParser;
 import dk.brics.automaton.Automaton;
 
 public class ConstraintsPrinter {
+	private static final String MACHINE_READABLE_RESULTS_SUPPORT_TEXT_SIGNAL = "Measures: ";
+	public static final String MACHINE_READABLE_RESULTS_LEGEND_TEXT_SIGNAL = "Legend: ";
+	public static final String MACHINE_READABLE_RESULTS_TEXT_SIGNAL = "Machine-readable results: ";
+
 	public static final int SUBAUTOMATA_MAXIMUM_ACTIVITIES_BEFORE_AND_AFTER = // 3;
 			AutomatonFactory.NO_LIMITS_IN_ACTIONS_FOR_SUBAUTOMATA;
 	public static final double MINIMUM_THRESHOLD = 0.0;
@@ -80,10 +83,10 @@ public class ConstraintsPrinter {
 	}
 
     public String printBagAsMachineReadable() {
-    	return this.printBagAsMachineReadable(true);
+    	return this.printBagAsMachineReadable(true, true, true);
     }
     
-	public String printBagAsMachineReadable(boolean withNumericalIndex) {
+	public String printBagAsMachineReadable(boolean withNumericalIndex, boolean withTextSignals, boolean withHeaders) {
         StringBuilder
         	sBufLegend = new StringBuilder(),
         	sBuffIndex = new StringBuilder(),
@@ -97,26 +100,51 @@ public class ConstraintsPrinter {
         for (TaskChar key : redundaBag.getTaskChars()) {
         	for (Constraint c : redundaBag.getConstraintsOf(key)) {
     			if (withNumericalIndex) {
-        			sBuffIndex.append(++i);
+        			sBuffIndex.append(i+1);
         			sBuffIndex.append(';');
     			}
     			sBufLegend.append('\'');
-    			sBufLegend.append(c.toString().replaceAll("\\W", " ").trim().replaceAll(" ", "_"));
+    			// BUG-FIX: there is no reason why we have to flatten all non-word characters into "_".
+    			// This creates tremendous issues with logs like BPIC 2012, where we have both
+    			// "A_ACCEPTED" and "W_Completeren aanvraag"
+    			sBufLegend.append(c.toString().replace("'", "\\'")); //.replaceAll("\\W", " ").trim().replaceAll(" ", "_"));
     			sBufLegend.append('\'');
     			sBufLegend.append(';');
-    			sBuffValues.append(String.format(Locale.ENGLISH, "%.3f", c.getSupport() * 100));
+    			sBuffValues.append(String.format(Locale.ENGLISH, "%.9f", c.getSupport() * 100));
     			sBuffValues.append(';');
+    			sBufLegend.append(';');
+    			sBuffValues.append(String.format(Locale.ENGLISH, "%.9f", c.getConfidence() * 100));
+    			sBuffValues.append(';');
+    			sBufLegend.append(';');
+    			sBuffValues.append(String.format(Locale.ENGLISH, "%.9f", c.getInterestFactor() * 100));
+    			sBuffValues.append(';');
+    			
+    			i++;
         	}
         }
         
-        superSbuf.append("Machine-readable results:\n");
-        superSbuf.append("Legend: ");
+        if (withTextSignals) {
+	        superSbuf.append(MACHINE_READABLE_RESULTS_TEXT_SIGNAL);
+	        superSbuf.append("\r\n");
+	        superSbuf.append(MACHINE_READABLE_RESULTS_LEGEND_TEXT_SIGNAL);
+        }
         if (withNumericalIndex) {
 	        superSbuf.append(sBuffIndex.substring(0, sBuffIndex.length() -1));
 	        superSbuf.append("\r\n");
         }
-        superSbuf.append(sBufLegend.substring(0, sBufLegend.length() -1));
-        superSbuf.append("\r\n\r\nSupport values: ");
+        if (withHeaders) {
+        	superSbuf.append(sBufLegend.substring(0, sBufLegend.length() -1));
+        	superSbuf.append("\r\n");
+        	if (i > 0)
+        		superSbuf.append("'Support';'Confidence';'InterestF'");
+	        for (int j = 1; j < i; j++) {
+	        	superSbuf.append(";'Support';'Confidence';'InterestF'");
+	        }
+	        superSbuf.append("\r\n");
+        }
+        if (withTextSignals) {
+        	superSbuf.append(MACHINE_READABLE_RESULTS_SUPPORT_TEXT_SIGNAL);
+        }
         superSbuf.append(sBuffValues.substring(0, sBuffValues.length() -1));
         
         return superSbuf.toString();
@@ -223,6 +251,9 @@ public class ConstraintsPrinter {
 //        }
         sBld.append(String.format(Locale.ENGLISH, " conf.: %7.3f; ", constraint.getConfidence()));
         sBld.append(String.format(Locale.ENGLISH, " int'f: %7.3f; ", constraint.getInterestFactor()));
+        if (constraint.getFitness() != null) {
+        	sBld.append(String.format(Locale.ENGLISH, " fit: %7.3f; ", constraint.getFitness()));
+        }
         
        	if (additionalInfo != null)
         	sBld.append(additionalInfo);
@@ -235,12 +266,12 @@ public class ConstraintsPrinter {
     	DeclareMapReaderWriter.marshal(outFile.getCanonicalPath(), deMapEnDec.createDeclareMap());
     }
     
-    public String printWeightedXmlAutomaton(LogParser logParser) throws JAXBException {
+    public String printWeightedXmlAutomaton(LogParser logParser, boolean skimIt) throws JAXBException {
 		if (this.processAutomaton == null)
 			processAutomaton = this.processModel.buildAutomaton();
 		
 		WeightedAutomatonFactory wAF = new WeightedAutomatonFactory(TaskCharEncoderDecoder.getTranslationMap(this.processModel.bag));
-		WeightedAutomaton wAut = wAF.augmentByReplay(processAutomaton, logParser);
+		WeightedAutomaton wAut = wAF.augmentByReplay(processAutomaton, logParser, skimIt);
 
 		if (wAut == null)
 			return null;
@@ -278,7 +309,7 @@ public class ConstraintsPrinter {
 		marsh.setProperty("jaxb.formatted.output", true);
 
 		for (SubAutomaton partialAuto : partialAutomata) {
-			wAut = wAF.augmentByReplay(partialAuto.automaton, logParser, true);
+			wAut = wAF.augmentByReplay(partialAuto.automaton, logParser, false, true);
 			if (wAut != null) {
 				strixWriter = new StringWriter();
 				marsh.marshal(wAut, strixWriter);

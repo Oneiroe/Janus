@@ -10,9 +10,10 @@ zip -r "MINERful-v${VERSION_DATE}" \
     README.md LICENSE licenses \
     lib bin \
     constraintsFunctions.cfg \
-    run-AutoMINERful-unstable.sh \
     run-MINERful.sh \
     run-MINERfulSimplifier.sh \
-    run-MINERful-vacuityCheck.sh \
-    run-MINERfulTracesMaker.sh
+    run-MINERfulSlider.sh \
+    run-MINERfulEventLogMaker.sh \
+    run-MINERfulFitnessChecker.sh \
+    run-XesLogSorter.sh
 cp "MINERful-v${VERSION_DATE}.zip" "MINERful.zip"

@@ -11,6 +11,9 @@ import java.util.TreeMap;
 
 import minerful.concept.AbstractTaskClass;
 import minerful.concept.TaskChar;
+import minerful.concept.TaskCharArchive;
+import minerful.concept.TaskCharSet;
+import minerful.concept.constraint.Constraint;
 import minerful.concept.constraint.ConstraintsBag;
 import minerful.logparser.CharTaskClass;
 import minerful.logparser.StringTaskClass;
@@ -230,6 +233,11 @@ public class TaskCharEncoderDecoder {
 		return encodedTasks;
 	}
 
+	/**
+	 * Records the encoding of the passed task chars.
+	 * @param taskChars
+	 * @return
+	 */
 	public Character[] encode(Collection<TaskChar> taskChars) {
 		AbstractTaskClass[] taskClasses = new AbstractTaskClass[taskChars.size()];
 		int i = 0;
@@ -448,5 +456,23 @@ public class TaskCharEncoderDecoder {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Includes the tasks from the constraints in the managed set.
+	 * As a side effect, it replaces the existing index characters of the constraints' parameters with new ones.
+	 * @param constraints Constraints from which TaskChars are extracted
+	 */
+	public void mergeWithConstraintsAndUpdateTheirParameters(Constraint... constraints) {
+		char charId = Character.END_PUNCTUATION;
+		for (Constraint con : constraints) {
+			for (TaskCharSet taChSet : con.getParameters()) {
+				for (TaskChar taChar : taChSet.getTaskCharsArray()) {
+					charId = this.encode(taChar.taskClass);
+					taChar.identifier = charId;
+				}
+				taChSet.refreshListOfIdentifiers();
+			}
+		}
 	}
 }

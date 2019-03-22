@@ -24,23 +24,55 @@ import minerful.utils.MessagePrinter;
 
 public class MinerFulOutputManagementLauncher {
 	public static MessagePrinter logger = MessagePrinter.getInstance(MinerFulOutputManagementLauncher.class);
+	
+	private String additionalFileSuffix = null;
+	
+	public String getAdditionalFileSuffix() {
+		return additionalFileSuffix;
+	}
+
+	public void setAdditionalFileSuffix(String additionalFileSuffix) {
+		if (additionalFileSuffix != null) {
+			this.additionalFileSuffix = additionalFileSuffix.trim().replaceAll("\\W", "-");
+		}
+	}
+
+	private File retrieveFile(File originalFile) {
+		return (
+			this.additionalFileSuffix == null ?
+			originalFile :
+			new File(originalFile.getAbsolutePath().concat(additionalFileSuffix))
+		);
+	}
+
+	private File retrieveFile(String originalFilePath) {
+		return (
+			this.additionalFileSuffix == null ?
+			new File(originalFilePath) :
+			new File(originalFilePath.concat(additionalFileSuffix))
+		);
+	}
 
 	public void manageOutput(ProcessModel processModel, NavigableMap<Constraint, String> additionalCnsIndexedInfo, OutputModelParameters outParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, LogParser logParser) {
 		ConstraintsPrinter printer = new ConstraintsPrinter(processModel, additionalCnsIndexedInfo);
 		PrintWriter outWriter = null;
+		File outputFile = null;
 
 		if (viewParams.machineReadableResults) {
         	logger.info(printer.printBagAsMachineReadable(
         			(systemParams.debugLevel.compareTo(
-        					SystemCmdParameters.DebugLevel.debug) >= 0)
+        					SystemCmdParameters.DebugLevel.debug) >= 0),
+        			true,
+        			true
 					)
 			);
         }
         if (outParams.fileToSaveConstraintsAsCSV != null) {
-			logger.info("Saving discovered constraints in CSV format as " + outParams.fileToSaveConstraintsAsCSV + "...");
+        	outputFile = this.retrieveFile(outParams.fileToSaveConstraintsAsCSV);
+			logger.info("Saving discovered constraints in CSV format as " + outputFile + "...");
 
         	try {
-    				outWriter = new PrintWriter(outParams.fileToSaveConstraintsAsCSV);
+    				outWriter = new PrintWriter(outputFile);
     	        	outWriter.print(printer.printBagCsv(outParams.csvColumnsToPrint));
     	        	outWriter.flush();
     	        	outWriter.close();
@@ -50,9 +82,10 @@ public class MinerFulOutputManagementLauncher {
     			}
         }
         if (outParams.fileToSaveAsConDec != null) {
-        	logger.info("Saving discovered process model in ConDec/Declare-map XML format as " + outParams.fileToSaveAsConDec + "...");
+        	outputFile = this.retrieveFile(outParams.fileToSaveAsConDec);
+        	logger.info("Saving discovered process model in ConDec/Declare-map XML format as " + outputFile + "...");
         	try {
-				printer.saveAsConDecModel(outParams.fileToSaveAsConDec);
+				printer.saveAsConDecModel(outputFile);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -71,29 +104,32 @@ public class MinerFulOutputManagementLauncher {
 			break;
 		}
 
-        if (viewParams.noFoldingRequired) {
-        	switch (viewParams.constraintsSorting) {
-        	case interest:
-        		MessagePrinter.printlnOut(printer.printUnfoldedBagOrderedByInterest());
-        	case support:
-        		MessagePrinter.printlnOut(printer.printUnfoldedBagOrderedBySupport());
-        		break;
-        	case type:
-    		default:
-    			MessagePrinter.printlnOut(printer.printUnfoldedBag());
-    			break;
-        	}
-        } else {
-        	MessagePrinter.printlnOut(printer.printBag());
+        if (! viewParams.suppressScreenPrintOut ) {
+	        if (viewParams.noFoldingRequired) {
+	        	switch (viewParams.constraintsSorting) {
+	        	case interest:
+	        		MessagePrinter.printlnOut(printer.printUnfoldedBagOrderedByInterest());
+	        	case support:
+	        		MessagePrinter.printlnOut(printer.printUnfoldedBagOrderedBySupport());
+	        		break;
+	        	case type:
+	    		default:
+	    			MessagePrinter.printlnOut(printer.printUnfoldedBag());
+	    			break;
+	        	}
+	        } else {
+	        	MessagePrinter.printlnOut(printer.printBag());
+	        }
         }
 
 		if (outParams.fileToSaveDotFileForAutomaton != null) {
+			outputFile = this.retrieveFile(outParams.fileToSaveDotFileForAutomaton);
         	try {
-				outWriter = new PrintWriter(outParams.fileToSaveDotFileForAutomaton);
+				outWriter = new PrintWriter(outputFile);
 	        	outWriter.print(printer.printDotAutomaton());
 	        	outWriter.flush();
 	        	outWriter.close();
-	        	MessagePrinter.printlnOut("Discovered process automaton written in DOT format on " + outParams.fileToSaveDotFileForAutomaton);
+	        	MessagePrinter.printlnOut("Discovered process automaton written in DOT format on " + outputFile);
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -101,12 +137,13 @@ public class MinerFulOutputManagementLauncher {
         }
 
 		if (outParams.fileToSaveTsmlFileForAutomaton != null) {
+			outputFile = this.retrieveFile(outParams.fileToSaveTsmlFileForAutomaton);
         	try {
-        		outWriter = new PrintWriter(new File(outParams.fileToSaveTsmlFileForAutomaton.getAbsolutePath()));
+        		outWriter = new PrintWriter(new File(outputFile.getAbsolutePath()));
 	        	outWriter.print(printer.printTSMLAutomaton());
 	        	outWriter.flush();
 	        	outWriter.close();
-	        	MessagePrinter.printlnOut("Discovered process automaton written in TSML format on " + outParams.fileToSaveTsmlFileForAutomaton);
+	        	MessagePrinter.printlnOut("Discovered process automaton written in TSML format on " + outputFile);
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -115,12 +152,27 @@ public class MinerFulOutputManagementLauncher {
 
 		if (logParser != null) {
 			if (outParams.fileToSaveXmlFileForAutomaton != null) {
+				outputFile = this.retrieveFile(outParams.fileToSaveXmlFileForAutomaton);
 	        	try {
-	        		outWriter = new PrintWriter(new File(outParams.fileToSaveXmlFileForAutomaton.getAbsolutePath()));
-		        	outWriter.print(printer.printWeightedXmlAutomaton(logParser));
+	        		outWriter = new PrintWriter(new File(outputFile.getAbsolutePath()));
+		        	outWriter.print(printer.printWeightedXmlAutomaton(logParser, false));
 		        	outWriter.flush();
 		        	outWriter.close();
-		        	MessagePrinter.printlnOut("Discovered weighted process automaton written in XML format on " + outParams.fileToSaveXmlFileForAutomaton);
+		        	MessagePrinter.printlnOut("Discovered weighted process automaton written in XML format on " + outputFile);
+				} catch (FileNotFoundException | JAXBException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			if (outParams.fileToSaveSkimmedXmlFileForAutomaton != null) {
+				outputFile = this.retrieveFile(outParams.fileToSaveSkimmedXmlFileForAutomaton);
+	        	try {
+	        		outWriter = new PrintWriter(new File(outputFile.getAbsolutePath()));
+		        	outWriter.print(printer.printWeightedXmlAutomaton(logParser, true));
+		        	outWriter.flush();
+		        	outWriter.close();
+		        	MessagePrinter.printlnOut("Discovered skimmed weighted process automaton written in XML format on " + outputFile);
 				} catch (FileNotFoundException | JAXBException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -139,9 +191,10 @@ public class MinerFulOutputManagementLauncher {
 									+ "/"
 									+ partialAutomaton.getKey().replaceAll("\\W", "_")
 									+ ".automaton.xml";
+							outputFile = retrieveFile(subAutomatonPath);
 							outWriter = new PrintWriter(
-									subAutomatonPath
-									);
+									outputFile
+							);
 							outWriter.print(partialAutomaton.getValue());
 							outWriter.flush();
 				        	outWriter.close();
@@ -149,7 +202,7 @@ public class MinerFulOutputManagementLauncher {
 				        	subAutomataPathsBuilder.append("Sub-automaton for activity \"");
 				        	subAutomataPathsBuilder.append(partialAutomaton.getKey());
 				        	subAutomataPathsBuilder.append("\" written in XML format on ");
-				        	subAutomataPathsBuilder.append(subAutomatonPath);
+				        	subAutomataPathsBuilder.append(outputFile);
 				        	subAutomataPathsBuilder.append('\n');
 						} catch (FileNotFoundException e) {
 							// TODO Auto-generated catch block
@@ -162,6 +215,8 @@ public class MinerFulOutputManagementLauncher {
 					e.printStackTrace();
 				}
 			}
+		} else if (outParams.folderToSaveXmlFilesForPartialAutomata != null || outParams.fileToSaveXmlFileForAutomaton != null) {
+			throw new IllegalArgumentException("A log parser must be provided to create the weighted XML automaton corresponding to the process model");
 		}
 
 		if (outParams.folderToSaveDotFilesForPartialAutomata != null) {
@@ -177,9 +232,10 @@ public class MinerFulOutputManagementLauncher {
 							+ "/"
 							+ partialAutomaton.getKey().replaceAll("\\W", "_")
 							+ ".automaton.dot";
+					outputFile = retrieveFile(subAutomatonPath);
 					outWriter = new PrintWriter(
-							subAutomatonPath
-							);
+							outputFile
+					);
 					outWriter.print(partialAutomaton.getValue());
 					outWriter.flush();
 		        	outWriter.close();
@@ -187,7 +243,7 @@ public class MinerFulOutputManagementLauncher {
 		        	subAutomataPathsBuilder.append("Sub-automaton for activity \"");
 		        	subAutomataPathsBuilder.append(partialAutomaton.getKey());
 		        	subAutomataPathsBuilder.append("\" written in DOT format on ");
-		        	subAutomataPathsBuilder.append(subAutomatonPath);
+		        	subAutomataPathsBuilder.append(outputFile);
 		        	subAutomataPathsBuilder.append('\n');
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
@@ -198,11 +254,11 @@ public class MinerFulOutputManagementLauncher {
 		}
 
 		if (outParams.fileToSaveAsXML != null) {
-			File processModelOutFile = outParams.fileToSaveAsXML;
-			logger.info("Saving the discovered process as XML in " + processModelOutFile + "...");
+			outputFile = retrieveFile(outParams.fileToSaveAsXML);
+			logger.info("Saving the discovered process as XML in " + outputFile + "...");
 
 			try {
-				new ProcessModelEncoderDecoder().marshalProcessModel(processModel, processModelOutFile);
+				new ProcessModelEncoderDecoder().marshalProcessModel(processModel, outputFile);
 			} catch (PropertyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -219,15 +275,12 @@ public class MinerFulOutputManagementLauncher {
 		}
 
 		if (outParams.fileToSaveAsJSON != null) {
-			File processModelOutFile = outParams.fileToSaveAsJSON;
-			logger.info("Saving the discovered process as JSON in " + processModelOutFile + "...");
+			outputFile = retrieveFile(outParams.fileToSaveAsJSON);
+			logger.info("Saving the discovered process as JSON in " + outputFile + "...");
 
 			try {
-				new ProcessModelEncoderDecoder().writeToJsonFile(processModel, processModelOutFile);
+				new ProcessModelEncoderDecoder().writeToJsonFile(processModel, outputFile);
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -243,5 +296,13 @@ public class MinerFulOutputManagementLauncher {
 	public void manageOutput(ProcessModel processModel,
 			ViewCmdParameters viewParams, OutputModelParameters outParams, SystemCmdParameters systemParams) {
 		this.manageOutput(processModel, null, outParams, viewParams, systemParams, null);
+	}
+	
+	public void manageOutput(ProcessModel processModel, OutputModelParameters outParams) {
+		this.manageOutput(processModel, null, outParams, new ViewCmdParameters(), new SystemCmdParameters(), null);
+	}
+	
+	public void manageOutput(ProcessModel processModel, OutputModelParameters outParams, LogParser logParser) {
+		this.manageOutput(processModel, null, outParams, new ViewCmdParameters(), new SystemCmdParameters(), logParser);
 	}
 }

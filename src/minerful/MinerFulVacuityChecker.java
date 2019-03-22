@@ -1,17 +1,20 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package minerful;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 
+import minerful.checking.ConstraintsFitnessEvaluator;
+import minerful.checking.ProcessSpecificationFitnessEvaluator;
+import minerful.checking.relevance.dao.ConstraintsFitnessEvaluationsMap;
+import minerful.checking.relevance.dao.ModelFitnessEvaluation;
 import minerful.concept.ProcessModel;
 import minerful.concept.TaskChar;
+import minerful.concept.TaskCharFactory;
 import minerful.concept.constraint.Constraint;
 import minerful.concept.constraint.ConstraintsBag;
 import minerful.concept.constraint.existence.AtMostOne;
@@ -32,15 +35,19 @@ import minerful.concept.constraint.relation.Precedence;
 import minerful.concept.constraint.relation.RespondedExistence;
 import minerful.concept.constraint.relation.Response;
 import minerful.concept.constraint.relation.Succession;
+import minerful.io.ConstraintsPrinter;
 import minerful.io.encdec.declaremap.DeclareMapEncoderDecoder;
 import minerful.io.encdec.declaremap.DeclareMapReaderWriter;
+import minerful.io.params.OutputModelParameters;
 import minerful.logparser.LogEventClassifier.ClassificationType;
 import minerful.logparser.LogParser;
+import minerful.logparser.LogTraceParser;
 import minerful.logparser.StringLogParser;
 import minerful.logparser.XesLogParser;
 import minerful.params.SystemCmdParameters.DebugLevel;
-import minerful.relevance.ConstraintsRelevanceEvaluator;
 import minerful.relevance.test.constraint.SequenceResponse21;
+import minerful.relevance.test.constraint.SequenceResponse22;
+import minerful.relevance.test.constraint.SequenceResponse32;
 import minerful.utils.MessagePrinter;
 
 public class MinerFulVacuityChecker {
@@ -62,34 +69,36 @@ public class MinerFulVacuityChecker {
 	 // Toggle the comment to add/remove the template from the set of checked ones.
 	 public static Constraint[] parametricConstraints =
 		new Constraint[] {
-//			new SequenceResponse21(a,b,x),
+			new SequenceResponse21(a,b,x),
 //			new SequenceResponse22(a,b,x,y),
 //			new SequenceResponse32(a,b,c,x,y),
 			new Participation(a),	// a.k.a. Existence(1, a)
-			new AtMostOne(a),	// a.k.a. Absence(2, a)
+//			new AtMostOne(a),	// a.k.a. Absence(2, a)
 			new Init(a),
 			new End(a),
-			new RespondedExistence(a,b),
-			new Response(a, b),
-			new AlternateResponse(a,b),
-			new ChainResponse(a,b),
-			new Precedence(a,b),
-			new AlternatePrecedence(a,b),
-			new ChainPrecedence(a,b),
-			new CoExistence(a,b),
-			new Succession(a,b),
-			new AlternateSuccession(a, b),
-			new ChainSuccession(a, b),
-			new NotChainSuccession(a, b),
-			new NotSuccession(a, b),
-			new NotCoExistence(a, b),
+//			new RespondedExistence(a,b),
+//			new Response(a, b),
+//			new AlternateResponse(a,b),
+//			new ChainResponse(a,b),
+//			new Precedence(a,b),
+//			new AlternatePrecedence(a,b),
+//			new ChainPrecedence(a,b),
+//			new CoExistence(a,b),
+//			new Succession(a,b),
+//			new AlternateSuccession(a, b),
+//			new ChainSuccession(a, b),
+//			new NotChainSuccession(a, b),
+//			new NotSuccession(a, b),
+//			new NotCoExistence(a, b),
     };
 
 	public static void main(String[] args) throws Exception {
 		System.err.println(
 				"#### WARNING"
 				+ "\n" +
-				"This class is not yet part of the MINERful framework. It is meant to be the proof-of-concept software for the paper entitled \"Semantical Vacuity Detection in Declarative Process Mining\", authored by F.M. Maggi, M. Montali, C. Di Ciccio, and J. Mendling. Please use it for testing purposes only."
+				"This class is not yet part of the MINERful framework. It is meant to be the proof-of-concept software for the paper entitled "
+				+ "\"On the Relevance of a Business Constraint to an Event Log\", authored by C. Di Ciccio, F.M. Maggi, M. Montali, and J. Mendling (DOI: https://doi.org/10.1016/j.is.2018.01.011). "
+				+ "Please use it for testing purposes only."
 				+ "\n\n" +
 		
 				"#### USAGE"
@@ -98,7 +107,7 @@ public class MinerFulVacuityChecker {
 				+ "\n" +
 				"Param:    <XES-log-file-path>: the path to a XES event log file (mandatory)"
 				+ "\n" +
-				"Param:    [threshold]: the ratio of traces in which the constraints have to be non-vacuously satisfied, from 0.0 to 1.0 (default: " + ConstraintsRelevanceEvaluator.DEFAULT_SATISFACTION_THRESHOLD + ") (optional)"
+				"Param:    [threshold]: the ratio of traces in which the constraints have to be non-vacuously satisfied, from 0.0 to 1.0 (default: " + ConstraintsFitnessEvaluator.DEFAULT_FITNESS_THRESHOLD + ") (optional)"
 				+ "\n" +
 				"Param:    [Declare-map-output-file-path]: the path of the file in which the returned constraints are stored as a Declare Map XML file (by default, no Declare Map XML file is saved) (optional)"
 				+ "\n\n" +
@@ -113,7 +122,7 @@ public class MinerFulVacuityChecker {
 				"Press any key to continue..."
 		);
 		
-//		System.in.read();
+		System.in.read();
 
 		MessagePrinter.configureLogging(DebugLevel.all);
 
@@ -125,16 +134,20 @@ public class MinerFulVacuityChecker {
 			loPar = new StringLogParser(new File(args[0]), ClassificationType.NAME);
 		}
 
-		ConstraintsRelevanceEvaluator evalon = null;
+		ConstraintsFitnessEvaluator evalor =
+				new ConstraintsFitnessEvaluator(
+						loPar.getEventEncoderDecoder(),
+						loPar.getTaskCharArchive(),
+						Arrays.asList(parametricConstraints));
+		ConstraintsFitnessEvaluationsMap evalon = null;
 
 		if (args.length > 1) {
-			evalon = new ConstraintsRelevanceEvaluator(loPar, parametricConstraints, Double.valueOf(args[1]));
+			evalon = evalor.runOnLog(loPar, Double.valueOf(args[1]));
 		} else {
-			evalon = new ConstraintsRelevanceEvaluator(loPar, parametricConstraints);
+			evalon = evalor.runOnLog(loPar);
 		}
-		evalon.runOnTheLog();
 
-		MessagePrinter.printlnOut(evalon.printEvaluationsCSV());
+		MessagePrinter.printlnOut(evalon.printCSV());
 
 		/*Alessio save output model as CSV, not just print it*/
 
@@ -153,10 +166,10 @@ public class MinerFulVacuityChecker {
 			logger.debug("Storing fully-supported default-Declare constraints as a Declare map on " + args[2]);
 
 			Collection<Constraint> nuStandardConstraints = new ArrayList<Constraint>();
-			Double supportThreshold = Double.valueOf(args[1]);
+			Double fitnessThreshold = Double.valueOf(args[1]);
 
-			for (Constraint con : evalon.getNuConstraints()) {
-				if (con.getFamily() != null && con.getSupport() >= supportThreshold) {
+			for (Constraint con : evalor.getCheckedConstraints()) {
+				if (con.getFamily() != null && con.getFitness() >= fitnessThreshold) {
 					nuStandardConstraints.add(con);
 				}
 			}

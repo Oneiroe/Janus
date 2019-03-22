@@ -6,7 +6,6 @@ count-constraints.sh
 print-regexps.sh
 .classpath
 .project
-/bin/
 models
 /exec-logs/
 /studies-on-noise/
@@ -22,3 +21,5 @@ models
 /run-MINERfulTracesMaker-kala.sh
 /run-MINERfulTracesMaker-unstable.sh
 /run-MINERful-unstable.sh
+/convincialessio/
+/wollendorfer_h1452804_bachelorThesis/

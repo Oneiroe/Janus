@@ -23,6 +23,7 @@ public class OutputModelParameters extends ParamsManager {
 	public static final String SAVE_PROCESS_TSML_AUTOMATON_PARAM_NAME = "pTSML";
 	public static final String FOLDER_FOR_SAVING_DOT_SUBAUTOMATA_PARAM_NAME = "pSAF";
 	public static final String SAVE_XML_WEIGHTED_AUTOMATON_PARAM_NAME = "pXWA";
+	public static final String SAVE_SKIMMED_XML_WEIGHTED_AUTOMATON_PARAM_NAME = "pXsWA";
 	public static final String FOLDER_FOR_SAVING_XML_WEIGHTED_SUBAUTOMATA_PARAM_NAME = "pXWSAF";
 
 	/** File in which discovered constraints are printed in CSV format. Keep it equal to <code>null</code> for avoiding such print-out. */
@@ -35,8 +36,10 @@ public class OutputModelParameters extends ParamsManager {
 	public File fileToSaveDotFileForAutomaton;
 	/** File in which the discovered process model is saved as a Declare XML file. Keep it equal to <code>null</code> for avoiding such print-out. */
 	public File fileToSaveAsConDec;
-	/** File in which the discovered process model is printed as an XML representation of an automaton. Keep it equal to <code>null</code> for avoiding such print-out. */
+	/** File in which the discovered process model is printed as an XML representation of an automaton. Transitions are weighted by the number of times the replay of the traces in the event log traverses them. Keep it equal to <code>null</code> for avoiding such print-out. */
 	public File fileToSaveXmlFileForAutomaton;
+	/** File in which the discovered process model is printed as an XML representation of an automaton. Transitions are weighted by the number of times the replay of the traces in the event log traverses them. Transitions that are never traversed are removed. Keep it equal to <code>null</code> for avoiding such print-out. */
+	public File fileToSaveSkimmedXmlFileForAutomaton;
 	/** Directory in which the discovered constraints are printed as automata, in separate XML files. Keep it equal to <code>null</code> for avoiding such print-outs. */
 	public File folderToSaveXmlFilesForPartialAutomata;
 	/** File in which the discovered process model is saved as an XML file. Keep it equal to <code>null</code> for avoiding such print-out. */
@@ -53,6 +56,7 @@ public class OutputModelParameters extends ParamsManager {
     	this.fileToSaveDotFileForAutomaton = null;
     	this.fileToSaveAsConDec = null;
     	this.fileToSaveXmlFileForAutomaton = null;
+    	this.fileToSaveSkimmedXmlFileForAutomaton = null;
     	this.folderToSaveXmlFilesForPartialAutomata = null;
     	this.fileToSaveAsXML = null;
     	this.fileToSaveAsJSON = null;
@@ -72,60 +76,26 @@ public class OutputModelParameters extends ParamsManager {
 
 	@Override
 	protected void setup(CommandLine line) {
-    	String procSchemeFilePath = line.getOptionValue(SAVE_AS_XML_PARAM_NAME);
-        if (procSchemeFilePath != null) {
-        	this.fileToSaveAsXML = new File(procSchemeFilePath);
-        }
-        String jsonFilePath = line.getOptionValue(SAVE_AS_JSON_PARAM_NAME);
-        if (jsonFilePath != null) {
-        	this.fileToSaveAsJSON = new File(jsonFilePath);
-        }
-		String
-			folderToSaveDotFilesForPartialAutomataPath = line.getOptionValue(FOLDER_FOR_SAVING_DOT_SUBAUTOMATA_PARAM_NAME);
-	    if (folderToSaveDotFilesForPartialAutomataPath != null) {
-	        this.folderToSaveDotFilesForPartialAutomata = new File(folderToSaveDotFilesForPartialAutomataPath);
-	        if (        !this.folderToSaveDotFilesForPartialAutomata.exists()
-	        		||	!this.folderToSaveDotFilesForPartialAutomata.isDirectory()
-	                ||  !this.folderToSaveDotFilesForPartialAutomata.canWrite()
-	                ) {
-	            throw new IllegalArgumentException("Unwritable directory: " + folderToSaveDotFilesForPartialAutomata);
-	        }
-	    }
-		String fileToSaveDotFileForAutomatonPath = line.getOptionValue(SAVE_PROCESS_DOT_AUTOMATON_PARAM_NAME);
-        if (fileToSaveDotFileForAutomatonPath != null) {
-            this.fileToSaveDotFileForAutomaton = new File(fileToSaveDotFileForAutomatonPath);
-        }
+    	this.fileToSaveAsXML = openOutputFile(line, SAVE_AS_XML_PARAM_NAME);
         
-		String fileToSaveTsmlFileForAutomatonPath = line.getOptionValue(SAVE_PROCESS_TSML_AUTOMATON_PARAM_NAME);
-        if (fileToSaveTsmlFileForAutomatonPath != null) {
-            this.fileToSaveTsmlFileForAutomaton = new File(fileToSaveTsmlFileForAutomatonPath);
-        }
+    	this.fileToSaveAsJSON = openOutputFile(line, SAVE_AS_JSON_PARAM_NAME);
+
+        this.folderToSaveDotFilesForPartialAutomata = openOutputDir(line, FOLDER_FOR_SAVING_DOT_SUBAUTOMATA_PARAM_NAME);
+
+        this.fileToSaveDotFileForAutomaton = openOutputFile(line, SAVE_PROCESS_DOT_AUTOMATON_PARAM_NAME);
         
-        String fileToSaveConstraintsCsvString = line.getOptionValue(SAVE_AS_CSV_PARAM_NAME);
-        if (fileToSaveConstraintsCsvString != null) {
-            this.fileToSaveConstraintsAsCSV = new File(fileToSaveConstraintsCsvString);
-        }
+		this.fileToSaveTsmlFileForAutomaton = openOutputFile(line, SAVE_PROCESS_TSML_AUTOMATON_PARAM_NAME);
         
-        String fileToSaveConDecDefinitionString = line.getOptionValue(SAVE_AS_CONDEC_PARAM_NAME);
-        if (fileToSaveConDecDefinitionString != null) {
-            this.fileToSaveAsConDec = new File(fileToSaveConDecDefinitionString);
-        }
+        this.fileToSaveConstraintsAsCSV = openOutputFile(line, SAVE_AS_CSV_PARAM_NAME);
         
-        String fileToSaveXmlFileForAutomatonString = line.getOptionValue(SAVE_XML_WEIGHTED_AUTOMATON_PARAM_NAME);
-        if (fileToSaveXmlFileForAutomatonString != null) {
-        	this.fileToSaveXmlFileForAutomaton = new File(fileToSaveXmlFileForAutomatonString);
-        }
-		String
-			folderToSaveXmlFilesForPartialAutomataPath = line.getOptionValue(FOLDER_FOR_SAVING_XML_WEIGHTED_SUBAUTOMATA_PARAM_NAME);
-	    if (folderToSaveXmlFilesForPartialAutomataPath != null) {
-	        this.folderToSaveXmlFilesForPartialAutomata = new File(folderToSaveXmlFilesForPartialAutomataPath);
-	        if (        !this.folderToSaveXmlFilesForPartialAutomata.exists()
-	        		||	!this.folderToSaveXmlFilesForPartialAutomata.isDirectory()
-	                ||  !this.folderToSaveXmlFilesForPartialAutomata.canWrite()
-	                ) {
-	            throw new IllegalArgumentException("Unwritable directory: " + folderToSaveXmlFilesForPartialAutomataPath);
-	        }
-	    }
+        this.fileToSaveAsConDec = openOutputFile(line, SAVE_AS_CONDEC_PARAM_NAME);
+        
+        this.fileToSaveXmlFileForAutomaton = openOutputFile(line, SAVE_XML_WEIGHTED_AUTOMATON_PARAM_NAME);
+
+        this.fileToSaveSkimmedXmlFileForAutomaton = openOutputFile(line, SAVE_SKIMMED_XML_WEIGHTED_AUTOMATON_PARAM_NAME);
+        
+        this.folderToSaveXmlFilesForPartialAutomata = openOutputDir(line, FOLDER_FOR_SAVING_XML_WEIGHTED_SUBAUTOMATA_PARAM_NAME);
+
     }
     
 	@Override
@@ -205,10 +175,19 @@ public class OutputModelParameters extends ParamsManager {
         		.hasArg().withArgName("path")
         		.withLongOpt("print-weighted-autom")
         		.withDescription(
-        				attachInstabilityWarningToDescription("print the discovered process in weighted automaton XML format, into the specified file")
+        				attachInstabilityWarningToDescription("print the discovered process in weighted automaton XML format, into the specified file. The weight is computed based on the number of times the event log replay traverses the transition.")
         		)
         		.withType(new String())
         		.create(SAVE_XML_WEIGHTED_AUTOMATON_PARAM_NAME)
+        		);        
+        options.addOption(OptionBuilder
+        		.hasArg().withArgName("path")
+        		.withLongOpt("print-skimmed-weighted-autom")
+        		.withDescription(
+        				attachInstabilityWarningToDescription("print the discovered process in weighted automaton XML format, into the specified file. Remove the transitions (and states) that have weight 0. The weight is computed based on the number of times the event log replay traverses the transition.")
+        		)
+        		.withType(new String())
+        		.create(SAVE_SKIMMED_XML_WEIGHTED_AUTOMATON_PARAM_NAME)
         		);
         options.addOption(
         		OptionBuilder

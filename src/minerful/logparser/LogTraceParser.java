@@ -21,4 +21,6 @@ public interface LogTraceParser {
 	boolean stepToSubsequent();
 	void init();
 	String encodeTrace();
+	String printStringTrace();
+	String getName();
 }
