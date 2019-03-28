@@ -30,9 +30,9 @@ import minerful.params.ViewCmdParameters;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
 import minerful.utils.MessagePrinter;
 
-import minerful.separated.automaton.ReactiveMinerOfflineQueryingCore;
-import minerful.separated.automaton.ReactiveMinerPruningCore;
-import minerful.separated.automaton.ReactiveMinerQueryingCore;
+import minerful.reactive.miner.ReactiveMinerOfflineQueryingCore;
+import minerful.reactive.miner.ReactiveMinerPruningCore;
+import minerful.reactive.miner.ReactiveMinerQueryingCore;
 
 public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 	protected static final String PROCESS_MODEL_NAME_PATTERN = "Process model discovered from %s";

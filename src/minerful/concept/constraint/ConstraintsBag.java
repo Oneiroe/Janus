@@ -10,9 +10,9 @@ import minerful.concept.TaskChar;
 import minerful.concept.TaskCharSet;
 import minerful.concept.constraint.xmlenc.ConstraintsBagAdapter;
 
-import minerful.separated.automaton.SeparatedAutomaton;
-import minerful.separated.automaton.SeparatedAutomatonOfflineRunner;
-import minerful.separated.automaton.SeparatedAutomatonRunner;
+import minerful.reactive.automaton.SeparatedAutomaton;
+import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
+import minerful.reactive.automaton.SeparatedAutomatonRunner;
 import org.apache.log4j.Logger;
 
 /**

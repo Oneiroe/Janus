@@ -1,4 +1,4 @@
-package minerful.separated.automaton;
+package minerful.reactive.miner;
 
 import minerful.concept.ProcessModel;
 import minerful.concept.constraint.Constraint;

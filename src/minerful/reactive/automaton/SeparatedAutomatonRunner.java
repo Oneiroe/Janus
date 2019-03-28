@@ -1,4 +1,4 @@
-package minerful.separated.automaton;
+package minerful.reactive.automaton;
 
 import dk.brics.automaton.State;
 

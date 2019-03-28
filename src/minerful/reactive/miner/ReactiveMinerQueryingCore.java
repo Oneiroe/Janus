@@ -1,4 +1,4 @@
-package minerful.separated.automaton;
+package minerful.reactive.miner;
 
 import minerful.concept.TaskCharArchive;
 import minerful.concept.constraint.ConstraintsBag;
@@ -7,6 +7,7 @@ import minerful.logparser.LogTraceParser;
 import minerful.miner.params.MinerFulCmdParameters;
 import minerful.miner.stats.GlobalStatsTable;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
+import minerful.reactive.automaton.SeparatedAutomatonRunner;
 import org.apache.log4j.Logger;
 
 import java.util.Iterator;

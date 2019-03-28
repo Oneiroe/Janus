@@ -6,16 +6,9 @@ package minerful.concept.constraint.relation;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import dk.brics.automaton.Automaton;
 import minerful.concept.TaskChar;
 import minerful.concept.TaskCharSet;
 import minerful.concept.constraint.Constraint;
-import minerful.separated.automaton.ConjunctAutomata;
-import minerful.separated.automaton.SeparatedAutomaton;
-import minerful.separated.automaton.Utils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @XmlRootElement
 public class CoExistence extends MutualRelationConstraint {

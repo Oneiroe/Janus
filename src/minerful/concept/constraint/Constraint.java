@@ -30,7 +30,7 @@ import minerful.concept.constraint.ConstraintFamily.ConstraintSubFamily;
 import minerful.concept.constraint.existence.ExistenceConstraint;
 import minerful.concept.constraint.relation.RelationConstraint;
 import minerful.io.encdec.TaskCharEncoderDecoder;
-import minerful.separated.automaton.SeparatedAutomaton;
+import minerful.reactive.automaton.SeparatedAutomaton;
 
 @XmlRootElement(name="constraint")
 @XmlSeeAlso({RelationConstraint.class,ExistenceConstraint.class})

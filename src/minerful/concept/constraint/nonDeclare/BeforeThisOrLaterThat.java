@@ -1,19 +1,11 @@
 package minerful.concept.constraint.nonDeclare;
 
-import dk.brics.automaton.Automaton;
-import dk.brics.automaton.State;
-import dk.brics.automaton.Transition;
 import minerful.concept.TaskChar;
 import minerful.concept.TaskCharSet;
 import minerful.concept.constraint.Constraint;
 import minerful.concept.constraint.ConstraintFamily;
-import minerful.separated.automaton.ConjunctAutomata;
-import minerful.separated.automaton.SeparatedAutomaton;
-import minerful.separated.automaton.Utils;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
 
 @XmlRootElement
 public class BeforeThisOrLaterThat extends Constraint {

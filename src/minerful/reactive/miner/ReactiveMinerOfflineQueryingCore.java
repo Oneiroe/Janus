@@ -1,4 +1,4 @@
-package minerful.separated.automaton;
+package minerful.reactive.miner;
 
 import com.google.gson.GsonBuilder;
 import minerful.concept.TaskCharArchive;
@@ -8,6 +8,7 @@ import minerful.logparser.LogTraceParser;
 import minerful.miner.params.MinerFulCmdParameters;
 import minerful.miner.stats.GlobalStatsTable;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
+import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
 import org.apache.log4j.Logger;
 
 import java.io.*;
