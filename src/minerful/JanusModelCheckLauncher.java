@@ -12,12 +12,16 @@ import minerful.miner.core.MinerFulPruningCore;
 import minerful.params.InputLogCmdParameters;
 import minerful.params.SystemCmdParameters;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
+import minerful.reactive.miner.ReactiveMinerOfflineQueryingCore;
 import minerful.utils.MessagePrinter;
 import org.processmining.plugins.declareminer.visualizing.AssignmentModel;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
+/**
+ * Class for launching JanusZ model checker
+ */
 public class JanusModelCheckLauncher {
 	public static MessagePrinter logger = MessagePrinter.getInstance(JanusModelCheckLauncher.class);
 
@@ -49,14 +53,16 @@ public class JanusModelCheckLauncher {
 			systemParams.printHelpForWrongUsage("Input process model file missing!");
 			System.exit(1);
 		}
-		// Load the process specification from the file
-		this.processSpecification = 
-				new ProcessModelLoader().loadProcessModel(inputParams.inputLanguage, inputParams.inputFile);
-		// Apply some preliminary pruning
-		MinerFulPruningCore pruniCore = new MinerFulPruningCore(this.processSpecification, preProcParams);
-		this.processSpecification.bag = pruniCore.massageConstraints();
-
 		this.eventLog = MinerFulMinerLauncher.deriveLogParserFromLogFile(inputLogParams);
+
+		// Load the process specification from the file
+		this.processSpecification =
+				new ProcessModelLoader().loadProcessModel(inputParams.inputLanguage, inputParams.inputFile, this.eventLog.getTaskCharArchive());
+		// Apply some preliminary pruning
+//		MinerFulPruningCore pruniCore = new MinerFulPruningCore(this.processSpecification, preProcParams);
+//		this.processSpecification.bag = pruniCore.massageConstraints();
+
+
 
 		MessagePrinter.configureLogging(systemParams.debugLevel);
 	}
@@ -68,33 +74,48 @@ public class JanusModelCheckLauncher {
 	public LogParser getEventLog() {
 		return eventLog;
 	}
-	
+
+	/**
+	 * Check the input model against the input log.
+	 * TODO Return the MegaMatrix
+	 */
+	public void checkModel() {
+		processSpecification.bag.initAutomataBag();
+		ReactiveMinerOfflineQueryingCore minerFulQueryingCore = new ReactiveMinerOfflineQueryingCore(
+				0, eventLog, null, null, eventLog.getTaskCharArchive(), null, processSpecification.bag);
+		double before = System.currentTimeMillis();
+		minerFulQueryingCore.discover();
+		double after = System.currentTimeMillis();
+
+		logger.info("Total KB querying time: " + (after - before));
+	}
+
 	public ModelFitnessEvaluation check() {
 		ProcessSpecificationFitnessEvaluator evalor = new ProcessSpecificationFitnessEvaluator(
 				this.eventLog.getEventEncoderDecoder(), this.processSpecification);
 
 		ModelFitnessEvaluation evalon = evalor.evaluateOnLog(this.eventLog);
-		
+
 		reportOnEvaluation(evalon);
-		
+
 	    return evalon;
 	}
 
 	public ModelFitnessEvaluation check(LogTraceParser trace) {
 		ProcessSpecificationFitnessEvaluator evalor = new ProcessSpecificationFitnessEvaluator(
 				this.eventLog.getEventEncoderDecoder(), this.processSpecification);
-		
+
 		ModelFitnessEvaluation evalon = evalor.evaluateOnTrace(trace);
-		
+
 		reportOnEvaluation(evalon);
-		
+
 		return evalon;
 	}
-	
+
 	private static String printFitnessJsonSummary(ModelFitnessEvaluation evalon) {
-		return "{\"Avg.fitness\":" 
-				+ MessagePrinter.formatFloatNumForCSV(evalon.avgFitness()) + ";" 
-				+ "\"Trace-fit-ratio\":" 
+		return "{\"Avg.fitness\":"
+				+ MessagePrinter.formatFloatNumForCSV(evalon.avgFitness()) + ";"
+				+ "\"Trace-fit-ratio\":"
 				+ MessagePrinter.formatFloatNumForCSV(evalon.traceFitRatio())
 				+ "}";
 	}
@@ -112,7 +133,7 @@ public class JanusModelCheckLauncher {
 							"See " + chkParams.fileToSaveResultsAsCSV.getAbsolutePath() + " for further details.")
 					);
 		}
-		
+
 		if (chkParams.fileToSaveResultsAsCSV != null) {
 			logger.info("Saving results in CSV format as " + chkParams.fileToSaveResultsAsCSV + "...");
 			PrintWriter outWriter = null;

@@ -25,10 +25,10 @@ import org.apache.log4j.Logger;
 public class ConstraintsBag extends Observable implements Cloneable, Observer {
 //	@XmlTransient
 	private static Logger logger = Logger.getLogger(ConstraintsBag.class.getCanonicalName());
-	
+
 	@XmlElementRef
     private Map<TaskChar, TreeSet<Constraint>> bag;
-	
+
 //	@XmlTransient
 	private Set<TaskChar> taskChars = new TreeSet<TaskChar>();
 
@@ -63,7 +63,7 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 	public ConstraintsBag() {
 		this(new TreeSet<TaskChar>());
 	}
-	
+
     public ConstraintsBag(Collection<TaskChar> taskChars) {
     	this.initBag();
         this.setAlphabet(taskChars);
@@ -77,15 +77,23 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
         }
         this.initAutomataBag(taskChars, constraints);
     }
-    
+
 	private void initBag() {
 		this.bag = new TreeMap<TaskChar, TreeSet<Constraint>>();
 	}
 
-	/**
-	 * Initialize the parametric separate automata and the runners related to the constraints of the bag
-	 */
-	private void initAutomataBag(Set<TaskChar> taskChars, Collection<Constraint> constraints) {
+    /**
+     * Initialize the parametric separate automata and the runners related to the constraints of the bag with provided a given alphabet and constraint list
+     */
+    private void initAutomataBag(Set<TaskChar> taskChars, Collection<Constraint> constraints) {
+//     TODO this function is equal to initAutomataBag(). here the input variables are never used inside
+        this.initAutomataBag();
+    }
+
+    /**
+     * Initialize the parametric separate automata and the runners related to the constraints given the current state of the bag
+     */
+    public void initAutomataBag() {
 		this.automataBag = new HashMap<>();
 		this.automataRunnersBag = new ArrayList<>();
 		this.automataOfflineRunnersBag = new ArrayList<>();
@@ -227,7 +235,7 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 	public void replace(TaskChar tCh, Constraint constraint) {
         this.remove(tCh, constraint);
         this.add(tCh, constraint);
-        
+
 	}
 
 	public int eraseConstraintsOf(TaskChar taskChar) {
@@ -332,10 +340,10 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
     public ConstraintsBag createRedundantCopy(Collection<TaskChar> wholeAlphabet) {
     	ConstraintsBag nuBag =
                 (ConstraintsBag) this.clone();
-        
+
         Collection<TaskChar> bases = wholeAlphabet;
         Collection<TaskChar> implieds = wholeAlphabet;
-        
+
         for (TaskChar base: bases) {
         	nuBag.addAll(base, MetaConstraintUtils.getAllDiscoverableExistenceConstraints(base));
         	for (TaskChar implied: implieds) {
@@ -343,10 +351,10 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
         			nuBag.addAll(base, MetaConstraintUtils.getAllDiscoverableRelationConstraints(base, implied));
         	}
         }
-        
+
         return nuBag;
     }
-    
+
     public ConstraintsBag createEmptyIndexedCopy() {
     	return new ConstraintsBag(getTaskChars());
     }
@@ -361,7 +369,7 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 				}
             }
         }
-        
+
         return nuBag;
     }
 
@@ -439,26 +447,26 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 		}
 		return markedConstraintsRemoved;
 	}
-	
+
 	public ConstraintsBag slice(Set<TaskChar> indexingTaskCharGroup) {
 		ConstraintsBag slicedBag = new ConstraintsBag(indexingTaskCharGroup);
-		
+
 		for (TaskChar indexingTaskChar : indexingTaskCharGroup) {
 			slicedBag.bag.put(indexingTaskChar, this.bag.get(indexingTaskChar));
 		}
-		
+
 		return slicedBag;
 	}
 
 	public Set<Constraint> getAllConstraints() {
-		Set<Constraint> constraints = new TreeSet<Constraint>(); 
+		Set<Constraint> constraints = new TreeSet<Constraint>();
 		for (TaskChar tCh : this.getTaskChars()) { constraints.addAll(this.bag.get(tCh)); }
 		return constraints;
 	}
-	
+
 	public Collection<Constraint> getOnlyFullySupportedConstraints() {
-		Collection<Constraint> constraints = new TreeSet<Constraint>(); 
-		for (TaskChar tCh : this.getTaskChars()) { 
+		Collection<Constraint> constraints = new TreeSet<Constraint>();
+		for (TaskChar tCh : this.getTaskChars()) {
 			for (Constraint cns : this.bag.get(tCh)) {
 				if (cns.hasMaximumSupport()) {
 					constraints.add(cns);
@@ -467,10 +475,10 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 		}
 		return constraints;
 	}
-	
+
 	public ConstraintsBag getOnlyFullySupportedConstraintsInNewBag() {
 		ConstraintsBag clone = (ConstraintsBag) this.clone();
-		for (TaskChar tCh : clone.getTaskChars()) { 
+		for (TaskChar tCh : clone.getTaskChars()) {
 			for (Constraint cns : this.bag.get(tCh)) {
 				if (!cns.hasMaximumSupport()) {
 					clone.remove(tCh, cns);

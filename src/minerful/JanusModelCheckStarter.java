@@ -98,9 +98,10 @@ public class JanusModelCheckStarter extends MinerFulMinerStarter {
         }
         JanusModelCheckLauncher miFuCheLa = new JanusModelCheckLauncher(inpuModlParams, preProcParams, inputLogParams, chkParams, systemParams);
         
-        ModelFitnessEvaluation evaluationOutput = miFuCheLa.check();
-        ProcessModel processModel = miFuCheLa.getProcessSpecification();
+        miFuCheLa.checkModel();
+//        ModelFitnessEvaluation evaluationOutput = miFuCheLa.check();
+//        ProcessModel processModel = miFuCheLa.getProcessSpecification();
 
-        new MinerFulOutputManagementLauncher().manageOutput(processModel, viewParams, outParams, systemParams);
+//        new MinerFulOutputManagementLauncher().manageOutput(processModel, viewParams, outParams, systemParams);
     }
  }
