@@ -108,7 +108,7 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
      */
     public void runLog(LogParser logParser, List<SeparatedAutomatonOfflineRunner> automata) {
         byte[][][] finalResults = new byte[logParser.length()][automata.size()][]; // TODO case length=0
-        System.out.println("Basic result matrix created! [" + logParser.length() + "][" + automata.size() + "][*]");
+        logger.info("Basic result matrix created! Size: [" + logParser.length() + "][" + automata.size() + "][*]");
 
         int currentTraceNumber = 0;
         int numberOfTotalTraces = logParser.length();

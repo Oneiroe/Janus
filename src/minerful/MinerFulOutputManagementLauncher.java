@@ -37,7 +37,7 @@ public class MinerFulOutputManagementLauncher {
 		}
 	}
 
-	private File retrieveFile(File originalFile) {
+	protected File retrieveFile(File originalFile) {
 		return (
 			this.additionalFileSuffix == null ?
 			originalFile :
@@ -45,7 +45,7 @@ public class MinerFulOutputManagementLauncher {
 		);
 	}
 
-	private File retrieveFile(String originalFilePath) {
+	protected File retrieveFile(String originalFilePath) {
 		return (
 			this.additionalFileSuffix == null ?
 			new File(originalFilePath) :

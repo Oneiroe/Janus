@@ -5,8 +5,6 @@
 package minerful;
 
 import minerful.checking.params.CheckingCmdParameters;
-import minerful.checking.relevance.dao.ModelFitnessEvaluation;
-import minerful.concept.ProcessModel;
 import minerful.io.params.InputModelParameters;
 import minerful.io.params.OutputModelParameters;
 import minerful.params.InputLogCmdParameters;
@@ -14,6 +12,7 @@ import minerful.params.SystemCmdParameters;
 import minerful.params.ViewCmdParameters;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
 import minerful.reactive.checking.MegaMatrixMonster;
+import minerful.reactive.io.JanusOutputManagementLauncher;
 import minerful.utils.MessagePrinter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -100,13 +99,6 @@ public class JanusModelCheckStarter extends MinerFulMinerStarter {
 		JanusModelCheckLauncher miFuCheLa = new JanusModelCheckLauncher(inpuModlParams, preProcParams, inputLogParams, chkParams, systemParams);
 		MegaMatrixMonster evaluation = miFuCheLa.checkModel();
 
-		//        EXPORT MegaMonster Data Structure to JSON
-		if (outParams.fileToSaveAsJSON != null) {
-			double before = System.currentTimeMillis();
-			evaluation.exportEncodedReadable3DMatrixToJson(outParams.fileToSaveAsJSON); // TODO remove hard-coded output path
-			double after = System.currentTimeMillis();
-			logger.info("Total JSON serialization time: " + (after - before));
-		}
-//        new MinerFulOutputManagementLauncher().manageOutput(processModel, viewParams, outParams, systemParams);
+        new JanusOutputManagementLauncher().manageCheckOutput(evaluation, viewParams, outParams, systemParams);
 	}
 }
