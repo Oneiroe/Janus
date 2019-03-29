@@ -13,6 +13,7 @@ import minerful.params.InputLogCmdParameters;
 import minerful.params.SystemCmdParameters;
 import minerful.params.ViewCmdParameters;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
+import minerful.reactive.checking.MegaMatrixMonster;
 import minerful.utils.MessagePrinter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -23,7 +24,7 @@ public class JanusModelCheckStarter extends MinerFulMinerStarter {
 	@Override
 	public Options setupOptions() {
 		Options cmdLineOptions = new Options();
-		
+
 		Options systemOptions = SystemCmdParameters.parseableOptions(),
 				outputOptions = OutputModelParameters.parseableOptions(),
 				postPrOptions = PostProcessingCmdParameters.parseableOptions(),
@@ -31,40 +32,40 @@ public class JanusModelCheckStarter extends MinerFulMinerStarter {
 				chkOptions = CheckingCmdParameters.parseableOptions(),
 				inputLogOptions = InputLogCmdParameters.parseableOptions(),
 				inpuModlOptions = InputModelParameters.parseableOptions();
-		
-    	for (Object opt: systemOptions.getOptions()) {
-    		cmdLineOptions.addOption((Option)opt);
-    	}
-    	for (Object opt: outputOptions.getOptions()) {
-    		cmdLineOptions.addOption((Option)opt);
-    	}
-    	for (Object opt: postPrOptions.getOptions()) {
-    		cmdLineOptions.addOption((Option)opt);
-    	}
-    	for (Object opt: viewOptions.getOptions()) {
-    		cmdLineOptions.addOption((Option)opt);
-    	}
-    	for (Object opt: chkOptions.getOptions()) {
-    		cmdLineOptions.addOption((Option)opt);
-    	}
-    	for (Object opt: inputLogOptions.getOptions()) {
-    		cmdLineOptions.addOption((Option)opt);
-    	}
-    	for (Object opt: inpuModlOptions.getOptions()) {
-    		cmdLineOptions.addOption((Option)opt);
-    	}
-    	
-    	return cmdLineOptions;
+
+		for (Object opt : systemOptions.getOptions()) {
+			cmdLineOptions.addOption((Option) opt);
+		}
+		for (Object opt : outputOptions.getOptions()) {
+			cmdLineOptions.addOption((Option) opt);
+		}
+		for (Object opt : postPrOptions.getOptions()) {
+			cmdLineOptions.addOption((Option) opt);
+		}
+		for (Object opt : viewOptions.getOptions()) {
+			cmdLineOptions.addOption((Option) opt);
+		}
+		for (Object opt : chkOptions.getOptions()) {
+			cmdLineOptions.addOption((Option) opt);
+		}
+		for (Object opt : inputLogOptions.getOptions()) {
+			cmdLineOptions.addOption((Option) opt);
+		}
+		for (Object opt : inpuModlOptions.getOptions()) {
+			cmdLineOptions.addOption((Option) opt);
+		}
+
+		return cmdLineOptions;
 	}
-	
-    public static void main(String[] args) {
-    	JanusModelCheckStarter checkStarter = new JanusModelCheckStarter();
-    	Options cmdLineOptions = checkStarter.setupOptions();
-    	
-        SystemCmdParameters systemParams =
-        		new SystemCmdParameters(
-        				cmdLineOptions,
-    					args);
+
+	public static void main(String[] args) {
+		JanusModelCheckStarter checkStarter = new JanusModelCheckStarter();
+		Options cmdLineOptions = checkStarter.setupOptions();
+
+		SystemCmdParameters systemParams =
+				new SystemCmdParameters(
+						cmdLineOptions,
+						args);
 		OutputModelParameters outParams =
 				new OutputModelParameters(
 						cmdLineOptions,
@@ -93,15 +94,19 @@ public class JanusModelCheckStarter extends MinerFulMinerStarter {
 		MessagePrinter.configureLogging(systemParams.debugLevel);
 
 		if (systemParams.help) {
-        	systemParams.printHelp(cmdLineOptions);
-        	System.exit(0);
-        }
-        JanusModelCheckLauncher miFuCheLa = new JanusModelCheckLauncher(inpuModlParams, preProcParams, inputLogParams, chkParams, systemParams);
-        
-        miFuCheLa.checkModel();
-//        ModelFitnessEvaluation evaluationOutput = miFuCheLa.check();
-//        ProcessModel processModel = miFuCheLa.getProcessSpecification();
+			systemParams.printHelp(cmdLineOptions);
+			System.exit(0);
+		}
+		JanusModelCheckLauncher miFuCheLa = new JanusModelCheckLauncher(inpuModlParams, preProcParams, inputLogParams, chkParams, systemParams);
+		MegaMatrixMonster evaluation = miFuCheLa.checkModel();
 
+		//        EXPORT MegaMonster Data Structure to JSON
+		if (outParams.fileToSaveAsJSON != null) {
+			double before = System.currentTimeMillis();
+			evaluation.exportEncodedReadable3DMatrixToJson(outParams.fileToSaveAsJSON); // TODO remove hard-coded output path
+			double after = System.currentTimeMillis();
+			logger.info("Total JSON serialization time: " + (after - before));
+		}
 //        new MinerFulOutputManagementLauncher().manageOutput(processModel, viewParams, outParams, systemParams);
-    }
- }
+	}
+}

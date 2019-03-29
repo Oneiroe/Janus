@@ -9,6 +9,7 @@ import minerful.miner.params.MinerFulCmdParameters;
 import minerful.miner.stats.GlobalStatsTable;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
 import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
+import minerful.reactive.checking.MegaMatrixMonster;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -31,6 +32,7 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
     private final GlobalStatsTable globalStatsTable;
     private final ConstraintsBag bag;  // rules to mine
     private final int jobNum;
+    private MegaMatrixMonster megaMonster; // £d byte matrix with fine grain result
 
     {
         if (logger == null) {
@@ -119,12 +121,6 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
         }
         System.out.println();
 
-//        EXPORT MegaMonster Data Structure to XML/JSON
-        long before = System.currentTimeMillis();
-        exportEncodedReadable3DMatrixToJson(finalResults, "output.json"); // TODO remove hard-coded output path
-        long after = System.currentTimeMillis();
-        logger.info("Total JSON serialization time: " + (after - before));
-
         // Support and confidence of each constraint which respect to te log
         for (int i = 0; i < automata.size(); i++) {
             double support = computeSupport(finalResults, i);
@@ -133,157 +129,9 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
             this.bag.getConstraintOfOfflineRunner(automata.get(i)).setConfidence(confidence);
             this.bag.getConstraintOfOfflineRunner(automata.get(i)).setInterestFactor(confidence);
         }
+
+        this.megaMonster = new MegaMatrixMonster(finalResults, this.logParser, this.bag.getSeparatedAutomataOfflineRunners());
     }
-
-    /**
-     * Serialize the 3D matrix as-is into a Json file
-     *
-     * @param dataMatrix
-     */
-    private void exportRaw3DMatrixToJson(byte[][][] dataMatrix, String outputPath) {
-        logger.info("JSON serialization...");
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try {
-            FileWriter fw = new FileWriter(outputPath);
-            gson.toJson(dataMatrix, fw);
-            fw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        logger.debug("JSON serialization...DONE!");
-
-    }
-
-    /**
-     * Serialize the 3D matrix into a Json file to have a readable result, but encoded events
-     *
-     * @param dataMatrix
-     */
-    private void exportEncodedReadable3DMatrixToJson(byte[][][] dataMatrix, String outputPath) {
-        logger.info("JSON encoded readable serialization...");
-        try {
-            FileWriter fw = new FileWriter(outputPath);
-            fw.write("{\n");
-
-            Iterator<LogTraceParser> it = logParser.traceIterator();
-            List<SeparatedAutomatonOfflineRunner> automata = this.bag.getSeparatedAutomataOfflineRunners();
-
-//        for the entire log
-            for (int trace = 0; trace < dataMatrix.length; trace++) {
-                LogTraceParser tr = it.next();
-                String traceString = tr.encodeTrace();
-                fw.write("\t\"" + traceString + "\": [\n");
-
-//              for each trace
-                for (int constraint = 0; constraint < dataMatrix[trace].length; constraint++) {
-
-//                  for each constraint
-                    String constraintString = automata.get(constraint).toString();
-                    fw.write("\t\t{\"" + constraintString + "\": [ ");
-                    for (int eventResult = 0; eventResult < dataMatrix[trace][constraint].length; eventResult++) {
-                        char event = traceString.charAt(eventResult);
-                        byte result = dataMatrix[trace][constraint][eventResult];
-                        if (eventResult == (dataMatrix[trace][constraint].length - 1)) {
-                            fw.write("{\"" + event + "\": " + result + "}");
-                        } else {
-                            fw.write("{\"" + event + "\": " + result + "},");
-                        }
-                    }
-                    if (constraint == (dataMatrix[trace].length - 1)) {
-                        fw.write(" ]}\n");
-                    } else {
-                        fw.write(" ]},\n");
-                    }
-
-                }
-
-                if (trace == (dataMatrix.length - 1)) {
-                    fw.write("\t]\n");
-                } else {
-                    fw.write("\t],\n");
-                }
-
-            }
-            fw.write("}");
-            fw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        logger.debug("JSON encoded readable serialization...DONE!");
-
-    }
-
-    /**
-     * Serialize the 3D matrix into a Json file to have a readable result
-     *
-     * @param dataMatrix
-     */
-    private void exportReadable3DMatrixToJson(byte[][][] dataMatrix, String outputPath) {
-        logger.info("JSON readable serialization...");
-        try {
-            FileWriter fw = new FileWriter(outputPath);
-            fw.write("{\n");
-
-            Iterator<LogTraceParser> it = logParser.traceIterator();
-            List<SeparatedAutomatonOfflineRunner> automata = this.bag.getSeparatedAutomataOfflineRunners();
-
-//        for the entire log
-            for (int trace = 0; trace < dataMatrix.length; trace++) {
-                LogTraceParser tr = it.next();
-                tr.init();
-                fw.write("\t\"<");
-                int i = 0;
-                while (i < tr.length()) {
-                    String traceString = tr.parseSubsequent().getEvent().getTaskClass().toString();
-                    if (i == (tr.length() - 1)) {
-                        fw.write(traceString);
-                    } else {
-                        fw.write(traceString + ",");
-                    }
-                    i++;
-                }
-                fw.write(">\": [\n");
-
-//              for each trace
-                for (int constraint = 0; constraint < dataMatrix[trace].length; constraint++) {
-                    tr.init();
-//                  for each constraint
-                    String constraintString = automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById());
-
-                    fw.write("\t\t{\"" + constraintString + "\": [ ");
-                    for (int eventResult = 0; eventResult < dataMatrix[trace][constraint].length; eventResult++) {
-                        String event = tr.parseSubsequent().getEvent().getTaskClass().toString();
-                        byte result = dataMatrix[trace][constraint][eventResult];
-                        if (eventResult == (dataMatrix[trace][constraint].length - 1)) {
-                            fw.write("{\"" + event + "\": " + result + "}");
-                        } else {
-                            fw.write("{\"" + event + "\": " + result + "},");
-                        }
-                    }
-                    if (constraint == (dataMatrix[trace].length - 1)) {
-                        fw.write(" ]}\n");
-                    } else {
-                        fw.write(" ]},\n");
-                    }
-
-                }
-
-                if (trace == (dataMatrix.length - 1)) {
-                    fw.write("\t]\n");
-                } else {
-                    fw.write("\t],\n");
-                }
-
-            }
-            fw.write("}");
-            fw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        logger.debug("JSON readable serialization...DONE!");
-
-    }
-
 
     /**
      * Compute the support measure of a constraint wrt a log
@@ -317,6 +165,16 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
     public ConstraintsBag discover() {
         runLog(this.logParser, this.bag.getSeparatedAutomataOfflineRunners());
         return this.bag;
+    }
+
+    /**
+     * Launcher for model checking
+     *
+     * @return
+     */
+    public MegaMatrixMonster check(){
+        runLog(this.logParser, this.bag.getSeparatedAutomataOfflineRunners());
+        return this.megaMonster;
     }
 
     @Override
