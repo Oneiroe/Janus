@@ -101,6 +101,7 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 		this.offlineRunnersConstraintsMatching = new HashMap<>();
 		for (Constraint constr : getAllConstraints()) {
 			SeparatedAutomaton parametricAut = constr.buildParametricSeparatedAutomaton();
+			SeparatedAutomaton parametricOfflineAut = constr.buildParametricSeparatedAutomaton();
 			if (parametricAut == null) continue;
 			if (!automataBag.containsKey(constr.type)) {
 				automataBag.put(constr.type, parametricAut);
@@ -119,7 +120,7 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 			automataRunnersBag.add(runner);
             runnersConstraintsMatching.put(runner,constr);
 
-            SeparatedAutomatonOfflineRunner offlineRunner = new SeparatedAutomatonOfflineRunner(parametricAut, specificAlphabet);
+            SeparatedAutomatonOfflineRunner offlineRunner = new SeparatedAutomatonOfflineRunner(parametricOfflineAut, specificAlphabet);
             automataOfflineRunnersBag.add(offlineRunner);
             offlineRunnersConstraintsMatching.put(offlineRunner, constr);
 		}
