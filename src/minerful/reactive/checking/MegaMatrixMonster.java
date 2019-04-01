@@ -1,19 +1,11 @@
 package minerful.reactive.checking;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import minerful.logparser.LogParser;
-import minerful.logparser.LogTraceParser;
 import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
 import minerful.reactive.miner.ReactiveMinerOfflineQueryingCore;
 import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Data structure for the fine grain evaluation result of constraints in each event of a log traces
@@ -33,6 +25,8 @@ public class MegaMatrixMonster {
 	private final LogParser log;
 	private final Collection<SeparatedAutomatonOfflineRunner> automata;
 
+	private double[][][] measures; // [trace index][constraint index][measure index] -> support:0, confidence:1
+
 	{
 		if (logger == null) {
 			logger = Logger.getLogger(ReactiveMinerOfflineQueryingCore.class.getCanonicalName());
@@ -43,6 +37,7 @@ public class MegaMatrixMonster {
 		this.matrix = matrix;
 		this.log = log;
 		this.automata = automata;
+		measures=new double[matrix.length][automata.size()][2];
 	}
 
 	public byte[][][] getMatrix() {
@@ -55,6 +50,51 @@ public class MegaMatrixMonster {
 
 	public Collection<SeparatedAutomatonOfflineRunner> getAutomata() {
 		return automata;
+	}
+
+	public double[][][] getMeasures() {
+		return measures;
+	}
+
+	/**
+	 * Get the support of a specific trace for a specific constraint
+	 *
+	 * @param trace
+	 * @param constraint
+	 * @return
+	 */
+	public double getSpecificSupport(int trace, int constraint){
+		return measures[trace][constraint][0];
+	}
+
+	/**
+	 * Get the confidence of a specific trace for a specific constraint
+	 *
+	 * @param trace
+	 * @param constraint
+	 * @return
+	 */
+	public double getSpecificConfidence(int trace, int constraint){
+		return measures[trace][constraint][1];
+	}
+
+	/**
+	 * retrieve the measurements for the current matrix
+	 *
+	 * Current supported measures:
+	 * 	- support
+	 * 	- confidence
+	 */
+	public void computeMeasures() {
+		//        for the entire log
+		for (int trace = 0; trace < matrix.length; trace++) {
+//              for each trace
+			for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
+//                  for each constraint
+				measures[trace][constraint][0] = Measures.getTraceSupport(matrix[trace][constraint]);
+				measures[trace][constraint][1] = Measures.getTraceConfidence(matrix[trace][constraint]);
+			}
+		}
 	}
 
 }
