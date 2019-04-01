@@ -80,6 +80,12 @@ public class JanusModelCheckLauncher {
 
 		logger.info("Total KB checking time: " + (after - before));
 
+		before = System.currentTimeMillis();
+		result.computeMeasures();
+		after = System.currentTimeMillis();
+
+		logger.info("Total measurement retrieval time: " + (after - before));
+
 		return result;
 	}
 }
