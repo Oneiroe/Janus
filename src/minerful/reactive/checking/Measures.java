@@ -79,9 +79,9 @@ public class Measures {
 	 * @return
 	 */
 	private static byte[] getActivatorEvaluation(byte[] reactiveConstraintEvaluation) {
-		byte[] result = reactiveConstraintEvaluation;
+		byte[] result = new byte[reactiveConstraintEvaluation.length];
 		for (int i = 0; i < result.length; i++) {
-			result[i] = (byte) (result[i] / 2); // the activator is true if the byte is >1, i.e. 2 or 3
+			result[i] = (byte) (reactiveConstraintEvaluation[i] / 2); // the activator is true if the byte is >1, i.e. 2 or 3
 		}
 		return result;
 	}
@@ -93,9 +93,9 @@ public class Measures {
 	 * @return
 	 */
 	private static byte[] getTargetEvaluation(byte[] reactiveConstraintEvaluation) {
-		byte[] result = reactiveConstraintEvaluation;
+		byte[] result = new byte[reactiveConstraintEvaluation.length];
 		for (int i = 0; i < result.length; i++) {
-			result[i] = (byte) (result[i] % 2); // the target is true if the byte is obb, i,e, 1 or 3
+			result[i] = (byte) (reactiveConstraintEvaluation[i] % 2); // the target is true if the byte is obb, i,e, 1 or 3
 		}
 		return result;
 	}
