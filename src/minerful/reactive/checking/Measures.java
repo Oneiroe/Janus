@@ -43,7 +43,7 @@ public class Measures {
 	 * retrieve the support measure of a constraint for a given trace.
 	 * <p>
 	 * The support measure is defined as:
-	 * Supp(U->V) = P(U' intersection V') =
+	 * Supp(A->T) = P(A' intersection T') =
 	 *
 	 * @return
 	 */
@@ -60,7 +60,7 @@ public class Measures {
 	 * retrieve the confidence of a constraint for a given trace.
 	 * <p>
 	 * The confidence measure is defined as:
-	 * Conf(U->V) = P(V'|U') =  P(V' intersection U') / P(U')
+	 * Conf(A->T) = P(T'|A') =  P(T' intersection A') / P(A') = Supp(A'->T')/P(A')
 	 *
 	 * @return
 	 */
@@ -69,6 +69,22 @@ public class Measures {
 		double denominator = getFormulaProbability(activatorEval);
 		if (denominator == 0) return 0;
 		return getTraceSupport(reactiveConstraintEvaluation) / denominator;
+	}
+
+	/**
+	 * Retrieve the Lovinger's Measure of a constraint for a given trace.
+	 * <p>
+	 * The Lovinger's measure is defined as:
+	 * Lov(A->T) = ( P(T'|A') - P(T')) / (1 - P(T')) = (Conf(A'->T') - P(T')) / (1 - P(T'))
+	 *
+	 * @return
+	 */
+	public static double getTraceLovinger(byte[] reactiveConstraintEvaluation) {
+		double conf = getTraceConfidence(reactiveConstraintEvaluation);
+		double probabilityTarget = getFormulaProbability(getTargetEvaluation(reactiveConstraintEvaluation));
+
+		// TODO check behaviour when denominator=0
+		return (conf - probabilityTarget) / (1 - probabilityTarget);
 	}
 
 

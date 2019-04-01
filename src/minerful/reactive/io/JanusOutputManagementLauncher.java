@@ -117,10 +117,12 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 					if (constraint == (matrix[trace].length - 1)) {
 						fw.write(" ],\n\t\t \"Support\": " + megaMatrix.getSpecificSupport(trace, constraint)
 								+ " , \"Confidence\": " + megaMatrix.getSpecificConfidence(trace, constraint)
+								+ " , \"Lovinger's\": " + megaMatrix.getSpecificLovinger(trace, constraint)
 								+ "}\n");
 					} else {
 						fw.write(" ],\n\t\t \"Support\": " + megaMatrix.getSpecificSupport(trace, constraint)
 								+ " , \"Confidence\": " + megaMatrix.getSpecificConfidence(trace, constraint)
+								+ " , \"Lovinger's\": " + megaMatrix.getSpecificLovinger(trace, constraint)
 								+ "},\n");
 					}
 

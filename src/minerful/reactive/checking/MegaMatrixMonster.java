@@ -9,7 +9,7 @@ import java.util.Collection;
 
 /**
  * Data structure for the fine grain evaluation result of constraints in each event of a log traces
- *
+ * <p>
  * About variable matrix (byte[][][]) bytes meaning:
  * Each byte stores the results of both Activator and target of a given constraint in a specific trace.
  * The left bit is for the activator, the right bit for the target,i.e.,[activator-bit][target-bit]
@@ -37,7 +37,7 @@ public class MegaMatrixMonster {
 		this.matrix = matrix;
 		this.log = log;
 		this.automata = automata;
-		measures=new double[matrix.length][automata.size()][2];
+		measures = new double[matrix.length][automata.size()][3];
 	}
 
 	public byte[][][] getMatrix() {
@@ -63,7 +63,7 @@ public class MegaMatrixMonster {
 	 * @param constraint
 	 * @return
 	 */
-	public double getSpecificSupport(int trace, int constraint){
+	public double getSpecificSupport(int trace, int constraint) {
 		return measures[trace][constraint][0];
 	}
 
@@ -74,16 +74,27 @@ public class MegaMatrixMonster {
 	 * @param constraint
 	 * @return
 	 */
-	public double getSpecificConfidence(int trace, int constraint){
+	public double getSpecificConfidence(int trace, int constraint) {
 		return measures[trace][constraint][1];
 	}
 
 	/**
-	 * retrieve the measurements for the current matrix
+	 * Get the Lovinger's measure of a specific trace for a specific constraint
 	 *
+	 * @param trace
+	 * @param constraint
+	 * @return
+	 */
+	public double getSpecificLovinger(int trace, int constraint) {
+		return measures[trace][constraint][2];
+	}
+
+	/**
+	 * retrieve the measurements for the current matrix
+	 * <p>
 	 * Current supported measures:
-	 * 	- support
-	 * 	- confidence
+	 * - support
+	 * - confidence
 	 */
 	public void computeMeasures() {
 		//        for the entire log
@@ -93,8 +104,10 @@ public class MegaMatrixMonster {
 //                  for each constraint
 				measures[trace][constraint][0] = Measures.getTraceSupport(matrix[trace][constraint]);
 				measures[trace][constraint][1] = Measures.getTraceConfidence(matrix[trace][constraint]);
+				measures[trace][constraint][2] = Measures.getTraceLovinger(matrix[trace][constraint]);
 			}
 		}
 	}
+
 
 }
