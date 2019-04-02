@@ -9,7 +9,7 @@ import minerful.params.InputLogCmdParameters;
 import minerful.params.SystemCmdParameters;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
 import minerful.reactive.checking.MegaMatrixMonster;
-import minerful.reactive.miner.ReactiveMinerOfflineQueryingCore;
+import minerful.reactive.checking.ReactiveCheckingOfflineQueryingCore;
 import minerful.utils.MessagePrinter;
 import org.processmining.plugins.declareminer.visualizing.AssignmentModel;
 
@@ -72,10 +72,10 @@ public class JanusModelCheckLauncher {
 	 */
 	public MegaMatrixMonster checkModel() {
 		processSpecification.bag.initAutomataBag();
-		ReactiveMinerOfflineQueryingCore minerFulQueryingCore = new ReactiveMinerOfflineQueryingCore(
+		ReactiveCheckingOfflineQueryingCore reactiveCheckingOfflineQueryingCore = new ReactiveCheckingOfflineQueryingCore(
 				0, eventLog, null, null, eventLog.getTaskCharArchive(), null, processSpecification.bag);
 		double before = System.currentTimeMillis();
-		MegaMatrixMonster result = minerFulQueryingCore.check();
+		MegaMatrixMonster result = reactiveCheckingOfflineQueryingCore.check();
 		double after = System.currentTimeMillis();
 
 		logger.info("Total KB checking time: " + (after - before));

@@ -63,7 +63,7 @@ public class ReactiveMinerQueryingCore implements Callable<ConstraintsBag> {
 	 *
 	 * @param logTraceParser reader for a trace
 	 * @param automata       set of separatedAutomata to test over the trace
-	 * @return ordered Array of supports for the trace for each automaton
+	 * @return ordered Array of interestingness Degree for the trace for each automaton
 	 */
 	public static double[] runTrace(LogTraceParser logTraceParser, List<SeparatedAutomatonRunner> automata) {
 		double[] results = new double[automata.size()];
@@ -100,16 +100,16 @@ public class ReactiveMinerQueryingCore implements Callable<ConstraintsBag> {
 	public void runLog(LogParser logParser, List<SeparatedAutomatonRunner> automata) {
 		double[] finalResults = new double[automata.size()]; // TODO case length=0
 
-		int numberOfTraces = 0;
+		int currentTraceNumber = 0;
 		int[] activeTraces = new int[automata.size()];
 
 		int numberOfTotalTraces = logParser.length();
 
 		for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
 			LogTraceParser tr = it.next();
-			numberOfTraces++;
-            System.out.print("\rTraces: " + numberOfTraces + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
 			double[] partialResults = runTrace(tr, automata);
+			currentTraceNumber++;
+			System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
 			for (int i = 0; i < finalResults.length; i++) {
 				finalResults[i] += partialResults[i];
 				if (automata.get(i).isActivated()) activeTraces[i]++;
@@ -119,7 +119,7 @@ public class ReactiveMinerQueryingCore implements Callable<ConstraintsBag> {
 
 		// Support and confidence of each constraint which respect to te log
 		for (int i = 0; i < finalResults.length; i++) {
-			double support = finalResults[i] / numberOfTraces;
+			double support = finalResults[i] / currentTraceNumber;
 			double confidence = finalResults[i] / activeTraces[i];
 			this.bag.getConstraintOfRunner(automata.get(i)).setSupport(support);
 			this.bag.getConstraintOfRunner(automata.get(i)).setConfidence(confidence);

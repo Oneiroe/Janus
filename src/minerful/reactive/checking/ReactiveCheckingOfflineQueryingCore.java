@@ -1,4 +1,4 @@
-package minerful.reactive.miner;
+package minerful.reactive.checking;
 
 import minerful.concept.TaskCharArchive;
 import minerful.concept.constraint.ConstraintsBag;
@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
 /**
  * Class to manage and organize the run of automata over a Log/Trace
  */
-public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag> {
+public class ReactiveCheckingOfflineQueryingCore implements Callable<MegaMatrixMonster> {
 
 	protected static Logger logger;
 	private final LogParser logParser;
@@ -27,10 +27,11 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
 	private final GlobalStatsTable globalStatsTable;
 	private final ConstraintsBag bag;  // rules to mine
 	private final int jobNum;
+	private MegaMatrixMonster megaMonster; // £d byte matrix with fine grain result
 
 	{
 		if (logger == null) {
-			logger = Logger.getLogger(ReactiveMinerOfflineQueryingCore.class.getCanonicalName());
+			logger = Logger.getLogger(ReactiveCheckingOfflineQueryingCore.class.getCanonicalName());
 		}
 	}
 
@@ -45,9 +46,9 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
 	 * @param globalStatsTable
 	 * @param bag
 	 */
-	public ReactiveMinerOfflineQueryingCore(int jobNum, LogParser logParser, MinerFulCmdParameters minerFulParams,
-											PostProcessingCmdParameters postPrarams, TaskCharArchive taskCharArchive,
-											GlobalStatsTable globalStatsTable, ConstraintsBag bag) {
+	public ReactiveCheckingOfflineQueryingCore(int jobNum, LogParser logParser, MinerFulCmdParameters minerFulParams,
+											   PostProcessingCmdParameters postPrarams, TaskCharArchive taskCharArchive,
+											   GlobalStatsTable globalStatsTable, ConstraintsBag bag) {
 		this.jobNum = jobNum;
 		this.logParser = logParser;
 		this.minerFulParams = minerFulParams;
@@ -64,8 +65,7 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
 	 * @param automata       set of separatedAutomata to test over the trace
 	 * @return boolean matrix with the evaluation in each single event of all the constraints
 	 */
-	public static int[][] runTrace(LogTraceParser logTraceParser, List<SeparatedAutomatonOfflineRunner> automata) {
-		int[][] results = new int[automata.size()][2]; // [0]fulfilled activations number, [1] activations number
+	public static void runTrace(LogTraceParser logTraceParser, List<SeparatedAutomatonOfflineRunner> automata, byte[][] results) {
 //        reset automata for a clean run
 		for (SeparatedAutomatonOfflineRunner automatonOfflineRunner : automata) {
 			automatonOfflineRunner.reset();
@@ -77,31 +77,11 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
 
 //        evaluate the trace with each constraint (i.e. separated automaton)
 		int i = 0;
-		byte[] currentAutomatonResults;
 		for (SeparatedAutomatonOfflineRunner automatonOfflineRunner : automata) {
-			currentAutomatonResults = new byte[trace.length];
-			automatonOfflineRunner.runTrace(trace, trace.length, currentAutomatonResults);
-//            truth degree and activations
-			int fullfilments = 0;
-			int activations = 0;
-			for (byte eventEvaluation : currentAutomatonResults) {
-				switch (eventEvaluation) {
-					case 2:
-						activations++;
-					case 3:
-						activations++;
-						fullfilments++;
-					default:
-						continue;
-				}
-			}
-			results[i][0] = fullfilments;
-			results[i][1] = activations;
-
-			i++;
+			results[i] = new byte[trace.length];
+			automatonOfflineRunner.runTrace(trace, trace.length, results[i++]);
 		}
 
-		return results;
 	}
 
 	/**
@@ -121,49 +101,35 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
 	 * @return ordered Array of supports for the full log for each automaton
 	 */
 	public void runLog(LogParser logParser, List<SeparatedAutomatonOfflineRunner> automata) {
-		double[] finalResults = new double[automata.size()]; // TODO case length=0
+		byte[][][] finalResults = new byte[logParser.length()][automata.size()][]; // TODO case length=0
+		logger.info("Basic result matrix created! Size: [" + logParser.length() + "][" + automata.size() + "][*]");
 
 		int currentTraceNumber = 0;
-		int[] activeTraces = new int[automata.size()];
-
 		int numberOfTotalTraces = logParser.length();
 
 		for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
 			LogTraceParser tr = it.next();
-			int[][] partialResult = runTrace(tr, automata);
+			runTrace(tr, automata, finalResults[currentTraceNumber]);
 			currentTraceNumber++;
 			System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
-			for (int i = 0; i < finalResults.length; i++) {
-				if (partialResult[i][1] > 0) {
-					finalResults[i] += partialResult[i][0] / partialResult[i][1];
-					activeTraces[i]++;
-				}
-			}
 		}
 		System.out.println();
 
-		// Support and confidence of each constraint which respect to te log
-		for (int i = 0; i < automata.size(); i++) {
-			double support = finalResults[i] / currentTraceNumber;
-			double confidence = finalResults[i] / activeTraces[i];
-			this.bag.getConstraintOfOfflineRunner(automata.get(i)).setSupport(support);
-			this.bag.getConstraintOfOfflineRunner(automata.get(i)).setConfidence(confidence);
-			this.bag.getConstraintOfOfflineRunner(automata.get(i)).setInterestFactor(confidence);
-		}
+		this.megaMonster = new MegaMatrixMonster(finalResults, this.logParser, this.bag.getSeparatedAutomataOfflineRunners());
 	}
 
 	/**
-	 * Launcher for mining
+	 * Launcher for model checking
 	 *
 	 * @return
 	 */
-	public ConstraintsBag discover() {
+	public MegaMatrixMonster check() {
 		runLog(this.logParser, this.bag.getSeparatedAutomataOfflineRunners());
-		return this.bag;
+		return this.megaMonster;
 	}
 
 	@Override
-	public ConstraintsBag call() throws Exception {
-		return this.discover();
+	public MegaMatrixMonster call() throws Exception {
+		return this.check();
 	}
 }

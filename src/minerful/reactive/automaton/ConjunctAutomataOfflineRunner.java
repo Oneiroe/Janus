@@ -71,7 +71,6 @@ public class ConjunctAutomataOfflineRunner {
                 result[i] &= currentPresentState.isAccept();
             }
             //        FUTURE (backward)
-//            TODO BROKEN: the future automaton MUST be reversed to make this technique working!!!
             if (currentFutureState != null) {
                 currentFutureState = currentFutureState.step(parametricMapping.getOrDefault(trace[traceLength - 1 - i], 'z'));
                 result[traceLength - 1 - i] &= currentFutureState.isAccept();
