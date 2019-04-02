@@ -30,10 +30,6 @@ import minerful.params.ViewCmdParameters;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
 import minerful.utils.MessagePrinter;
 
-import minerful.reactive.miner.ReactiveMinerOfflineQueryingCore;
-import minerful.reactive.miner.ReactiveMinerPruningCore;
-import minerful.reactive.miner.ReactiveMinerQueryingCore;
-
 public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 	protected static final String PROCESS_MODEL_NAME_PATTERN = "Process model discovered from %s";
 	protected static final String DEFAULT_ANONYMOUS_MODEL_NAME = "Discovered process model";
@@ -173,16 +169,12 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 		
 		proMod.setName(makeDiscoveredProcessName(inputParams));
 
-		/* Substitution of mining core with the Janus reactiveMiner */
-//      proMod.bag = queryForConstraints(logParser, minerFulParams, postParams, taskCharArchive, globalStatsTable, proMod.bag); // MINERful
-//		proMod.bag = reactiveQueryForConstraints(logParser, minerFulParams, postParams, taskCharArchive, globalStatsTable, proMod.bag);
-        proMod.bag = reactiveOfflineQueryForConstraints(logParser, minerFulParams, postParams, taskCharArchive, globalStatsTable, proMod.bag);
+		proMod.bag = queryForConstraints(logParser, minerFulParams, postParams,
+				taskCharArchive, globalStatsTable, proMod.bag);
 
 		System.gc();
 
-		/* TODO take back the full post processing and adapt it to the separation technique*/
-//		pruneConstraints(proMod, minerFulParams, postParams);
-		new ReactiveMinerPruningCore(proMod,  minerFulParams, postParams).pruneNonActiveConstraints();
+		pruneConstraints(proMod, minerFulParams, postParams);
 		return proMod;
 	}
 
@@ -299,56 +291,6 @@ public class MinerFulMinerStarter extends AbstractMinerFulStarter {
 		logger.info("Total KB querying time: " + (after - before));
 		return bag;
 	}
-
-	private ConstraintsBag reactiveQueryForConstraints(
-			LogParser logParser, MinerFulCmdParameters minerFulParams,
-			PostProcessingCmdParameters postPrarams, TaskCharArchive taskCharArchive,
-			GlobalStatsTable globalStatsTable, ConstraintsBag bag) {
-		int coreNum = 0;
-		long before = 0, after = 0;
-		if (minerFulParams.isParallelQueryProcessingRequired() && minerFulParams.isBranchingRequired()) {
-			logger.warn("Parallel querying of branched constraints not yet implemented. Proceeding with the single-core operations...");
-		}
-
-		/* JReactiveMiner Querying Core
-		 *
-		 * @author Alessio
-		 * */
-		ReactiveMinerQueryingCore minerFulQueryingCore = new ReactiveMinerQueryingCore(coreNum++,
-				logParser, minerFulParams, postPrarams, taskCharArchive,
-				globalStatsTable, bag);
-		before = System.currentTimeMillis();
-		minerFulQueryingCore.discover();
-		after = System.currentTimeMillis();
-
-		logger.info("Total KB querying time: " + (after - before));
-		return bag;
-	}
-
-    private ConstraintsBag reactiveOfflineQueryForConstraints(
-            LogParser logParser, MinerFulCmdParameters minerFulParams,
-            PostProcessingCmdParameters postPrarams, TaskCharArchive taskCharArchive,
-            GlobalStatsTable globalStatsTable, ConstraintsBag bag) {
-        int coreNum = 0;
-        long before = 0, after = 0;
-        if (minerFulParams.isParallelQueryProcessingRequired() && minerFulParams.isBranchingRequired()) {
-            logger.warn("Parallel querying of branched constraints not yet implemented. Proceeding with the single-core operations...");
-        }
-
-        /* Janus Offline Querying Core
-         *
-         * @author Alessio
-         * */
-        ReactiveMinerOfflineQueryingCore minerFulQueryingCore = new ReactiveMinerOfflineQueryingCore(coreNum++,
-                logParser, minerFulParams, postPrarams, taskCharArchive,
-                globalStatsTable, bag);
-        before = System.currentTimeMillis();
-        minerFulQueryingCore.discover();
-        after = System.currentTimeMillis();
-
-        logger.info("Total KB querying time: " + (after - before));
-        return bag;
-    }
 
 	protected ProcessModel pruneConstraints(
 			ProcessModel processModel,
