@@ -13,7 +13,7 @@ public class TransferObjectToProcessModelTranslator {
 	public TransferObjectToProcessModelTranslator() {}
 
 	/**
-	 * Create a process model from a Json file with the uaranties to respect the given encoding-mapping
+	 * Create a process model from a Json file with the guaranties to respect the given encoding-mapping
 	 * @param proModTO
 	 * @param alphabet encoding-mapping
 	 * @return
