@@ -3,6 +3,7 @@ package minerful.reactive.checking;
 import minerful.logparser.LogParser;
 import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
 import minerful.reactive.miner.ReactiveMinerOfflineQueryingCore;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -27,9 +28,16 @@ public class MegaMatrixMonster {
 
 	private double[][][] measures; // [trace index][constraint index][measure index] -> support:0, confidence:1, lovinger: 2
 
-	private double[][] constraintLogMeasures; // [constraint index][measure index]
-
+//	TODO remove these hard-coded shames
 	private int MEASURE_NUM = 3;
+
+	private String[] MEASURE_NAMES = {
+			"Support",
+			"Confidence",
+			"Lovinger"
+	};
+
+	private DescriptiveStatistics[][] constraintLogMeasures; // [constraint index][measure index]
 
 	{
 		if (logger == null) {
@@ -42,7 +50,7 @@ public class MegaMatrixMonster {
 		this.log = log;
 		this.automata = automata;
 		measures = new double[matrix.length][automata.size()][MEASURE_NUM];
-		constraintLogMeasures = new double[automata.size()][MEASURE_NUM];
+		constraintLogMeasures = new DescriptiveStatistics[automata.size()][MEASURE_NUM];
 	}
 
 	public byte[][][] getMatrix() {
@@ -117,14 +125,35 @@ public class MegaMatrixMonster {
 //		LOG MEASURES
 		for (int constraint = 0; constraint < matrix[0].length; constraint++) {
 			for (int measure = 0; measure < MEASURE_NUM; measure++) {
-				constraintLogMeasures[constraint][measure] = Measures.getMeasureAverage(constraint, measure, measures);
+//				constraintLogMeasures[constraint][measure] = Measures.getMeasureAverage(constraint, measure, measures);
+				constraintLogMeasures[constraint][measure] = Measures.getMeasureDistributionObject(constraint, measure, measures);
 //				constraintLogMeasures[constraint][measure] = Measures.getLogDuckTapeMeasures(constraint, measure, matrix);
 			}
 		}
 	}
 
 
-	public double[][] getConstraintLogMeasures() {
+	public DescriptiveStatistics[][] getConstraintLogMeasures() {
 		return constraintLogMeasures;
 	}
+
+	/**
+	 * Get the name of the i-th measure
+	 *
+	 * @return
+	 */
+	public String getMeasureName(int measureIndex) {
+		return MEASURE_NAMES[measureIndex];
+	}
+
+	/**
+	 * Get the names of all the measures
+	 *
+	 * @return
+	 */
+	public String[] getMeasureNames() {
+		return MEASURE_NAMES;
+	}
+
+
 }

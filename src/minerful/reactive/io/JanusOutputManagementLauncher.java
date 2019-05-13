@@ -2,6 +2,8 @@ package minerful.reactive.io;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import minerful.MinerFulOutputManagementLauncher;
 import minerful.concept.constraint.Constraint;
 import minerful.io.params.OutputModelParameters;
@@ -10,7 +12,9 @@ import minerful.logparser.LogTraceParser;
 import minerful.params.SystemCmdParameters;
 import minerful.params.ViewCmdParameters;
 import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
+import minerful.reactive.checking.Measures;
 import minerful.reactive.checking.MegaMatrixMonster;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.io.*;
 import java.util.Iterator;
@@ -64,31 +68,55 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 		this.manageCheckOutput(matrix, null, outParams, viewParams, systemParams, null);
 	}
 
+	/**
+	 * Builds the json structure for a given constraint
+	 */
+	private JsonElement aggregatedConstraintMeasuresJsonBuilder(MegaMatrixMonster megaMatrix, int constaintIndex, DescriptiveStatistics[] constraintLogMeasure) {
+		JsonObject constraintJson = new JsonObject();
+
+		for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
+			JsonObject measure = new JsonObject();
+
+			JsonObject stats = new JsonObject();
+
+			stats.addProperty("Mean", constraintLogMeasure[measureIndex].getMean());
+			stats.addProperty("Geometric Mean", constraintLogMeasure[measureIndex].getGeometricMean());
+			stats.addProperty("Variance", constraintLogMeasure[measureIndex].getVariance());
+			stats.addProperty("Population  variance", constraintLogMeasure[measureIndex].getPopulationVariance());
+			stats.addProperty("Standard Deviation", constraintLogMeasure[measureIndex].getStandardDeviation());
+			stats.addProperty("Percentile 75th", constraintLogMeasure[measureIndex].getPercentile(75));
+			stats.addProperty("Max", constraintLogMeasure[measureIndex].getMax());
+			stats.addProperty("Min", constraintLogMeasure[measureIndex].getMin());
+
+
+			measure.add("stats", stats);
+			measure.addProperty("duck tape", Measures.getLogDuckTapeMeasures(constaintIndex, measureIndex, megaMatrix.getMatrix()));
+
+			constraintJson.add(megaMatrix.getMeasureName(measureIndex), measure);
+		}
+
+		return constraintJson;
+	}
+
 	private void exportEncodedAggregatedMeasuresToJson(MegaMatrixMonster megaMatrix, File outputFile) {
 		logger.debug("JSON encoded aggregated measures...");
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		try {
 			FileWriter fw = new FileWriter(outputFile);
+			JsonObject jsonOutput = new JsonObject();
+
 			List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
 //			\/ \/ \/ LOG RESULTS
-			double[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
+			DescriptiveStatistics[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
 
-			fw.write("{\n");
 			for (int constraint = 0; constraint < constraintLogMeasure.length; constraint++) {
-				fw.write("\t\"" + automata.get(constraint).toString() + "\": {\n");
-				fw.write("\t\t \"Support\": " + constraintLogMeasure[constraint][0]
-						+ " , \"Confidence\": " + constraintLogMeasure[constraint][1]
-						+ " , \"Lovinger\": " + constraintLogMeasure[constraint][2]);
-
-				if (constraint == constraintLogMeasure.length - 1) {
-					fw.write("}\n");
-					continue;
-				}
-				fw.write("},\n");
+				jsonOutput.add(
+						automata.get(constraint).toString(),
+						aggregatedConstraintMeasuresJsonBuilder(megaMatrix, constraint, constraintLogMeasure[constraint])
+				);
 			}
-
-			fw.write("}\n");
-
+			gson.toJson(jsonOutput, fw);
 			fw.close();
 		} catch (IOException e) {
 			e.printStackTrace();

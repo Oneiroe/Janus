@@ -191,6 +191,25 @@ public class Measures {
 	}
 
 	/**
+	 * Returns an object containing the statistic of the measure distribution
+	 *
+	 * @param constraintIndex
+	 * @param measureIndex
+	 * @param traceMeasuresMatrix
+	 *
+	 * @return
+	 */
+	public static DescriptiveStatistics getMeasureDistributionObject(int constraintIndex, int measureIndex, double[][][] traceMeasuresMatrix){
+		DescriptiveStatistics measureDistribution = new DescriptiveStatistics();
+
+		for (double[][] traceEval : traceMeasuresMatrix) {
+			measureDistribution.addValue(traceEval[constraintIndex][measureIndex]);
+		}
+
+		return measureDistribution;
+	}
+
+	/**
 	 * given an evaluation array of a reactive constraint, extract the result of only the activator as an array of 0s and 1s
 	 *
 	 * @param reactiveConstraintEvaluation
