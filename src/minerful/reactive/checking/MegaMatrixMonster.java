@@ -25,7 +25,11 @@ public class MegaMatrixMonster {
 	private final LogParser log;
 	private final Collection<SeparatedAutomatonOfflineRunner> automata;
 
-	private double[][][] measures; // [trace index][constraint index][measure index] -> support:0, confidence:1
+	private double[][][] measures; // [trace index][constraint index][measure index] -> support:0, confidence:1, lovinger: 2
+
+	private double[][] constraintLogMeasures; // [constraint index][measure index]
+
+	private int MEASURE_NUM = 3;
 
 	{
 		if (logger == null) {
@@ -37,7 +41,8 @@ public class MegaMatrixMonster {
 		this.matrix = matrix;
 		this.log = log;
 		this.automata = automata;
-		measures = new double[matrix.length][automata.size()][3];
+		measures = new double[matrix.length][automata.size()][MEASURE_NUM];
+		constraintLogMeasures = new double[automata.size()][MEASURE_NUM];
 	}
 
 	public byte[][][] getMatrix() {
@@ -97,6 +102,7 @@ public class MegaMatrixMonster {
 	 * - confidence
 	 */
 	public void computeMeasures() {
+//		TRACE MEASURES
 		//        for the entire log
 		for (int trace = 0; trace < matrix.length; trace++) {
 //              for each trace
@@ -107,7 +113,18 @@ public class MegaMatrixMonster {
 				measures[trace][constraint][2] = Measures.getTraceLovinger(matrix[trace][constraint]);
 			}
 		}
+
+//		LOG MEASURES
+		for (int constraint = 0; constraint < matrix[0].length; constraint++) {
+			for (int measure = 0; measure < MEASURE_NUM; measure++) {
+				constraintLogMeasures[constraint][measure] = Measures.getMeasureAverage(constraint, measure, measures);
+//				constraintLogMeasures[constraint][measure] = Measures.getLogDuckTapeMeasures(constraint, measure, matrix);
+			}
+		}
 	}
 
 
+	public double[][] getConstraintLogMeasures() {
+		return constraintLogMeasures;
+	}
 }

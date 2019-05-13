@@ -1,5 +1,8 @@
 package minerful.reactive.checking;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
 /**
  * Class containing the measurement functions
  */
@@ -87,6 +90,105 @@ public class Measures {
 		return (conf - probabilityTarget) / (1 - probabilityTarget);
 	}
 
+	/**
+	 * return the support measure for a given constraint over the entire log
+	 *
+	 * @return
+	 */
+	public static double getLogSupport(int constraintIndex, MegaMatrixMonster matrix) {
+		return getMeasureAverage(constraintIndex, 0, matrix.getMeasures());
+//		return getLogDuckTapeMeasures(constraintIndex, 0, matrix.getMatrix());
+	}
+
+	/**
+	 * return the given measure of a constraint over the entire log using the "tape" method:
+	 * Consider the log as a single trace and compute the measure with the trace methods
+	 *
+	 * @param constraintIndex
+	 * @param measureIndex
+	 * @param bytesMatrix
+	 * @return
+	 */
+//	@Deprecated
+	public static double getLogDuckTapeMeasures(int constraintIndex, int measureIndex, byte[][][] bytesMatrix) {
+		double result = 0;
+		byte[] tapeLog = {};
+
+		for (byte[][] trace : bytesMatrix) {
+			tapeLog = ArrayUtils.addAll(tapeLog, trace[constraintIndex]);
+		}
+
+//		TODO remove this hard-coded shame
+		switch (measureIndex) {
+			case 0:
+//				support
+				result = getTraceSupport(tapeLog);
+				break;
+			case 1:
+//				confidence
+				result = getTraceSupport(tapeLog);
+				break;
+			case 2:
+//				Lovinger
+				result = getTraceLovinger(tapeLog);
+				break;
+		}
+
+		return result;
+	}
+
+	/**
+	 * Compute the probability for a SINGLE constraint over the entire log seen as a single (duck)tape
+	 *
+	 * @return
+	 */
+	public static double getLogDuckTapeProbability() {
+//		TODO
+		return 0;
+	}
+
+	/**
+	 * return the X measure of a constraint over the entire log as the average of the support within all the traces
+	 *
+	 * @return
+	 */
+//	@Deprecated
+	public static double getMeasureAverage(int constraintIndex, int measureIndex, double[][][] traceMeasuresMatrix) {
+		double result = 0;
+		for (double[][] traceEval : traceMeasuresMatrix) {
+			result += traceEval[constraintIndex][measureIndex];
+		}
+
+		return result / traceMeasuresMatrix.length;
+	}
+
+
+	/**
+	 * retieve the measure distribution info.
+	 * it takes the results of all the traces and draw the distribution properties.
+	 * i.e. average value, standard deviation, quartile, max, min
+	 *
+	 * @param traceMeasures array containing the measure value for each trace
+	 * @return array with the distribution values
+	 */
+	public static double[] getMeasureDistribution(double[] traceMeasures) {
+		DescriptiveStatistics measureDistribution = new DescriptiveStatistics();
+		for (double measure : traceMeasures) {
+			measureDistribution.addValue(measure);
+		}
+		double[] result = {
+				measureDistribution.getMean(),
+				measureDistribution.getGeometricMean(),
+				measureDistribution.getVariance(),
+				measureDistribution.getPopulationVariance(),
+				measureDistribution.getStandardDeviation(),
+				measureDistribution.getPercentile(75),
+				measureDistribution.getMax(),
+				measureDistribution.getMin()
+		};
+
+		return result;
+	}
 
 	/**
 	 * given an evaluation array of a reactive constraint, extract the result of only the activator as an array of 0s and 1s
@@ -115,5 +217,6 @@ public class Measures {
 		}
 		return result;
 	}
+
 
 }

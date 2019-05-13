@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import minerful.MinerFulOutputManagementLauncher;
 import minerful.concept.constraint.Constraint;
-import minerful.io.encdec.ProcessModelEncoderDecoder;
 import minerful.io.params.OutputModelParameters;
 import minerful.logparser.LogParser;
 import minerful.logparser.LogTraceParser;
@@ -25,6 +24,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 
 	public void manageCheckOutput(MegaMatrixMonster matrix, NavigableMap<Constraint, String> additionalCnsIndexedInfo, OutputModelParameters outParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, LogParser logParser) {
 		File outputFile = null;
+		File outputAggregatedMeasuresFile = null;
 
 		if (outParams.fileToSaveConstraintsAsCSV != null) {
 //			TODO CSV output
@@ -51,6 +51,9 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 			exportEncodedReadable3DMatrixToJson(matrix, outputFile);
 //			exportReadable3DMatrixToJson(matrix, outputFile);
 
+			outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("AggregatedMeasures.json"));
+			exportEncodedAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
+
 			double after = System.currentTimeMillis();
 			logger.info("Total JSON serialization time: " + (after - before));
 		}
@@ -59,6 +62,38 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 	public void manageCheckOutput(MegaMatrixMonster matrix,
 								  ViewCmdParameters viewParams, OutputModelParameters outParams, SystemCmdParameters systemParams) {
 		this.manageCheckOutput(matrix, null, outParams, viewParams, systemParams, null);
+	}
+
+	private void exportEncodedAggregatedMeasuresToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+		logger.debug("JSON encoded aggregated measures...");
+		try {
+			FileWriter fw = new FileWriter(outputFile);
+			List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+
+//			\/ \/ \/ LOG RESULTS
+			double[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
+
+			fw.write("{\n");
+			for (int constraint = 0; constraint < constraintLogMeasure.length; constraint++) {
+				fw.write("\t\"" + automata.get(constraint).toString() + "\": {\n");
+				fw.write("\t\t \"Support\": " + constraintLogMeasure[constraint][0]
+						+ " , \"Confidence\": " + constraintLogMeasure[constraint][1]
+						+ " , \"Lovinger\": " + constraintLogMeasure[constraint][2]);
+
+				if (constraint == constraintLogMeasure.length - 1) {
+					fw.write("}\n");
+					continue;
+				}
+				fw.write("},\n");
+			}
+
+			fw.write("}\n");
+
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		logger.debug("JSON encoded aggregated measures...DONE!");
 	}
 
 	/**
