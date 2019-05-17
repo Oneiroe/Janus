@@ -19,6 +19,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableMap;
@@ -48,8 +49,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 			double before = System.currentTimeMillis();
 
 //			Detailed traces results
-//			exportEncodedReadable3DMatrixToCSV(matrix, outputFile);
-//			exportReadable3DMatrixToCSV(matrix, outputFile);
+			exportEncodedReadable3DMatrixToCSV(matrix, outputFile);
 
 //			Aggregated Log measures
 			outputAggregatedMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("AggregatedMeasures.CSV"));
@@ -90,10 +90,65 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 		}
 	}
 
-
 	public void manageCheckOutput(MegaMatrixMonster matrix,
 								  ViewCmdParameters viewParams, OutputModelParameters outParams, SystemCmdParameters systemParams) {
 		this.manageCheckOutput(matrix, null, outParams, viewParams, systemParams, null);
+	}
+
+
+	/**
+	 * Export to CSV the detailed result at the level of the events in all the traces
+	 *
+	 * @param megaMatrix
+	 * @param outputFile
+	 */
+	private void exportEncodedReadable3DMatrixToCSV(MegaMatrixMonster megaMatrix, File outputFile) {
+		logger.debug("CSV encoded readable serialization...");
+
+//		header row
+//		TODO make the columns parametric, not hard-coded
+		String[] header = new String[]{
+				"Trace",
+				"Constraint",
+				"Events-Evaluation",
+				"Support",
+				"Confidence",
+				"Lovinger"
+		};
+
+		try {
+			FileWriter fw = new FileWriter(outputFile);
+			CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
+
+			byte[][][] matrix = megaMatrix.getMatrix();
+			Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
+			List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+
+			//		Row builder
+//        for the entire log
+			for (int trace = 0; trace < matrix.length; trace++) {
+				LogTraceParser tr = it.next();
+				String traceString = tr.encodeTrace();
+
+//              for each trace
+				for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
+//                  for each constraint
+					String[] row = new String[]{
+							traceString,
+							automata.get(constraint).toString(),
+							Arrays.toString(matrix[trace][constraint]),
+							String.valueOf(megaMatrix.getSpecificSupport(trace, constraint)),
+							String.valueOf(megaMatrix.getSpecificConfidence(trace, constraint)),
+							String.valueOf(megaMatrix.getSpecificLovinger(trace, constraint))
+					};
+					printer.printRecord(row);
+
+				}
+			}
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
