@@ -95,6 +95,7 @@ public class Measures {
 	 *
 	 * @return
 	 */
+//	@Deprecated
 	public static double getLogSupport(int constraintIndex, MegaMatrixMonster matrix) {
 		return getMeasureAverage(constraintIndex, 0, matrix.getMeasures());
 //		return getLogDuckTapeMeasures(constraintIndex, 0, matrix.getMatrix());
@@ -109,7 +110,6 @@ public class Measures {
 	 * @param bytesMatrix
 	 * @return
 	 */
-//	@Deprecated
 	public static double getLogDuckTapeMeasures(int constraintIndex, int measureIndex, byte[][][] bytesMatrix) {
 		double result = 0;
 		byte[] tapeLog = {};
@@ -126,7 +126,7 @@ public class Measures {
 				break;
 			case 1:
 //				confidence
-				result = getTraceSupport(tapeLog);
+				result = getTraceConfidence(tapeLog);
 				break;
 			case 2:
 //				Lovinger
