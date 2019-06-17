@@ -102,7 +102,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 	 * @param megaMatrix
 	 * @param outputFile
 	 */
-	private void exportEncodedReadable3DMatrixToCSV(MegaMatrixMonster megaMatrix, File outputFile) {
+	public void exportEncodedReadable3DMatrixToCSV(MegaMatrixMonster megaMatrix, File outputFile) {
 		logger.debug("CSV encoded readable serialization...");
 
 //		header row
@@ -160,7 +160,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 	 * @param megaMatrix
 	 * @param outputAggregatedMeasuresFile
 	 */
-	private void exportEncodedAggregatedMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile) {
+	public void exportEncodedAggregatedMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile) {
 		DescriptiveStatistics[][] constraintsLogMeasure = megaMatrix.getConstraintLogMeasures();
 
 		List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
@@ -250,7 +250,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 	 * @param megaMatrix
 	 * @param outputFile
 	 */
-	private void exportEncodedAggregatedMeasuresToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+	public void exportEncodedAggregatedMeasuresToJson(MegaMatrixMonster megaMatrix, File outputFile) {
 		logger.debug("JSON encoded aggregated measures...");
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		try {
@@ -279,7 +279,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 	/**
 	 * Serialize the 3D matrix as-is into a Json file
 	 */
-	private void exportRaw3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+	public void exportRaw3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile) {
 		logger.info("JSON serialization...");
 
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -297,7 +297,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 	/**
 	 * Serialize the 3D matrix into a Json file to have a readable result, but encoded events
 	 */
-	private void exportEncodedReadable3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+	public void exportEncodedReadable3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile) {
 		logger.debug("JSON encoded readable serialization...");
 		try {
 			FileWriter fw = new FileWriter(outputFile);
@@ -362,7 +362,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 	/**
 	 * Serialize the 3D matrix into a Json file to have a readable result
 	 */
-	private void exportReadable3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+	public void exportReadable3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile) {
 		logger.info("JSON readable serialization...");
 		try {
 			FileWriter fw = new FileWriter(outputFile);
