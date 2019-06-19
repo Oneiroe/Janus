@@ -97,7 +97,80 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 
 
 	/**
-	 * Export to CSV the detailed result at the level of the events in all the traces
+	 * Export to CSV the detailed result at the level of the events in all the traces.
+	 *
+	 * @param megaMatrix
+	 * @param outputFile
+	 */
+	public void exportReadable3DMatrixToCSV(MegaMatrixMonster megaMatrix, File outputFile) {
+		logger.debug("CSV readable serialization...");
+
+//		header row
+//		TODO make the columns parametric, not hard-coded
+		String[] header = new String[]{
+				"Trace",
+				"Constraint",
+				"Events-Evaluation",
+				"Support",
+				"Confidence",
+				"Lovinger"
+		};
+
+		try {
+			FileWriter fw = new FileWriter(outputFile);
+			CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
+
+			byte[][][] matrix = megaMatrix.getMatrix();
+			Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
+			List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+
+			//		Row builder
+//        for the entire log
+			for (int trace = 0; trace < matrix.length; trace++) {
+				LogTraceParser tr = it.next();
+
+//				Trace as unencoded string
+				StringBuilder traceBuilder = new StringBuilder();
+				traceBuilder.append("<");
+				int i = 0;
+				while (i < tr.length()) {
+					String eventString = tr.parseSubsequent().getEvent().getTaskClass().toString();
+					if (i == (tr.length() - 1)) {
+						traceBuilder.append(eventString);
+					} else {
+						traceBuilder.append(eventString + ",");
+					}
+					i++;
+				}
+				traceBuilder.append(">");
+
+				String traceString = traceBuilder.toString();
+
+
+//              for each trace
+				for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
+//                  for each constraint
+
+					String[] row = new String[]{
+							traceString,
+							automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById()),
+							Arrays.toString(matrix[trace][constraint]),
+							String.valueOf(megaMatrix.getSpecificSupport(trace, constraint)),
+							String.valueOf(megaMatrix.getSpecificConfidence(trace, constraint)),
+							String.valueOf(megaMatrix.getSpecificLovinger(trace, constraint))
+					};
+					printer.printRecord(row);
+
+				}
+			}
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Export to CSV the detailed result at the level of the events in all the traces. Events are encoded
 	 *
 	 * @param megaMatrix
 	 * @param outputFile
