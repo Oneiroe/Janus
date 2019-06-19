@@ -233,7 +233,75 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 	 * @param megaMatrix
 	 * @param outputAggregatedMeasuresFile
 	 */
+	public void exportAggregatedMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile) {
+		logger.debug("CSV aggregated measures...");
+		DescriptiveStatistics[][] constraintsLogMeasure = megaMatrix.getConstraintLogMeasures();
+
+		List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+
+//		header row
+//		TODO make the columns parametric, not hard-coded
+		String[] header = new String[]{
+				"Constraint",
+				"Quality-Measure",
+				"Duck-Tape",
+				"Mean",
+				"Geometric-Mean",
+				"Variance",
+				"Population-variance",
+				"Standard-Deviation",
+				"Percentile-75th",
+				"Max",
+				"Min"
+		};
+
+		try {
+			FileWriter fw = new FileWriter(outputAggregatedMeasuresFile);
+			CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
+
+			Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
+			LogTraceParser tr = it.next();
+
+			//		Row builder
+			for (int constraint = 0; constraint < constraintsLogMeasure.length; constraint++) {
+//				String constraintName = automata.get(constraint).toString();
+				String constraintName = automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById());
+				DescriptiveStatistics[] constraintLogMeasure = constraintsLogMeasure[constraint];
+
+				for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
+					String[] row = new String[]{
+							constraintName,
+							megaMatrix.getMeasureName(measureIndex),
+							String.valueOf(Measures.getLogDuckTapeMeasures(constraint, measureIndex, megaMatrix.getMatrix())),
+							String.valueOf(constraintLogMeasure[measureIndex].getMean()),
+							String.valueOf(constraintLogMeasure[measureIndex].getGeometricMean()),
+							String.valueOf(constraintLogMeasure[measureIndex].getVariance()),
+							String.valueOf(constraintLogMeasure[measureIndex].getPopulationVariance()),
+							String.valueOf(constraintLogMeasure[measureIndex].getStandardDeviation()),
+							String.valueOf(constraintLogMeasure[measureIndex].getPercentile(75)),
+							String.valueOf(constraintLogMeasure[measureIndex].getMax()),
+							String.valueOf(constraintLogMeasure[measureIndex].getMin())
+					};
+					printer.printRecord(row);
+				}
+			}
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Export to CSV format the aggregated measures at the level of log. Events are encoded
+	 * <p>
+	 * the columns index is:
+	 * constraint; quality-measure; duck-tape; mean; geometric-mean; variance; ....(all the other stats)
+	 *
+	 * @param megaMatrix
+	 * @param outputAggregatedMeasuresFile
+	 */
 	public void exportEncodedAggregatedMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile) {
+		logger.debug("CSV encoded aggregated measures...");
 		DescriptiveStatistics[][] constraintsLogMeasure = megaMatrix.getConstraintLogMeasures();
 
 		List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
@@ -319,6 +387,41 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 
 	/**
 	 * write the jon file with the aggregated measures
+	 *
+	 * @param megaMatrix
+	 * @param outputFile
+	 */
+	public void exportAggregatedMeasuresToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+		logger.debug("JSON aggregated measures...");
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		try {
+			FileWriter fw = new FileWriter(outputFile);
+			JsonObject jsonOutput = new JsonObject();
+
+			Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
+			LogTraceParser tr = it.next();
+
+			List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+
+//			\/ \/ \/ LOG RESULTS
+			DescriptiveStatistics[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
+
+			for (int constraint = 0; constraint < constraintLogMeasure.length; constraint++) {
+				jsonOutput.add(
+						automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById()),
+						aggregatedConstraintMeasuresJsonBuilder(megaMatrix, constraint, constraintLogMeasure[constraint])
+				);
+			}
+			gson.toJson(jsonOutput, fw);
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		logger.debug("JSON encoded aggregated measures...DONE!");
+	}
+
+	/**
+	 * write the jon file with the aggregated measures. events are encoded
 	 *
 	 * @param megaMatrix
 	 * @param outputFile
