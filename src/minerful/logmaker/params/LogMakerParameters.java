@@ -36,9 +36,9 @@ public class LogMakerParameters extends ParamsManager {
 	
 	public static final String OUTPUT_FILE_PARAM_NAME = "oLF";
     public static final String OUT_ENC_PARAM_NAME = "oLE";
-	public static final char SIZE_PARAM_NAME = 'L';
-	public static final char MAX_LEN_PARAM_NAME = 'M';
-	public static final char MIN_LEN_PARAM_NAME = 'm';
+	public static final String SIZE_PARAM_NAME = "oLL";
+	public static final String MAX_LEN_PARAM_NAME = "oLM";
+	public static final String MIN_LEN_PARAM_NAME = "oLm";
 
     public static final Long DEFAULT_SIZE = 100L;
     public static final Integer DEFAULT_MIN_TRACE_LENGTH = 0;
@@ -165,8 +165,8 @@ public class LogMakerParameters extends ParamsManager {
         );
         options.addOption(
                 OptionBuilder
-                .hasArg().withArgName("encoding")
-                .withLongOpt("out-log-enc")
+                .hasArg().withArgName("language")
+                .withLongOpt("out-log-encoding")
                 .withDescription("encoding language for the output log " + printValues(LogMakerParameters.Encoding.values())
                 	+ printDefault(fromEnumValueToString(DEFAULT_OUTPUT_ENCODING)))
                 .withType(new String())
