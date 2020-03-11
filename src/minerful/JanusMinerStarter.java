@@ -160,9 +160,9 @@ public class JanusMinerStarter extends AbstractMinerFulStarter {
 
 	public ProcessModel mine(LogParser logParser,
 			InputLogCmdParameters inputParams, MinerFulCmdParameters minerFulParams, PostProcessingCmdParameters postParams, TaskCharArchive taskCharArchive) {
-		GlobalStatsTable globalStatsTable = new GlobalStatsTable(taskCharArchive, minerFulParams.branchingLimit);
-		globalStatsTable = computeKB(logParser, minerFulParams,
-				taskCharArchive, globalStatsTable);
+//		GlobalStatsTable globalStatsTable = new GlobalStatsTable(taskCharArchive, minerFulParams.branchingLimit);
+//		globalStatsTable = computeKB(logParser, minerFulParams,
+//				taskCharArchive, globalStatsTable);
 
 		System.gc();
 
@@ -172,7 +172,7 @@ public class JanusMinerStarter extends AbstractMinerFulStarter {
 
 		/* Substitution of mining core with the Janus reactiveMiner */
 //      proMod.bag = queryForConstraints(logParser, minerFulParams, postParams, taskCharArchive, globalStatsTable, proMod.bag); // MINERful
-		proMod.bag = reactiveQueryForConstraints(logParser, minerFulParams, postParams, taskCharArchive, globalStatsTable, proMod.bag);
+		proMod.bag = reactiveQueryForConstraints(logParser, minerFulParams, postParams, taskCharArchive, null, proMod.bag);
 //        proMod.bag = reactiveOfflineQueryForConstraints(logParser, minerFulParams, postParams, taskCharArchive, globalStatsTable, proMod.bag);
 
 		System.gc();

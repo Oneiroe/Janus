@@ -26,210 +26,210 @@ import java.util.concurrent.*;
  * Start Janus offline mining from command line
  */
 public class JanusOfflineMinerStarter extends AbstractMinerFulStarter {
-	protected static final String PROCESS_MODEL_NAME_PATTERN = "Process model discovered from %s";
-	protected static final String DEFAULT_ANONYMOUS_MODEL_NAME = "Discovered process model";
-	private static MessagePrinter logger = MessagePrinter.getInstance(JanusOfflineMinerStarter.class);
+    protected static final String PROCESS_MODEL_NAME_PATTERN = "Process model discovered from %s";
+    protected static final String DEFAULT_ANONYMOUS_MODEL_NAME = "Discovered process model";
+    private static MessagePrinter logger = MessagePrinter.getInstance(JanusOfflineMinerStarter.class);
 
-	@Override
-	public Options setupOptions() {
-		Options cmdLineOptions = new Options();
-		
-		Options minerfulOptions = MinerFulCmdParameters.parseableOptions(),
-				inputOptions = InputLogCmdParameters.parseableOptions(),
-				systemOptions = SystemCmdParameters.parseableOptions(),
-				viewOptions = ViewCmdParameters.parseableOptions(),
-				outputOptions = OutputModelParameters.parseableOptions(),
-				postProptions = PostProcessingCmdParameters.parseableOptions();
-		
-    	for (Object opt: postProptions.getOptions()) {
-    		cmdLineOptions.addOption((Option)opt);
-    	}
-    	for (Object opt: minerfulOptions.getOptions()) {
-    		cmdLineOptions.addOption((Option)opt);
-    	}
-    	for (Object opt: inputOptions.getOptions()) {
-    		cmdLineOptions.addOption((Option)opt);
-    	}
-    	for (Object opt: viewOptions.getOptions()) {
-    		cmdLineOptions.addOption((Option)opt);
-    	}
-    	for (Object opt: outputOptions.getOptions()) {
-    		cmdLineOptions.addOption((Option)opt);
-    	}
-    	for (Object opt: systemOptions.getOptions()) {
-    		cmdLineOptions.addOption((Option)opt);
-    	}
-		
-		return cmdLineOptions;
-	}
+    @Override
+    public Options setupOptions() {
+        Options cmdLineOptions = new Options();
 
-	/**
-	 * @param args
-	 *            the command line arguments: [regular expression] [number of
-	 *            strings] [minimum number of characters per string] [maximum
-	 *            number of characters per string] [alphabet]...
-	 */
-	public static void main(String[] args) {
-		JanusOfflineMinerStarter minerMinaStarter = new JanusOfflineMinerStarter();
-		Options cmdLineOptions = minerMinaStarter.setupOptions();
+        Options minerfulOptions = MinerFulCmdParameters.parseableOptions(),
+                inputOptions = InputLogCmdParameters.parseableOptions(),
+                systemOptions = SystemCmdParameters.parseableOptions(),
+                viewOptions = ViewCmdParameters.parseableOptions(),
+                outputOptions = OutputModelParameters.parseableOptions(),
+                postProptions = PostProcessingCmdParameters.parseableOptions();
 
-		InputLogCmdParameters inputParams =
-				new InputLogCmdParameters(
-						cmdLineOptions,
-						args);
-		MinerFulCmdParameters minerFulParams =
-				new MinerFulCmdParameters(
-						cmdLineOptions,
-						args);
-		ViewCmdParameters viewParams =
-				new ViewCmdParameters(
-						cmdLineOptions,
-						args);
-		OutputModelParameters outParams =
-				new OutputModelParameters(
-						cmdLineOptions,
-						args);
-		SystemCmdParameters systemParams =
-				new SystemCmdParameters(
-						cmdLineOptions,
-						args);
-		PostProcessingCmdParameters postParams =
-				new PostProcessingCmdParameters(
-						cmdLineOptions,
-						args);
+        for (Object opt : postProptions.getOptions()) {
+            cmdLineOptions.addOption((Option) opt);
+        }
+        for (Object opt : minerfulOptions.getOptions()) {
+            cmdLineOptions.addOption((Option) opt);
+        }
+        for (Object opt : inputOptions.getOptions()) {
+            cmdLineOptions.addOption((Option) opt);
+        }
+        for (Object opt : viewOptions.getOptions()) {
+            cmdLineOptions.addOption((Option) opt);
+        }
+        for (Object opt : outputOptions.getOptions()) {
+            cmdLineOptions.addOption((Option) opt);
+        }
+        for (Object opt : systemOptions.getOptions()) {
+            cmdLineOptions.addOption((Option) opt);
+        }
 
-		if (systemParams.help) {
-			systemParams.printHelp(cmdLineOptions);
-			System.exit(0);
-		}
-		if (!isEventLogGiven(cmdLineOptions, inputParams, systemParams)) {
-			System.exit(1);
-		}
+        return cmdLineOptions;
+    }
 
-		MessagePrinter.configureLogging(systemParams.debugLevel);
+    /**
+     * @param args the command line arguments: [regular expression] [number of
+     *             strings] [minimum number of characters per string] [maximum
+     *             number of characters per string] [alphabet]...
+     */
+    public static void main(String[] args) {
+        JanusOfflineMinerStarter minerMinaStarter = new JanusOfflineMinerStarter();
+        Options cmdLineOptions = minerMinaStarter.setupOptions();
 
-		logger.info("Loading log...");
+        InputLogCmdParameters inputParams =
+                new InputLogCmdParameters(
+                        cmdLineOptions,
+                        args);
+        MinerFulCmdParameters minerFulParams =
+                new MinerFulCmdParameters(
+                        cmdLineOptions,
+                        args);
+        ViewCmdParameters viewParams =
+                new ViewCmdParameters(
+                        cmdLineOptions,
+                        args);
+        OutputModelParameters outParams =
+                new OutputModelParameters(
+                        cmdLineOptions,
+                        args);
+        SystemCmdParameters systemParams =
+                new SystemCmdParameters(
+                        cmdLineOptions,
+                        args);
+        PostProcessingCmdParameters postParams =
+                new PostProcessingCmdParameters(
+                        cmdLineOptions,
+                        args);
 
-		LogParser logParser = MinerFulMinerLauncher.deriveLogParserFromLogFile(
-				inputParams,
-				minerFulParams);
+        if (systemParams.help) {
+            systemParams.printHelp(cmdLineOptions);
+            System.exit(0);
+        }
+        if (!isEventLogGiven(cmdLineOptions, inputParams, systemParams)) {
+            System.exit(1);
+        }
 
-		TaskCharArchive taskCharArchive = logParser.getTaskCharArchive();
+        MessagePrinter.configureLogging(systemParams.debugLevel);
 
-		ProcessModel processModel = minerMinaStarter.mine(logParser, inputParams, minerFulParams, postParams, taskCharArchive);
+        logger.info("Loading log...");
 
-		new MinerFulOutputManagementLauncher().manageOutput(processModel, viewParams, outParams, systemParams, logParser);
-	}
+        LogParser logParser = MinerFulMinerLauncher.deriveLogParserFromLogFile(
+                inputParams,
+                minerFulParams);
 
-	public static boolean isEventLogGiven(Options cmdLineOptions, InputLogCmdParameters inputParams,
-			SystemCmdParameters systemParams) {
-		if (inputParams.inputLogFile == null) {
-			systemParams.printHelpForWrongUsage("Input log file missing! Please use the " +
-					InputLogCmdParameters.INPUT_LOGFILE_PATH_PARAM_NAME +
-					" option.",
-					cmdLineOptions);
-			return false;
-		}
-		return true;
-	}
+        TaskCharArchive taskCharArchive = logParser.getTaskCharArchive();
 
-	public ProcessModel mine(LogParser logParser,
-			MinerFulCmdParameters minerFulParams,
-			PostProcessingCmdParameters postParams, Character[] alphabet) {
-		return this.mine(logParser, null, minerFulParams, postParams, alphabet);
-	}
+        ProcessModel processModel = minerMinaStarter.mine(logParser, inputParams, minerFulParams, postParams, taskCharArchive);
 
-	public ProcessModel mine(LogParser logParser,
-			InputLogCmdParameters inputParams, MinerFulCmdParameters minerFulParams,
-			PostProcessingCmdParameters postParams, Character[] alphabet) {
-		TaskCharArchive taskCharArchive = new TaskCharArchive(alphabet);
-		return this.mine(logParser, inputParams, minerFulParams, postParams, taskCharArchive);
-	}
+        new MinerFulOutputManagementLauncher().manageOutput(processModel, viewParams, outParams, systemParams, logParser);
+    }
 
-	public ProcessModel mine(LogParser logParser,
-			MinerFulCmdParameters minerFulParams, 
-			PostProcessingCmdParameters postParams, TaskCharArchive taskCharArchive) {
-		return this.mine(logParser, null, minerFulParams, postParams, taskCharArchive);
-	}
+    public static boolean isEventLogGiven(Options cmdLineOptions, InputLogCmdParameters inputParams,
+                                          SystemCmdParameters systemParams) {
+        if (inputParams.inputLogFile == null) {
+            systemParams.printHelpForWrongUsage("Input log file missing! Please use the " +
+                            InputLogCmdParameters.INPUT_LOGFILE_PATH_PARAM_NAME +
+                            " option.",
+                    cmdLineOptions);
+            return false;
+        }
+        return true;
+    }
 
-	public ProcessModel mine(LogParser logParser,
-			InputLogCmdParameters inputParams, MinerFulCmdParameters minerFulParams, PostProcessingCmdParameters postParams, TaskCharArchive taskCharArchive) {
-		GlobalStatsTable globalStatsTable = new GlobalStatsTable(taskCharArchive, minerFulParams.branchingLimit);
-		globalStatsTable = computeKB(logParser, minerFulParams,
-				taskCharArchive, globalStatsTable);
+    public ProcessModel mine(LogParser logParser,
+                             MinerFulCmdParameters minerFulParams,
+                             PostProcessingCmdParameters postParams, Character[] alphabet) {
+        return this.mine(logParser, null, minerFulParams, postParams, alphabet);
+    }
 
-		System.gc();
+    public ProcessModel mine(LogParser logParser,
+                             InputLogCmdParameters inputParams, MinerFulCmdParameters minerFulParams,
+                             PostProcessingCmdParameters postParams, Character[] alphabet) {
+        TaskCharArchive taskCharArchive = new TaskCharArchive(alphabet);
+        return this.mine(logParser, inputParams, minerFulParams, postParams, taskCharArchive);
+    }
 
-		ProcessModel proMod = ProcessModel.generateNonEvaluatedBinaryModel(taskCharArchive);
-		
-		proMod.setName(makeDiscoveredProcessName(inputParams));
+    public ProcessModel mine(LogParser logParser,
+                             MinerFulCmdParameters minerFulParams,
+                             PostProcessingCmdParameters postParams, TaskCharArchive taskCharArchive) {
+        return this.mine(logParser, null, minerFulParams, postParams, taskCharArchive);
+    }
 
-		/* Substitution of mining core with the Janus reactiveMiner */
-        proMod.bag = reactiveOfflineQueryForConstraints(logParser, minerFulParams, postParams, taskCharArchive, globalStatsTable, proMod.bag);
+    public ProcessModel mine(LogParser logParser,
+                             InputLogCmdParameters inputParams, MinerFulCmdParameters minerFulParams, PostProcessingCmdParameters postParams, TaskCharArchive taskCharArchive) {
+//		COMPUTATION MINERful heuristics not useful in Janus
+//		GlobalStatsTable globalStatsTable = new GlobalStatsTable(taskCharArchive, minerFulParams.branchingLimit);
+//		globalStatsTable = computeKB(logParser, minerFulParams,
+//				taskCharArchive, globalStatsTable);
 
-		System.gc();
+        System.gc();
 
-		/* TODO take back the full post processing and adapt it to the separation technique*/
+        ProcessModel proMod = ProcessModel.generateNonEvaluatedBinaryModel(taskCharArchive);
+
+        proMod.setName(makeDiscoveredProcessName(inputParams));
+
+        /* Substitution of mining core with the Janus reactiveMiner */
+        proMod.bag = reactiveOfflineQueryForConstraints(logParser, minerFulParams, postParams, taskCharArchive, null, proMod.bag);
+
+        System.gc();
+
+        /* TODO take back the full post processing and adapt it to the separation technique*/
 //		pruneConstraints(proMod, minerFulParams, postParams);
-		new ReactiveMinerPruningCore(proMod,  minerFulParams, postParams).pruneNonActiveConstraints();
-		return proMod;
-	}
+        new ReactiveMinerPruningCore(proMod, minerFulParams, postParams).pruneNonActiveConstraints();
+        return proMod;
+    }
 
-	public static String makeDiscoveredProcessName(InputLogCmdParameters inputParams) {
-		return (inputParams != null && inputParams.inputLogFile != null ) ?
-			String.format(JanusOfflineMinerStarter.PROCESS_MODEL_NAME_PATTERN, inputParams.inputLogFile.getName()) :
-				DEFAULT_ANONYMOUS_MODEL_NAME;
-	}
+    public static String makeDiscoveredProcessName(InputLogCmdParameters inputParams) {
+        return (inputParams != null && inputParams.inputLogFile != null) ?
+                String.format(JanusOfflineMinerStarter.PROCESS_MODEL_NAME_PATTERN, inputParams.inputLogFile.getName()) :
+                DEFAULT_ANONYMOUS_MODEL_NAME;
+    }
 
-	protected GlobalStatsTable computeKB(LogParser logParser,
-			MinerFulCmdParameters minerFulParams,
-			TaskCharArchive taskCharArchive, GlobalStatsTable globalStatsTable) {
-		int coreNum = 0;
-		long before = 0, after = 0;
-		if (minerFulParams.isParallelKbComputationRequired()) {
-			// Slice the log
-			List<LogParser> listOfLogParsers = logParser
-					.split(minerFulParams.kbParallelProcessingThreads);
-			List<MinerFulKBCore> listOfMinerFulCores = new ArrayList<MinerFulKBCore>(
-					minerFulParams.kbParallelProcessingThreads);
+    protected GlobalStatsTable computeKB(LogParser logParser,
+                                         MinerFulCmdParameters minerFulParams,
+                                         TaskCharArchive taskCharArchive, GlobalStatsTable globalStatsTable) {
+        int coreNum = 0;
+        long before = 0, after = 0;
+        if (minerFulParams.isParallelKbComputationRequired()) {
+            // Slice the log
+            List<LogParser> listOfLogParsers = logParser
+                    .split(minerFulParams.kbParallelProcessingThreads);
+            List<MinerFulKBCore> listOfMinerFulCores = new ArrayList<MinerFulKBCore>(
+                    minerFulParams.kbParallelProcessingThreads);
 
-			// Associate a dedicated KB-computing core to each log slice
-			for (LogParser slicedLogParser : listOfLogParsers) {
-				listOfMinerFulCores.add(new MinerFulKBCore(
-						coreNum++,
-						slicedLogParser,
-						minerFulParams, taskCharArchive));
-			}
+            // Associate a dedicated KB-computing core to each log slice
+            for (LogParser slicedLogParser : listOfLogParsers) {
+                listOfMinerFulCores.add(new MinerFulKBCore(
+                        coreNum++,
+                        slicedLogParser,
+                        minerFulParams, taskCharArchive));
+            }
 
-			ExecutorService executor = Executors
-					.newFixedThreadPool(minerFulParams.kbParallelProcessingThreads);
+            ExecutorService executor = Executors
+                    .newFixedThreadPool(minerFulParams.kbParallelProcessingThreads);
 
 //			ForkJoinPool executor = new ForkJoinPool(minerFulParams.kbParallelProcessingThreads);
 
-			try {
-				before = System.currentTimeMillis();
-				for (Future<GlobalStatsTable> statsTab : executor
-						.invokeAll(listOfMinerFulCores)) {
-					globalStatsTable.mergeAdditively(statsTab.get());
-				}
-				after = System.currentTimeMillis();
-			} catch (InterruptedException | ExecutionException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-			executor.shutdown();
-		} else {
-			MinerFulKBCore minerFulKbCore = new MinerFulKBCore(
-					coreNum++,
-					logParser,
-					minerFulParams, taskCharArchive);
-			before = System.currentTimeMillis();
-			globalStatsTable = minerFulKbCore.discover();
-			after = System.currentTimeMillis();
-		}
-		logger.info("Total KB construction time: " + (after - before));
-		return globalStatsTable;
-	}
+            try {
+                before = System.currentTimeMillis();
+                for (Future<GlobalStatsTable> statsTab : executor
+                        .invokeAll(listOfMinerFulCores)) {
+                    globalStatsTable.mergeAdditively(statsTab.get());
+                }
+                after = System.currentTimeMillis();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+            executor.shutdown();
+        } else {
+            MinerFulKBCore minerFulKbCore = new MinerFulKBCore(
+                    coreNum++,
+                    logParser,
+                    minerFulParams, taskCharArchive);
+            before = System.currentTimeMillis();
+            globalStatsTable = minerFulKbCore.discover();
+            after = System.currentTimeMillis();
+        }
+        logger.info("Total KB construction time: " + (after - before));
+        return globalStatsTable;
+    }
 
     private ConstraintsBag reactiveOfflineQueryForConstraints(
             LogParser logParser, MinerFulCmdParameters minerFulParams,
