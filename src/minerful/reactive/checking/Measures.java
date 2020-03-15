@@ -14,10 +14,14 @@ public class Measures {
 
     //    	TODO improve this hard-code shame
     public static String[] MEASURE_NAMES = {
-            "Support",        // 0
-            "Confidence",    // 1
-            "Lovinger",        // 2
-            "Specificity"    // 3
+            "Support",      // 0
+            "Confidence",   // 1
+            "Recall",       // 2
+            "Lovinger",     // 3
+            "Specificity",  // 4
+            "Accuracy",     // 5
+            "Lift",         // 6
+            "Leverage"      // 7
     };
 
     //    	TODO improve this hard-code shame
@@ -45,12 +49,28 @@ public class Measures {
                 result = getTraceConfidence(reactiveConstraintEvaluation);
                 break;
             case 2:
+//				recall
+                result = getTraceRecall(reactiveConstraintEvaluation);
+                break;
+            case 3:
 //				Lovinger
                 result = getTraceLovinger(reactiveConstraintEvaluation);
                 break;
-            case 3:
+            case 4:
 //				Specificity
                 result = getTraceSpecificity(reactiveConstraintEvaluation);
+                break;
+            case 5:
+//				Accuracy
+                result = getTraceAccuracy(reactiveConstraintEvaluation);
+                break;
+            case 6:
+//				Accuracy
+                result = getTraceLift(reactiveConstraintEvaluation);
+                break;
+            case 7:
+//				Leverage
+                result = getTraceLeverage(reactiveConstraintEvaluation);
                 break;
         }
         return result;
@@ -125,6 +145,21 @@ public class Measures {
     }
 
     /**
+     * retrieve the recall of a constraint for a given trace.
+     * <p>
+     * The recall measure is defined as:
+     * Recall(A->T) = P(A'|T') =  P(T' intersection A') / P(T') = Supp(A'->T')/P(T')
+     *
+     * @return
+     */
+    public static double getTraceRecall(byte[] reactiveConstraintEvaluation) {
+        byte[] targetEval = getTargetEvaluation(reactiveConstraintEvaluation);
+        double denominator = getFormulaProbability(targetEval);
+        if (denominator == 0) return 0;
+        return getTraceSupport(reactiveConstraintEvaluation) / denominator;
+    }
+
+    /**
      * Retrieve the Lovinger's Measure of a constraint for a given trace.
      * <p>
      * The Lovinger's measure is defined as:
@@ -150,6 +185,49 @@ public class Measures {
      */
     public static double getTraceSpecificity(byte[] reactiveConstraintEvaluation) {
         return getTraceConfidence(getNegativeReactiveConstraintEvaluation(reactiveConstraintEvaluation));
+    }
+
+    /**
+     * Retrieve the Accuracy Measure of a constraint for a given trace.
+     * <p>
+     * The Accuracy measure is defined as:
+     * Specificity(A->T) = P(T' intersection A') + P(¬T' intersection ¬A') = (Supp(A'->T') + Supp(¬A'->¬T'))
+     *
+     * @return
+     */
+    public static double getTraceAccuracy(byte[] reactiveConstraintEvaluation) {
+        return getTraceSupport(reactiveConstraintEvaluation) + getTraceSupport(getNegativeReactiveConstraintEvaluation(reactiveConstraintEvaluation));
+    }
+
+    /**
+     * Retrieve the Lift Measure of a constraint for a given trace.
+     * <p>
+     * The Lift measure is defined as:
+     * Specificity(A->T) = P(T'|A') / P(T') = (Conf(A'->T') / P(T'))
+     *
+     * @return
+     */
+    public static double getTraceLift(byte[] reactiveConstraintEvaluation) {
+        byte[] targetEval = getTargetEvaluation(reactiveConstraintEvaluation);
+        double denominator = getFormulaProbability(targetEval);
+        if (denominator == 0) return 0;
+        return getTraceConfidence(reactiveConstraintEvaluation) / denominator;
+    }
+
+    /**
+     * Retrieve the Leverage Measure of a constraint for a given trace.
+     * <p>
+     * The Leverage measure is defined as:
+     * Specificity(A->T) = P(T'|A') - P(A')P(T') = (Conf(A'->T') - P(A')P(T'))
+     *
+     * @return
+     */
+    public static double getTraceLeverage(byte[] reactiveConstraintEvaluation) {
+        byte[] activatorEval = getActivatorEvaluation(reactiveConstraintEvaluation);
+        byte[] targetEval = getTargetEvaluation(reactiveConstraintEvaluation);
+        double pA = getFormulaProbability(activatorEval);
+        double pT = getFormulaProbability(targetEval);
+        return getTraceConfidence(reactiveConstraintEvaluation) - (pA * pT);
     }
 
     /**
