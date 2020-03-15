@@ -16,6 +16,7 @@ import minerful.reactive.checking.Measures;
 import minerful.reactive.checking.MegaMatrixMonster;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.io.*;
@@ -29,588 +30,588 @@ import java.util.NavigableMap;
  */
 public class JanusOutputManagementLauncher extends MinerFulOutputManagementLauncher {
 
-	/**
-	 * reads the terminal input parameters and launch the proper output functions
-	 *
-	 * @param matrix
-	 * @param additionalCnsIndexedInfo
-	 * @param outParams
-	 * @param viewParams
-	 * @param systemParams
-	 * @param logParser
-	 */
-	public void manageCheckOutput(MegaMatrixMonster matrix, NavigableMap<Constraint, String> additionalCnsIndexedInfo, OutputModelParameters outParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, LogParser logParser) {
-		File outputFile = null;
-		File outputAggregatedMeasuresFile = null;
+    /**
+     * reads the terminal input parameters and launch the proper output functions
+     *
+     * @param matrix
+     * @param additionalCnsIndexedInfo
+     * @param outParams
+     * @param viewParams
+     * @param systemParams
+     * @param logParser
+     */
+    public void manageCheckOutput(MegaMatrixMonster matrix, NavigableMap<Constraint, String> additionalCnsIndexedInfo, OutputModelParameters outParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, LogParser logParser) {
+        File outputFile = null;
+        File outputAggregatedMeasuresFile = null;
 
-		if (outParams.fileToSaveConstraintsAsCSV != null) {
-			outputFile = retrieveFile(outParams.fileToSaveConstraintsAsCSV);
-			logger.info("Saving the discovered process as CSV in " + outputFile + "...");
-			double before = System.currentTimeMillis();
+        if (outParams.fileToSaveConstraintsAsCSV != null) {
+            outputFile = retrieveFile(outParams.fileToSaveConstraintsAsCSV);
+            logger.info("Saving the discovered process as CSV in " + outputFile + "...");
+            double before = System.currentTimeMillis();
 
 //			Detailed traces results
-			exportEncodedReadable3DMatrixToCSV(matrix, outputFile);
+            exportEncodedReadable3DMatrixToCSV(matrix, outputFile);
 
 //			Aggregated Log measures
-			outputAggregatedMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("AggregatedMeasures.CSV"));
-			exportEncodedAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
+            outputAggregatedMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("AggregatedMeasures.CSV"));
+            exportEncodedAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
 
-			double after = System.currentTimeMillis();
-			logger.info("Total CSV serialization time: " + (after - before));
-		}
+            double after = System.currentTimeMillis();
+            logger.info("Total CSV serialization time: " + (after - before));
+        }
 
-		if (!viewParams.suppressScreenPrintOut) {
+        if (!viewParams.suppressScreenPrintOut) {
 //			TODO print result in terminal
-			logger.info("Terminal output yet not implemented");
-		}
+            logger.info("Terminal output yet not implemented");
+        }
 
-		if (outParams.fileToSaveAsXML != null) {
+        if (outParams.fileToSaveAsXML != null) {
 //			TODO XML output
-			logger.info("XML output yet not implemented");
-		}
+            logger.info("XML output yet not implemented");
+        }
 
-		if (outParams.fileToSaveAsJSON != null) {
-			outputFile = retrieveFile(outParams.fileToSaveAsJSON);
-			logger.info("Saving the discovered process as JSON in " + outputFile + "...");
+        if (outParams.fileToSaveAsJSON != null) {
+            outputFile = retrieveFile(outParams.fileToSaveAsJSON);
+            logger.info("Saving the discovered process as JSON in " + outputFile + "...");
 
-			double before = System.currentTimeMillis();
+            double before = System.currentTimeMillis();
 
 
 //			Detailed traces results
 // 			TODO parametrize the choice between encoded/unencoded result
-			exportEncodedReadable3DMatrixToJson(matrix, outputFile);
+            exportEncodedReadable3DMatrixToJson(matrix, outputFile);
 //			exportReadable3DMatrixToJson(matrix, outputFile);
 
 //			Aggregated Log measures
-			outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("AggregatedMeasures.json"));
-			exportEncodedAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
+            outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("AggregatedMeasures.json"));
+            exportEncodedAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
 
-			double after = System.currentTimeMillis();
-			logger.info("Total JSON serialization time: " + (after - before));
-		}
-	}
+            double after = System.currentTimeMillis();
+            logger.info("Total JSON serialization time: " + (after - before));
+        }
+    }
 
-	public void manageCheckOutput(MegaMatrixMonster matrix,
-								  ViewCmdParameters viewParams, OutputModelParameters outParams, SystemCmdParameters systemParams) {
-		this.manageCheckOutput(matrix, null, outParams, viewParams, systemParams, null);
-	}
+    public void manageCheckOutput(MegaMatrixMonster matrix,
+                                  ViewCmdParameters viewParams, OutputModelParameters outParams, SystemCmdParameters systemParams) {
+        this.manageCheckOutput(matrix, null, outParams, viewParams, systemParams, null);
+    }
 
 
-	/**
-	 * Export to CSV the detailed result at the level of the events in all the traces.
-	 *
-	 * @param megaMatrix
-	 * @param outputFile
-	 */
-	public void exportReadable3DMatrixToCSV(MegaMatrixMonster megaMatrix, File outputFile) {
-		logger.debug("CSV readable serialization...");
+    /**
+     * Export to CSV the detailed result at the level of the events in all the traces.
+     *
+     * @param megaMatrix
+     * @param outputFile
+     */
+    public void exportReadable3DMatrixToCSV(MegaMatrixMonster megaMatrix, File outputFile) {
+        logger.debug("CSV readable serialization...");
 
 //		header row
 //		TODO make the columns parametric, not hard-coded
-		String[] header = new String[]{
-				"Trace",
-				"Constraint",
-				"Events-Evaluation",
-				"Support",
-				"Confidence",
-				"Lovinger"
-		};
+        String[] header = ArrayUtils.addAll(new String[]{
+                "Trace",
+                "Constraint",
+                "Events-Evaluation"
+        }, Measures.MEASURE_NAMES);
 
-		try {
-			FileWriter fw = new FileWriter(outputFile);
-			CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
+        try {
+            FileWriter fw = new FileWriter(outputFile);
+            CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
 
-			byte[][][] matrix = megaMatrix.getMatrix();
-			Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
-			List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+            byte[][][] matrix = megaMatrix.getMatrix();
+            Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
+            List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
-			//		Row builder
+            //		Row builder
 //        for the entire log
-			for (int trace = 0; trace < matrix.length; trace++) {
-				LogTraceParser tr = it.next();
+            for (int trace = 0; trace < matrix.length; trace++) {
+                LogTraceParser tr = it.next();
 
 //				Trace as unencoded string
-				StringBuilder traceBuilder = new StringBuilder();
-				traceBuilder.append("<");
-				int i = 0;
-				while (i < tr.length()) {
-					String eventString = tr.parseSubsequent().getEvent().getTaskClass().toString();
-					if (i == (tr.length() - 1)) {
-						traceBuilder.append(eventString);
-					} else {
-						traceBuilder.append(eventString + ",");
-					}
-					i++;
-				}
-				traceBuilder.append(">");
+                StringBuilder traceBuilder = new StringBuilder();
+                traceBuilder.append("<");
+                int i = 0;
+                while (i < tr.length()) {
+                    String eventString = tr.parseSubsequent().getEvent().getTaskClass().toString();
+                    if (i == (tr.length() - 1)) {
+                        traceBuilder.append(eventString);
+                    } else {
+                        traceBuilder.append(eventString + ",");
+                    }
+                    i++;
+                }
+                traceBuilder.append(">");
 
-				String traceString = traceBuilder.toString();
+                String traceString = traceBuilder.toString();
 
 
 //              for each trace
-				for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
+                for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
 //                  for each constraint
+                    String[] measurements = new String[Measures.MEASURE_NUM];
+                    for (int measureIndex = 0; measureIndex < Measures.MEASURE_NUM; measureIndex++) {
+                        measurements[measureIndex] = String.valueOf(megaMatrix.getSpecificMeasure(trace, constraint, measureIndex));
+                    }
 
-					String[] row = new String[]{
-							traceString,
-							automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById()),
-							Arrays.toString(matrix[trace][constraint]),
-							String.valueOf(megaMatrix.getSpecificSupport(trace, constraint)),
-							String.valueOf(megaMatrix.getSpecificConfidence(trace, constraint)),
-							String.valueOf(megaMatrix.getSpecificLovinger(trace, constraint))
-					};
-					printer.printRecord(row);
+                    String[] row = ArrayUtils.addAll(
+                            new String[]{
+                                    traceString,
+                                    automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById()),
+                                    Arrays.toString(matrix[trace][constraint])
+                            }, measurements);
+                    printer.printRecord(row);
 
-				}
-			}
-			fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+                }
+            }
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-	/**
-	 * Export to CSV the detailed result at the level of the events in all the traces. Events are encoded
-	 *
-	 * @param megaMatrix
-	 * @param outputFile
-	 */
-	public void exportEncodedReadable3DMatrixToCSV(MegaMatrixMonster megaMatrix, File outputFile) {
-		logger.debug("CSV encoded readable serialization...");
+    /**
+     * Export to CSV the detailed result at the level of the events in all the traces. Events are encoded
+     *
+     * @param megaMatrix
+     * @param outputFile
+     */
+    public void exportEncodedReadable3DMatrixToCSV(MegaMatrixMonster megaMatrix, File outputFile) {
+        logger.debug("CSV encoded readable serialization...");
 
 //		header row
 //		TODO make the columns parametric, not hard-coded
-		String[] header = new String[]{
-				"Trace",
-				"Constraint",
-				"Events-Evaluation",
-				"Support",
-				"Confidence",
-				"Lovinger"
-		};
+        String[] header = ArrayUtils.addAll(new String[]{
+                        "Trace",
+                        "Constraint",
+                        "Events-Evaluation"
+                }, Measures.MEASURE_NAMES
+        );
 
-		try {
-			FileWriter fw = new FileWriter(outputFile);
-			CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
+        try {
+            FileWriter fw = new FileWriter(outputFile);
+            CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
 
-			byte[][][] matrix = megaMatrix.getMatrix();
-			Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
-			List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+            byte[][][] matrix = megaMatrix.getMatrix();
+            Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
+            List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
-			//		Row builder
+            //		Row builder
 //        for the entire log
-			for (int trace = 0; trace < matrix.length; trace++) {
-				LogTraceParser tr = it.next();
-				String traceString = tr.encodeTrace();
+            for (int trace = 0; trace < matrix.length; trace++) {
+                LogTraceParser tr = it.next();
+                String traceString = tr.encodeTrace();
 
 //              for each trace
-				for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
+                for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
 //                  for each constraint
-					String[] row = new String[]{
-							traceString,
-							automata.get(constraint).toString(),
-							Arrays.toString(matrix[trace][constraint]),
-							String.valueOf(megaMatrix.getSpecificSupport(trace, constraint)),
-							String.valueOf(megaMatrix.getSpecificConfidence(trace, constraint)),
-							String.valueOf(megaMatrix.getSpecificLovinger(trace, constraint))
-					};
-					printer.printRecord(row);
+                    String[] measurements = new String[Measures.MEASURE_NUM];
+                    for (int measureIndex = 0; measureIndex < Measures.MEASURE_NUM; measureIndex++) {
+                        measurements[measureIndex] = String.valueOf(megaMatrix.getSpecificMeasure(trace, constraint, measureIndex));
+                    }
 
-				}
-			}
-			fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+                    String[] row = ArrayUtils.addAll(
+                            new String[]{
+                                    traceString,
+                                    automata.get(constraint).toString(),
+                                    Arrays.toString(matrix[trace][constraint])
+                            }, measurements);
+                    printer.printRecord(row);
 
-	/**
-	 * Export to CSV format the aggregated measures at the level of log.
-	 * <p>
-	 * the columns index is:
-	 * constraint; quality-measure; duck-tape; mean; geometric-mean; variance; ....(all the other stats)
-	 *
-	 * @param megaMatrix
-	 * @param outputAggregatedMeasuresFile
-	 */
-	public void exportAggregatedMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile) {
-		logger.debug("CSV aggregated measures...");
-		DescriptiveStatistics[][] constraintsLogMeasure = megaMatrix.getConstraintLogMeasures();
+                }
+            }
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-		List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+    /**
+     * Export to CSV format the aggregated measures at the level of log.
+     * <p>
+     * the columns index is:
+     * constraint; quality-measure; duck-tape; mean; geometric-mean; variance; ....(all the other stats)
+     *
+     * @param megaMatrix
+     * @param outputAggregatedMeasuresFile
+     */
+    public void exportAggregatedMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile) {
+        logger.debug("CSV aggregated measures...");
+        DescriptiveStatistics[][] constraintsLogMeasure = megaMatrix.getConstraintLogMeasures();
+
+        List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
 //		header row
 //		TODO make the columns parametric, not hard-coded
-		String[] header = new String[]{
-				"Constraint",
-				"Quality-Measure",
-				"Duck-Tape",
-				"Mean",
-				"Geometric-Mean",
-				"Variance",
-				"Population-variance",
-				"Standard-Deviation",
-				"Percentile-75th",
-				"Max",
-				"Min"
-		};
+        String[] header = new String[]{
+                "Constraint",
+                "Quality-Measure",
+                "Duck-Tape",
+                "Mean",
+                "Geometric-Mean",
+                "Variance",
+                "Population-variance",
+                "Standard-Deviation",
+                "Percentile-75th",
+                "Max",
+                "Min"
+        };
 
-		try {
-			FileWriter fw = new FileWriter(outputAggregatedMeasuresFile);
-			CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
+        try {
+            FileWriter fw = new FileWriter(outputAggregatedMeasuresFile);
+            CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
 
-			Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
-			LogTraceParser tr = it.next();
+            Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
+            LogTraceParser tr = it.next();
 
-			//		Row builder
-			for (int constraint = 0; constraint < constraintsLogMeasure.length; constraint++) {
+            //		Row builder
+            for (int constraint = 0; constraint < constraintsLogMeasure.length; constraint++) {
 //				String constraintName = automata.get(constraint).toString();
-				String constraintName = automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById());
-				DescriptiveStatistics[] constraintLogMeasure = constraintsLogMeasure[constraint];
+                String constraintName = automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById());
+                DescriptiveStatistics[] constraintLogMeasure = constraintsLogMeasure[constraint];
 
-				for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
-					String[] row = new String[]{
-							constraintName,
-							megaMatrix.getMeasureName(measureIndex),
-							String.valueOf(Measures.getLogDuckTapeMeasures(constraint, measureIndex, megaMatrix.getMatrix())),
-							String.valueOf(constraintLogMeasure[measureIndex].getMean()),
-							String.valueOf(constraintLogMeasure[measureIndex].getGeometricMean()),
-							String.valueOf(constraintLogMeasure[measureIndex].getVariance()),
-							String.valueOf(constraintLogMeasure[measureIndex].getPopulationVariance()),
-							String.valueOf(constraintLogMeasure[measureIndex].getStandardDeviation()),
-							String.valueOf(constraintLogMeasure[measureIndex].getPercentile(75)),
-							String.valueOf(constraintLogMeasure[measureIndex].getMax()),
-							String.valueOf(constraintLogMeasure[measureIndex].getMin())
-					};
-					printer.printRecord(row);
-				}
-			}
-			fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+                for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
+                    String[] row = new String[]{
+                            constraintName,
+                            megaMatrix.getMeasureName(measureIndex),
+                            String.valueOf(Measures.getLogDuckTapeMeasures(constraint, measureIndex, megaMatrix.getMatrix())),
+                            String.valueOf(constraintLogMeasure[measureIndex].getMean()),
+                            String.valueOf(constraintLogMeasure[measureIndex].getGeometricMean()),
+                            String.valueOf(constraintLogMeasure[measureIndex].getVariance()),
+                            String.valueOf(constraintLogMeasure[measureIndex].getPopulationVariance()),
+                            String.valueOf(constraintLogMeasure[measureIndex].getStandardDeviation()),
+                            String.valueOf(constraintLogMeasure[measureIndex].getPercentile(75)),
+                            String.valueOf(constraintLogMeasure[measureIndex].getMax()),
+                            String.valueOf(constraintLogMeasure[measureIndex].getMin())
+                    };
+                    printer.printRecord(row);
+                }
+            }
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-	/**
-	 * Export to CSV format the aggregated measures at the level of log. Events are encoded
-	 * <p>
-	 * the columns index is:
-	 * constraint; quality-measure; duck-tape; mean; geometric-mean; variance; ....(all the other stats)
-	 *
-	 * @param megaMatrix
-	 * @param outputAggregatedMeasuresFile
-	 */
-	public void exportEncodedAggregatedMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile) {
-		logger.debug("CSV encoded aggregated measures...");
-		DescriptiveStatistics[][] constraintsLogMeasure = megaMatrix.getConstraintLogMeasures();
+    /**
+     * Export to CSV format the aggregated measures at the level of log. Events are encoded
+     * <p>
+     * the columns index is:
+     * constraint; quality-measure; duck-tape; mean; geometric-mean; variance; ....(all the other stats)
+     *
+     * @param megaMatrix
+     * @param outputAggregatedMeasuresFile
+     */
+    public void exportEncodedAggregatedMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile) {
+        logger.debug("CSV encoded aggregated measures...");
+        DescriptiveStatistics[][] constraintsLogMeasure = megaMatrix.getConstraintLogMeasures();
 
-		List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+        List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
 //		header row
 //		TODO make the columns parametric, not hard-coded
-		String[] header = new String[]{
-				"Constraint",
-				"Quality-Measure",
-				"Duck-Tape",
-				"Mean",
-				"Geometric-Mean",
-				"Variance",
-				"Population-variance",
-				"Standard-Deviation",
-				"Percentile-75th",
-				"Max",
-				"Min"
-		};
+        String[] header = new String[]{
+                "Constraint",
+                "Quality-Measure",
+                "Duck-Tape",
+                "Mean",
+                "Geometric-Mean",
+                "Variance",
+                "Population-variance",
+                "Standard-Deviation",
+                "Percentile-75th",
+                "Max",
+                "Min"
+        };
 
-		try {
-			FileWriter fw = new FileWriter(outputAggregatedMeasuresFile);
-			CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
-
-
-			//		Row builder
-			for (int constraint = 0; constraint < constraintsLogMeasure.length; constraint++) {
-				String constraintName = automata.get(constraint).toString();
-				DescriptiveStatistics[] constraintLogMeasure = constraintsLogMeasure[constraint];
-
-				for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
-					String[] row = new String[]{
-							constraintName,
-							megaMatrix.getMeasureName(measureIndex),
-							String.valueOf(Measures.getLogDuckTapeMeasures(constraint, measureIndex, megaMatrix.getMatrix())),
-							String.valueOf(constraintLogMeasure[measureIndex].getMean()),
-							String.valueOf(constraintLogMeasure[measureIndex].getGeometricMean()),
-							String.valueOf(constraintLogMeasure[measureIndex].getVariance()),
-							String.valueOf(constraintLogMeasure[measureIndex].getPopulationVariance()),
-							String.valueOf(constraintLogMeasure[measureIndex].getStandardDeviation()),
-							String.valueOf(constraintLogMeasure[measureIndex].getPercentile(75)),
-							String.valueOf(constraintLogMeasure[measureIndex].getMax()),
-							String.valueOf(constraintLogMeasure[measureIndex].getMin())
-					};
-					printer.printRecord(row);
-				}
-			}
-			fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Builds the json structure for a given constraint
-	 */
-	private JsonElement aggregatedConstraintMeasuresJsonBuilder(MegaMatrixMonster megaMatrix, int constaintIndex, DescriptiveStatistics[] constraintLogMeasure) {
-		JsonObject constraintJson = new JsonObject();
-
-		for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
-			JsonObject measure = new JsonObject();
-
-			JsonObject stats = new JsonObject();
-
-			stats.addProperty("Mean", constraintLogMeasure[measureIndex].getMean());
-			stats.addProperty("Geometric Mean", constraintLogMeasure[measureIndex].getGeometricMean());
-			stats.addProperty("Variance", constraintLogMeasure[measureIndex].getVariance());
-			stats.addProperty("Population  variance", constraintLogMeasure[measureIndex].getPopulationVariance());
-			stats.addProperty("Standard Deviation", constraintLogMeasure[measureIndex].getStandardDeviation());
-			stats.addProperty("Percentile 75th", constraintLogMeasure[measureIndex].getPercentile(75));
-			stats.addProperty("Max", constraintLogMeasure[measureIndex].getMax());
-			stats.addProperty("Min", constraintLogMeasure[measureIndex].getMin());
+        try {
+            FileWriter fw = new FileWriter(outputAggregatedMeasuresFile);
+            CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
 
 
-			measure.add("stats", stats);
-			measure.addProperty("duck tape", Measures.getLogDuckTapeMeasures(constaintIndex, measureIndex, megaMatrix.getMatrix()));
+            //		Row builder
+            for (int constraint = 0; constraint < constraintsLogMeasure.length; constraint++) {
+                String constraintName = automata.get(constraint).toString();
+                DescriptiveStatistics[] constraintLogMeasure = constraintsLogMeasure[constraint];
 
-			constraintJson.add(megaMatrix.getMeasureName(measureIndex), measure);
-		}
+                for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
+                    String[] row = new String[]{
+                            constraintName,
+                            megaMatrix.getMeasureName(measureIndex),
+                            String.valueOf(Measures.getLogDuckTapeMeasures(constraint, measureIndex, megaMatrix.getMatrix())),
+                            String.valueOf(constraintLogMeasure[measureIndex].getMean()),
+                            String.valueOf(constraintLogMeasure[measureIndex].getGeometricMean()),
+                            String.valueOf(constraintLogMeasure[measureIndex].getVariance()),
+                            String.valueOf(constraintLogMeasure[measureIndex].getPopulationVariance()),
+                            String.valueOf(constraintLogMeasure[measureIndex].getStandardDeviation()),
+                            String.valueOf(constraintLogMeasure[measureIndex].getPercentile(75)),
+                            String.valueOf(constraintLogMeasure[measureIndex].getMax()),
+                            String.valueOf(constraintLogMeasure[measureIndex].getMin())
+                    };
+                    printer.printRecord(row);
+                }
+            }
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-		return constraintJson;
-	}
+    /**
+     * Builds the json structure for a given constraint
+     */
+    private JsonElement aggregatedConstraintMeasuresJsonBuilder(MegaMatrixMonster megaMatrix, int constaintIndex, DescriptiveStatistics[] constraintLogMeasure) {
+        JsonObject constraintJson = new JsonObject();
 
-	/**
-	 * write the jon file with the aggregated measures
-	 *
-	 * @param megaMatrix
-	 * @param outputFile
-	 */
-	public void exportAggregatedMeasuresToJson(MegaMatrixMonster megaMatrix, File outputFile) {
-		logger.debug("JSON aggregated measures...");
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		try {
-			FileWriter fw = new FileWriter(outputFile);
-			JsonObject jsonOutput = new JsonObject();
+        for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
+            JsonObject measure = new JsonObject();
 
-			Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
-			LogTraceParser tr = it.next();
+            JsonObject stats = new JsonObject();
 
-			List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+            stats.addProperty("Mean", constraintLogMeasure[measureIndex].getMean());
+            stats.addProperty("Geometric Mean", constraintLogMeasure[measureIndex].getGeometricMean());
+            stats.addProperty("Variance", constraintLogMeasure[measureIndex].getVariance());
+            stats.addProperty("Population  variance", constraintLogMeasure[measureIndex].getPopulationVariance());
+            stats.addProperty("Standard Deviation", constraintLogMeasure[measureIndex].getStandardDeviation());
+            stats.addProperty("Percentile 75th", constraintLogMeasure[measureIndex].getPercentile(75));
+            stats.addProperty("Max", constraintLogMeasure[measureIndex].getMax());
+            stats.addProperty("Min", constraintLogMeasure[measureIndex].getMin());
 
-//			\/ \/ \/ LOG RESULTS
-			DescriptiveStatistics[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
 
-			for (int constraint = 0; constraint < constraintLogMeasure.length; constraint++) {
-				jsonOutput.add(
-						automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById()),
-						aggregatedConstraintMeasuresJsonBuilder(megaMatrix, constraint, constraintLogMeasure[constraint])
-				);
-			}
-			gson.toJson(jsonOutput, fw);
-			fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		logger.debug("JSON encoded aggregated measures...DONE!");
-	}
+            measure.add("stats", stats);
+            measure.addProperty("duck tape", Measures.getLogDuckTapeMeasures(constaintIndex, measureIndex, megaMatrix.getMatrix()));
 
-	/**
-	 * write the jon file with the aggregated measures. events are encoded
-	 *
-	 * @param megaMatrix
-	 * @param outputFile
-	 */
-	public void exportEncodedAggregatedMeasuresToJson(MegaMatrixMonster megaMatrix, File outputFile) {
-		logger.debug("JSON encoded aggregated measures...");
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		try {
-			FileWriter fw = new FileWriter(outputFile);
-			JsonObject jsonOutput = new JsonObject();
+            constraintJson.add(megaMatrix.getMeasureName(measureIndex), measure);
+        }
 
-			List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+        return constraintJson;
+    }
+
+    /**
+     * write the jon file with the aggregated measures
+     *
+     * @param megaMatrix
+     * @param outputFile
+     */
+    public void exportAggregatedMeasuresToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+        logger.debug("JSON aggregated measures...");
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try {
+            FileWriter fw = new FileWriter(outputFile);
+            JsonObject jsonOutput = new JsonObject();
+
+            Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
+            LogTraceParser tr = it.next();
+
+            List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
 //			\/ \/ \/ LOG RESULTS
-			DescriptiveStatistics[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
+            DescriptiveStatistics[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
 
-			for (int constraint = 0; constraint < constraintLogMeasure.length; constraint++) {
-				jsonOutput.add(
-						automata.get(constraint).toString(),
-						aggregatedConstraintMeasuresJsonBuilder(megaMatrix, constraint, constraintLogMeasure[constraint])
-				);
-			}
-			gson.toJson(jsonOutput, fw);
-			fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		logger.debug("JSON encoded aggregated measures...DONE!");
-	}
+            for (int constraint = 0; constraint < constraintLogMeasure.length; constraint++) {
+                jsonOutput.add(
+                        automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById()),
+                        aggregatedConstraintMeasuresJsonBuilder(megaMatrix, constraint, constraintLogMeasure[constraint])
+                );
+            }
+            gson.toJson(jsonOutput, fw);
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logger.debug("JSON encoded aggregated measures...DONE!");
+    }
 
-	/**
-	 * Serialize the 3D matrix as-is into a Json file
-	 */
-	public void exportRaw3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile) {
-		logger.info("JSON serialization...");
+    /**
+     * write the jon file with the aggregated measures. events are encoded
+     *
+     * @param megaMatrix
+     * @param outputFile
+     */
+    public void exportEncodedAggregatedMeasuresToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+        logger.debug("JSON encoded aggregated measures...");
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try {
+            FileWriter fw = new FileWriter(outputFile);
+            JsonObject jsonOutput = new JsonObject();
 
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		try {
-			FileWriter fw = new FileWriter(outputFile);
-			gson.toJson(megaMatrix.getMatrix(), fw);
-			fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		logger.debug("JSON serialization...DONE!");
+            List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
-	}
+//			\/ \/ \/ LOG RESULTS
+            DescriptiveStatistics[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
 
-	/**
-	 * Serialize the 3D matrix into a Json file to have a readable result, but encoded events
-	 */
-	public void exportEncodedReadable3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile) {
-		logger.debug("JSON encoded readable serialization...");
-		try {
-			FileWriter fw = new FileWriter(outputFile);
-			fw.write("{\n");
+            for (int constraint = 0; constraint < constraintLogMeasure.length; constraint++) {
+                jsonOutput.add(
+                        automata.get(constraint).toString(),
+                        aggregatedConstraintMeasuresJsonBuilder(megaMatrix, constraint, constraintLogMeasure[constraint])
+                );
+            }
+            gson.toJson(jsonOutput, fw);
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logger.debug("JSON encoded aggregated measures...DONE!");
+    }
 
-			byte[][][] matrix = megaMatrix.getMatrix();
-			Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
-			List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+    /**
+     * Serialize the 3D matrix as-is into a Json file
+     */
+    public void exportRaw3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+        logger.info("JSON serialization...");
 
-//        for the entire log
-			for (int trace = 0; trace < matrix.length; trace++) {
-				LogTraceParser tr = it.next();
-				String traceString = tr.encodeTrace();
-				fw.write("\t\"" + traceString + "\": [\n");
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try {
+            FileWriter fw = new FileWriter(outputFile);
+            gson.toJson(megaMatrix.getMatrix(), fw);
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logger.debug("JSON serialization...DONE!");
 
-//              for each trace
-				for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
+    }
 
-//                  for each constraint
-					String constraintString = automata.get(constraint).toString();
-					fw.write("\t\t{\"" + constraintString + "\": [ ");
-					for (int eventResult = 0; eventResult < matrix[trace][constraint].length; eventResult++) {
-						char event = traceString.charAt(eventResult);
-						byte result = matrix[trace][constraint][eventResult];
-						if (eventResult == (matrix[trace][constraint].length - 1)) {
-							fw.write("{\"" + event + "\": " + result + "}");
-						} else {
-							fw.write("{\"" + event + "\": " + result + "},");
-						}
-					}
-//					TODO do not hard code the specific measure, but use a method that takes all the available one
-					if (constraint == (matrix[trace].length - 1)) {
-						fw.write(" ],\n\t\t \"Support\": " + megaMatrix.getSpecificSupport(trace, constraint)
-								+ " , \"Confidence\": " + megaMatrix.getSpecificConfidence(trace, constraint)
-								+ " , \"Lovinger\": " + megaMatrix.getSpecificLovinger(trace, constraint)
-								+ "}\n");
-					} else {
-						fw.write(" ],\n\t\t \"Support\": " + megaMatrix.getSpecificSupport(trace, constraint)
-								+ " , \"Confidence\": " + megaMatrix.getSpecificConfidence(trace, constraint)
-								+ " , \"Lovinger\": " + megaMatrix.getSpecificLovinger(trace, constraint)
-								+ "},\n");
-					}
+    /**
+     * Serialize the 3D matrix into a Json file to have a readable result, but encoded events
+     */
+    public void exportEncodedReadable3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+        logger.debug("JSON encoded readable serialization...");
+        try {
+            FileWriter fw = new FileWriter(outputFile);
+            fw.write("{\n");
 
-				}
-
-				if (trace == (matrix.length - 1)) {
-					fw.write("\t]\n");
-				} else {
-					fw.write("\t],\n");
-				}
-
-			}
-			fw.write("}");
-			fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		logger.debug("JSON encoded readable serialization...DONE!");
-
-	}
-
-	/**
-	 * Serialize the 3D matrix into a Json file to have a readable result
-	 */
-	public void exportReadable3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile) {
-		logger.info("JSON readable serialization...");
-		try {
-			FileWriter fw = new FileWriter(outputFile);
-			fw.write("{\n");
-
-			byte[][][] matrix = megaMatrix.getMatrix();
-			Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
-			List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+            byte[][][] matrix = megaMatrix.getMatrix();
+            Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
+            List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
 //        for the entire log
-			for (int trace = 0; trace < matrix.length; trace++) {
-				LogTraceParser tr = it.next();
-				tr.init();
-				fw.write("\t\"<");
-				int i = 0;
-				while (i < tr.length()) {
-					String traceString = tr.parseSubsequent().getEvent().getTaskClass().toString();
-					if (i == (tr.length() - 1)) {
-						fw.write(traceString);
-					} else {
-						fw.write(traceString + ",");
-					}
-					i++;
-				}
-				fw.write(">\": [\n");
+            for (int trace = 0; trace < matrix.length; trace++) {
+                LogTraceParser tr = it.next();
+                String traceString = tr.encodeTrace();
+                fw.write("\t\"" + traceString + "\": [\n");
 
 //              for each trace
-				for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
-					tr.init();
+                for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
+
 //                  for each constraint
-					String constraintString = automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById());
+                    String constraintString = automata.get(constraint).toString();
+                    fw.write("\t\t{\"" + constraintString + "\": [ ");
+                    for (int eventResult = 0; eventResult < matrix[trace][constraint].length; eventResult++) {
+                        char event = traceString.charAt(eventResult);
+                        byte result = matrix[trace][constraint][eventResult];
+                        if (eventResult == (matrix[trace][constraint].length - 1)) {
+                            fw.write("{\"" + event + "\": " + result + "}");
+                        } else {
+                            fw.write("{\"" + event + "\": " + result + "},");
+                        }
+                    }
 
-					fw.write("\t\t{\"" + constraintString + "\": [ ");
-					for (int eventResult = 0; eventResult < matrix[trace][constraint].length; eventResult++) {
-						String event = tr.parseSubsequent().getEvent().getTaskClass().toString();
-						byte result = matrix[trace][constraint][eventResult];
-						if (eventResult == (matrix[trace][constraint].length - 1)) {
-							fw.write("{\"" + event + "\": " + result + "}");
-						} else {
-							fw.write("{\"" + event + "\": " + result + "},");
-						}
-					}
-//					TODO do not hard code the specific measure, but use a method that takes all the available one
-					if (constraint == (matrix[trace].length - 1)) {
-						fw.write(" ],\n\t\t \"Support\": " + megaMatrix.getSpecificSupport(trace, constraint)
-								+ " , \"Confidence\": " + megaMatrix.getSpecificConfidence(trace, constraint)
-								+ " , \"Lovinger\": " + megaMatrix.getSpecificLovinger(trace, constraint)
-								+ "}\n");
-					} else {
-						fw.write(" ],\n\t\t \"Support\": " + megaMatrix.getSpecificSupport(trace, constraint)
-								+ " , \"Confidence\": " + megaMatrix.getSpecificConfidence(trace, constraint)
-								+ " , \"Lovinger\": " + megaMatrix.getSpecificLovinger(trace, constraint)
-								+ "},\n");
-					}
+                    String line = " ],\n\t\t ";
+                    for (int measureIndex = 0; measureIndex < Measures.MEASURE_NUM; measureIndex++) {
+                        line += " , \"" + Measures.MEASURE_NAMES[measureIndex] + "\": " + megaMatrix.getSpecificMeasure(trace, constraint, measureIndex);
+                    }
+                    line += "}";
 
-				}
+                    if (constraint == (matrix[trace].length - 1)) {
+                        fw.write(line + "\n");
+                    } else {
+                        fw.write(line + ",\n");
+                    }
 
-				if (trace == (matrix.length - 1)) {
-					fw.write("\t]\n");
-				} else {
-					fw.write("\t],\n");
-				}
+                }
 
-			}
-			fw.write("}");
-			fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		logger.debug("JSON readable serialization...DONE!");
+                if (trace == (matrix.length - 1)) {
+                    fw.write("\t]\n");
+                } else {
+                    fw.write("\t],\n");
+                }
 
-	}
+            }
+            fw.write("}");
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logger.debug("JSON encoded readable serialization...DONE!");
+
+    }
+
+    /**
+     * Serialize the 3D matrix into a Json file to have a readable result
+     */
+    public void exportReadable3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+        logger.info("JSON readable serialization...");
+        try {
+            FileWriter fw = new FileWriter(outputFile);
+            fw.write("{\n");
+
+            byte[][][] matrix = megaMatrix.getMatrix();
+            Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
+            List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+
+//        for the entire log
+            for (int trace = 0; trace < matrix.length; trace++) {
+                LogTraceParser tr = it.next();
+                tr.init();
+                fw.write("\t\"<");
+                int i = 0;
+                while (i < tr.length()) {
+                    String traceString = tr.parseSubsequent().getEvent().getTaskClass().toString();
+                    if (i == (tr.length() - 1)) {
+                        fw.write(traceString);
+                    } else {
+                        fw.write(traceString + ",");
+                    }
+                    i++;
+                }
+                fw.write(">\": [\n");
+
+//              for each trace
+                for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
+                    tr.init();
+//                  for each constraint
+                    String constraintString = automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById());
+
+                    fw.write("\t\t{\"" + constraintString + "\": [ ");
+                    for (int eventResult = 0; eventResult < matrix[trace][constraint].length; eventResult++) {
+                        String event = tr.parseSubsequent().getEvent().getTaskClass().toString();
+                        byte result = matrix[trace][constraint][eventResult];
+                        if (eventResult == (matrix[trace][constraint].length - 1)) {
+                            fw.write("{\"" + event + "\": " + result + "}");
+                        } else {
+                            fw.write("{\"" + event + "\": " + result + "},");
+                        }
+                    }
+
+                    String line = " ],\n\t\t ";
+                    for (int measureIndex = 0; measureIndex < Measures.MEASURE_NUM; measureIndex++) {
+                        line += " , \"" + Measures.MEASURE_NAMES[measureIndex] + "\": " + megaMatrix.getSpecificMeasure(trace, constraint, measureIndex);
+                    }
+                    line += "}";
+
+                    if (constraint == (matrix[trace].length - 1)) {
+                        fw.write(line + "\n");
+                    } else {
+                        fw.write(line + ",\n");
+                    }
+
+                }
+
+                if (trace == (matrix.length - 1)) {
+                    fw.write("\t]\n");
+                } else {
+                    fw.write("\t],\n");
+                }
+
+            }
+            fw.write("}");
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logger.debug("JSON readable serialization...DONE!");
+
+    }
 
 
 }

@@ -21,139 +21,105 @@ import java.util.Collection;
  * 3 -> 11 -> Activator: True,  Target: True
  */
 public class MegaMatrixMonster {
-	protected static Logger logger;
-	private final byte[][][] matrix; // [trace index][constraint index][event index]
-	private final LogParser log;
-	private final Collection<SeparatedAutomatonOfflineRunner> automata;
+    protected static Logger logger;
+    private final byte[][][] matrix; // [trace index][constraint index][event index]
+    private final LogParser log;
+    private final Collection<SeparatedAutomatonOfflineRunner> automata;
 
-	private double[][][] measures; // [trace index][constraint index][measure index] -> support:0, confidence:1, lovinger: 2
+    private double[][][] measures; // [trace index][constraint index][measure index] -> support:0, confidence:1, lovinger: 2
 
-//	TODO remove these hard-coded shames
-	private int MEASURE_NUM = 3;
+    private DescriptiveStatistics[][] constraintLogMeasures; // [constraint index][measure index]
 
-	private String[] MEASURE_NAMES = {
-			"Support",
-			"Confidence",
-			"Lovinger"
-	};
+    {
+        if (logger == null) {
+            logger = Logger.getLogger(ReactiveMinerOfflineQueryingCore.class.getCanonicalName());
+        }
+    }
 
-	private DescriptiveStatistics[][] constraintLogMeasures; // [constraint index][measure index]
+    public MegaMatrixMonster(byte[][][] matrix, LogParser log, Collection<SeparatedAutomatonOfflineRunner> automata) {
+        this.matrix = matrix;
+        this.log = log;
+        this.automata = automata;
+        measures = new double[matrix.length][automata.size()][Measures.MEASURE_NUM];
+        constraintLogMeasures = new DescriptiveStatistics[automata.size()][Measures.MEASURE_NUM];
+    }
 
-	{
-		if (logger == null) {
-			logger = Logger.getLogger(ReactiveMinerOfflineQueryingCore.class.getCanonicalName());
-		}
-	}
+    public byte[][][] getMatrix() {
+        return matrix;
+    }
 
-	public MegaMatrixMonster(byte[][][] matrix, LogParser log, Collection<SeparatedAutomatonOfflineRunner> automata) {
-		this.matrix = matrix;
-		this.log = log;
-		this.automata = automata;
-		measures = new double[matrix.length][automata.size()][MEASURE_NUM];
-		constraintLogMeasures = new DescriptiveStatistics[automata.size()][MEASURE_NUM];
-	}
+    public LogParser getLog() {
+        return log;
+    }
 
-	public byte[][][] getMatrix() {
-		return matrix;
-	}
+    public Collection<SeparatedAutomatonOfflineRunner> getAutomata() {
+        return automata;
+    }
 
-	public LogParser getLog() {
-		return log;
-	}
+    public double[][][] getMeasures() {
+        return measures;
+    }
 
-	public Collection<SeparatedAutomatonOfflineRunner> getAutomata() {
-		return automata;
-	}
+    /**
+     * Get the specific measure of a specific trace for a specific constraint
+     *
+     * @param trace
+     * @param constraint
+     * @param measureIndex
+     * @return
+     */
+    public double getSpecificMeasure(int trace, int constraint, int measureIndex) {
+        return measures[trace][constraint][measureIndex];
+    }
 
-	public double[][][] getMeasures() {
-		return measures;
-	}
-
-	/**
-	 * Get the support of a specific trace for a specific constraint
-	 *
-	 * @param trace
-	 * @param constraint
-	 * @return
-	 */
-	public double getSpecificSupport(int trace, int constraint) {
-		return measures[trace][constraint][0];
-	}
-
-	/**
-	 * Get the confidence of a specific trace for a specific constraint
-	 *
-	 * @param trace
-	 * @param constraint
-	 * @return
-	 */
-	public double getSpecificConfidence(int trace, int constraint) {
-		return measures[trace][constraint][1];
-	}
-
-	/**
-	 * Get the Lovinger's measure of a specific trace for a specific constraint
-	 *
-	 * @param trace
-	 * @param constraint
-	 * @return
-	 */
-	public double getSpecificLovinger(int trace, int constraint) {
-		return measures[trace][constraint][2];
-	}
-
-	/**
-	 * retrieve the measurements for the current matrix
-	 * <p>
-	 * Current supported measures:
-	 * - support
-	 * - confidence
-	 */
-	public void computeMeasures() {
+    /**
+     * retrieve the measurements for the current matrix
+     */
+    public void computeMeasures() {
 //		TRACE MEASURES
-		//        for the entire log
-		for (int trace = 0; trace < matrix.length; trace++) {
+        //        for the entire log
+        for (int trace = 0; trace < matrix.length; trace++) {
 //              for each trace
-			for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
+            for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
 //                  for each constraint
-				measures[trace][constraint][0] = Measures.getTraceSupport(matrix[trace][constraint]);
-				measures[trace][constraint][1] = Measures.getTraceConfidence(matrix[trace][constraint]);
-				measures[trace][constraint][2] = Measures.getTraceLovinger(matrix[trace][constraint]);
-			}
-		}
+                for (int measure = 0; measure < Measures.MEASURE_NUM; measure++) {
+                    measures[trace][constraint][measure] = Measures.getTraceMeasure(matrix[trace][constraint], measure);
+                }
+            }
+        }
 
 //		LOG MEASURES
-		for (int constraint = 0; constraint < matrix[0].length; constraint++) {
-			for (int measure = 0; measure < MEASURE_NUM; measure++) {
+        for (int constraint = 0; constraint < matrix[0].length; constraint++) {
+            for (int measure = 0; measure < Measures.MEASURE_NUM; measure++) {
 //				constraintLogMeasures[constraint][measure] = Measures.getMeasureAverage(constraint, measure, measures);
-				constraintLogMeasures[constraint][measure] = Measures.getMeasureDistributionObject(constraint, measure, measures);
+                constraintLogMeasures[constraint][measure] = Measures.getMeasureDistributionObject(constraint, measure, measures);
 //				constraintLogMeasures[constraint][measure] = Measures.getLogDuckTapeMeasures(constraint, measure, matrix);
-			}
-		}
-	}
+            }
+        }
+    }
 
 
-	public DescriptiveStatistics[][] getConstraintLogMeasures() {
-		return constraintLogMeasures;
-	}
+    public DescriptiveStatistics[][] getConstraintLogMeasures() {
+        return constraintLogMeasures;
+    }
 
-	/**
-	 * Get the name of the i-th measure
-	 *
-	 * @return
-	 */
-	public String getMeasureName(int measureIndex) {
-		return MEASURE_NAMES[measureIndex];
-	}
+    /**
+     * Get the name of the i-th measure
+     *
+     * @return
+     */
+    public String getMeasureName(int measureIndex) {
+        return Measures.MEASURE_NAMES[measureIndex];
+    }
 
-	/**
-	 * Get the names of all the measures
-	 *
-	 * @return
-	 */
-	public String[] getMeasureNames() {
-		return MEASURE_NAMES;
-	}
+    /**
+     * Get the names of all the measures
+     *
+     * @return
+     */
+    public String[] getMeasureNames() {
+        return Measures.MEASURE_NAMES;
+    }
 
 
 }
