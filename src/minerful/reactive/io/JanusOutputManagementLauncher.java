@@ -506,7 +506,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
                         }
                     }
 
-                    String line = " ],\n\t\t ";
+                    String line = " ]\n\t\t ";
                     for (int measureIndex = 0; measureIndex < Measures.MEASURE_NUM; measureIndex++) {
                         line += " , \"" + Measures.MEASURE_NAMES[measureIndex] + "\": " + megaMatrix.getSpecificMeasure(trace, constraint, measureIndex);
                     }
