@@ -21,7 +21,11 @@ public class Measures {
             "Specificity",  // 4
             "Accuracy",     // 5
             "Lift",         // 6
-            "Leverage"      // 7
+            "Leverage",     // 7
+            "Compliance",   // 8
+            "Odds Ratio",   // 9
+            "Gini Index",   // 10
+            "Certainty factor",   // 11
     };
 
     //    	TODO improve this hard-code shame
@@ -72,6 +76,22 @@ public class Measures {
 //				Leverage
                 result = getTraceLeverage(reactiveConstraintEvaluation);
                 break;
+            case 8:
+//				Compliance
+                result = getTraceCompliance(reactiveConstraintEvaluation);
+                break;
+            case 9:
+//				Odds Ratio
+                result = getTraceOddsRatio(reactiveConstraintEvaluation);
+                break;
+            case 10:
+//				Gini Index
+                result = getTraceGiniIndex(reactiveConstraintEvaluation);
+                break;
+            case 11:
+//				Certainty factor
+                result = getTraceCertaintyFactor(reactiveConstraintEvaluation);
+                break;
         }
         return result;
 
@@ -79,20 +99,45 @@ public class Measures {
 
 
     /**
-     * Retrieve the probabilities of both activator and target formula of a reactive constraint.
+     * Retrieve the probabilities of both activator and target (plus their negatives) formula of a reactive constraint.
      *
      * @param reactiveConstraintEvaluation byte array of {0,1,2,3} encoding the bolean evaluation of both the activator and the target of a reactive constraint
      * @return
      */
     public static double[] getReactiveProbabilities(byte[] reactiveConstraintEvaluation) {
-        double[] result = {0, 0};  // result[0]: activation, result[1]: target
+        double[] result = {0, 0, 0, 0};  // result { 0: activation, 1: target, 2: no activation, 3: no target}
         if (reactiveConstraintEvaluation.length == 0) return result;
         for (byte eval : reactiveConstraintEvaluation) {
             result[0] += eval / 2; // the activator is true if the byte is >1, i.e. 2 or 3
-            result[1] += eval % 2; // the target is true if the byte is obb, i,e, 1 or 3
+            result[1] += eval % 2; // the target is true if the byte is odd, i,e, 1 or 3
+        }
+        result[2] = reactiveConstraintEvaluation.length - result[0];
+        result[3] = reactiveConstraintEvaluation.length - result[1];
+
+        result[0] /= reactiveConstraintEvaluation.length;
+        result[1] /= reactiveConstraintEvaluation.length;
+        result[2] /= reactiveConstraintEvaluation.length;
+        result[3] /= reactiveConstraintEvaluation.length;
+        return result;
+    }
+
+    /**
+     * Retrieve the probabilities of the combinations of  activator and target formula of a reactive constraint.
+     * i.e. P(¬A¬T),P(A¬T),P(¬AT),P(¬A¬T)
+     *
+     * @param reactiveConstraintEvaluation byte array of {0,1,2,3} encoding the bolean evaluation of both the activator and the target of a reactive constraint
+     * @return
+     */
+    public static double[] getReactiveIntersectionsProbabilities(byte[] reactiveConstraintEvaluation) {
+        double[] result = {0, 0, 0, 0};  // result {0: 00, 1: 01, , 2: 10, 3:11}
+        if (reactiveConstraintEvaluation.length == 0) return result;
+        for (byte eval : reactiveConstraintEvaluation) {
+            result[eval]++;
         }
         result[0] /= reactiveConstraintEvaluation.length;
         result[1] /= reactiveConstraintEvaluation.length;
+        result[2] /= reactiveConstraintEvaluation.length;
+        result[3] /= reactiveConstraintEvaluation.length;
         return result;
     }
 
@@ -231,6 +276,91 @@ public class Measures {
     }
 
     /**
+     * ORIGINAL MEASURE! Retrieve the Compliance Measure of a constraint for a given trace.
+     * We developed this measure to emulate the original support intuition,
+     * i.e., the percentage of the trace which do not conflict with the constraint.
+     * Thus we count all the points except the active violations (activation true but target false)
+     * <p>
+     * The Compliance measure is defined as:
+     * Compliance(A->T) = 1 - P(A' intersection ¬T')
+     *
+     * @return
+     */
+    public static double getTraceCompliance(byte[] reactiveConstraintEvaluation) {
+        if (reactiveConstraintEvaluation.length == 0) return 0;
+        double result = 0;
+        for (byte eval : reactiveConstraintEvaluation) {
+            if (eval == 2) { // activator true but target false when byte equal to 2
+                result++;
+            }
+        }
+        return 1 - result / reactiveConstraintEvaluation.length;
+    }
+
+    /**
+     * Retrieve the Odds Ratio Measure of a constraint for a given trace.
+     * <p>
+     * The Odds Ratio measure is defined as:
+     * OddsRatio(A->T) = ( P(A' intersection T') P(¬A' intersection ¬T') ) / ( P(A' intersection ¬T') P(¬A' intersection T') )
+     *
+     * @return
+     */
+    public static double getTraceOddsRatio(byte[] reactiveConstraintEvaluation) {
+        double[] evals = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);
+        double pnAnT = evals[0];
+        double pnAT = evals[1];
+        double pAnT = evals[2];
+        double pAT = evals[3];
+        return (pAT * pnAnT) / (pAnT * pnAT);
+    }
+
+    /**
+     * Retrieve the Gini Index Measure of a constraint for a given trace.
+     * <p>
+     * The Gini Index measure is defined as:
+     * GiniIndex(A->T) = P(A) ∗ {P(B|A)^2 + P(¬B|A)^2} + P(¬A) ∗ {P(B|¬A)^2 * +P(¬B|¬A)^2} − P(B)^2 − P(¬B)^2
+     *
+     * @return
+     */
+    public static double getTraceGiniIndex(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        return pA * (Math.pow((pAT / pA), 2) + Math.pow(pAnT / pA, 2)) + pnA * (Math.pow(pnAT / pnA, 2) + Math.pow(pnAnT / pnA, 2)) - Math.pow(pT, 2) - Math.pow(pnT, 2);
+    }
+
+    /**
+     * Retrieve the Certainty Factor Measure of a constraint for a given trace.
+     * <p>
+     * The Certainty Factor measure is defined as:
+     * CertaintyFactor(A->T) = (P(B|A) − P(B))/(1 − P(B))
+     *
+     * @return
+     */
+    public static double getTraceCertaintyFactor(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        return ((pAT/pA)-pT)/(1-pT);
+    }
+
+    /**
      * return the support measure for a given constraint over the entire log
      *
      * @return
@@ -244,6 +374,8 @@ public class Measures {
     /**
      * return the given measure of a constraint over the entire log using the "tape" method:
      * Consider the log as a single trace and compute the measure with the trace methods
+     * <p>
+     * BEWARE! It is the bottleneck of the aggregated measure output function. Temporary disabled
      *
      * @param constraintIndex
      * @param measureIndex
@@ -392,6 +524,5 @@ public class Measures {
         }
         return result;
     }
-
 
 }

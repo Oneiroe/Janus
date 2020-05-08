@@ -10,6 +10,8 @@ import minerful.postprocessing.params.PostProcessingCmdParameters;
 import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
 import org.apache.log4j.Logger;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -128,11 +130,24 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
 
 		int numberOfTotalTraces = logParser.length();
 
+		Instant start = Instant.now();
+		Instant end = Instant.now();
+		Duration timeElapsed = Duration.between(start, end);
+		int samplingInterval = 300;
+		int TracesTillSampling = 1;
+
 		for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
 			LogTraceParser tr = it.next();
 			int[][] partialResult = runTrace(tr, automata);
 			currentTraceNumber++;
-			System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
+
+			if (currentTraceNumber != 1 & currentTraceNumber % samplingInterval == 0) {
+				end = Instant.now();
+				timeElapsed = Duration.between(start, end);
+				TracesTillSampling = currentTraceNumber;
+			}
+			System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces +
+					" [ estimated time left: " + Duration.ofMillis((numberOfTotalTraces - currentTraceNumber) / TracesTillSampling * timeElapsed.toMillis()) + " ] ");  // Status counter "current trace/total trace"
 			for (int i = 0; i < finalResults.length; i++) {
 				if (partialResult[i][1] > 0) {
 					finalResults[i] += partialResult[i][0] / partialResult[i][1];

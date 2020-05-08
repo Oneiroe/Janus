@@ -20,6 +20,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.io.*;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -50,11 +51,13 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
             double before = System.currentTimeMillis();
 
 //			Detailed traces results
-            exportEncodedReadable3DMatrixToCSV(matrix, outputFile);
+//            exportEncodedReadable3DMatrixToCSV(matrix, outputFile);
+            exportReadable3DMatrixToCSV(matrix, outputFile);
 
 //			Aggregated Log measures
             outputAggregatedMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("AggregatedMeasures.CSV"));
-            exportEncodedAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
+//            exportEncodedAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
+            exportAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
 
             double after = System.currentTimeMillis();
             logger.info("Total CSV serialization time: " + (after - before));
@@ -84,7 +87,8 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 
 //			Aggregated Log measures
             outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("AggregatedMeasures.json"));
-            exportEncodedAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
+//            exportEncodedAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
+            exportAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
 
             double after = System.currentTimeMillis();
             logger.info("Total JSON serialization time: " + (after - before));
@@ -245,7 +249,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
         String[] header = new String[]{
                 "Constraint",
                 "Quality-Measure",
-                "Duck-Tape",
+//                "Duck-Tape",
                 "Mean",
                 "Geometric-Mean",
                 "Variance",
@@ -270,10 +274,11 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
                 DescriptiveStatistics[] constraintLogMeasure = constraintsLogMeasure[constraint];
 
                 for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
+//                    System.out.print("\rConstraints: " + constraint + "/" + constraintsLogMeasure.length+" Measure: " + measureIndex + "/" +  megaMatrix.getMeasureNames().length);
                     String[] row = new String[]{
                             constraintName,
                             megaMatrix.getMeasureName(measureIndex),
-                            String.valueOf(Measures.getLogDuckTapeMeasures(constraint, measureIndex, megaMatrix.getMatrix())),
+//                            String.valueOf(Measures.getLogDuckTapeMeasures(constraint, measureIndex, megaMatrix.getMatrix())),
                             String.valueOf(constraintLogMeasure[measureIndex].getMean()),
                             String.valueOf(constraintLogMeasure[measureIndex].getGeometricMean()),
                             String.valueOf(constraintLogMeasure[measureIndex].getVariance()),
@@ -312,7 +317,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
         String[] header = new String[]{
                 "Constraint",
                 "Quality-Measure",
-                "Duck-Tape",
+//                "Duck-Tape",
                 "Mean",
                 "Geometric-Mean",
                 "Variance",
@@ -337,7 +342,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
                     String[] row = new String[]{
                             constraintName,
                             megaMatrix.getMeasureName(measureIndex),
-                            String.valueOf(Measures.getLogDuckTapeMeasures(constraint, measureIndex, megaMatrix.getMatrix())),
+//                            String.valueOf(Measures.getLogDuckTapeMeasures(constraint, measureIndex, megaMatrix.getMatrix())),
                             String.valueOf(constraintLogMeasure[measureIndex].getMean()),
                             String.valueOf(constraintLogMeasure[measureIndex].getGeometricMean()),
                             String.valueOf(constraintLogMeasure[measureIndex].getVariance()),
@@ -378,7 +383,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 
 
             measure.add("stats", stats);
-            measure.addProperty("duck tape", Measures.getLogDuckTapeMeasures(constaintIndex, measureIndex, megaMatrix.getMatrix()));
+//            measure.addProperty("duck tape", Measures.getLogDuckTapeMeasures(constaintIndex, measureIndex, megaMatrix.getMatrix()));
 
             constraintJson.add(megaMatrix.getMeasureName(measureIndex), measure);
         }
