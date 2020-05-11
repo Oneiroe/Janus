@@ -50,7 +50,7 @@ public class MinerFulLogMakerLauncher {
 		MessagePrinter.configureLogging(systemParams.debugLevel);
 	}
 	
-	public void makeLog() {
+	public String[] makeLog() {
 		if (this.logMakParams.outputLogFile == null) {
 			throw new IllegalArgumentException("Output file for log storage not specified!");
 		}
@@ -66,6 +66,8 @@ public class MinerFulLogMakerLauncher {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		return logMak.getCleanStringsLog();
 	}
 
 

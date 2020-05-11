@@ -54,7 +54,7 @@ public class MinerFulLogMaker {
 	 * Maximum amount of traces we want to save as strings
 	 */
 	public static int MAX_SIZE_OF_STRINGS_LOG = Integer.MAX_VALUE;
-	
+
 	/**
 	 * For debugging purposes
 	 */
@@ -67,12 +67,12 @@ public class MinerFulLogMaker {
 
 	public void setParameters(LogMakerParameters parameters) {
 		String errors = parameters.checkValidity();
-		
+
 		if (errors != null)
 			throw new IllegalArgumentException(errors);
 
 		this.parameters = parameters;
-		
+
 		this.stringsLog = new String[(parameters.tracesInLog < MAX_SIZE_OF_STRINGS_LOG ?
 				Integer.parseInt(String.valueOf(parameters.tracesInLog)) :
 					MAX_SIZE_OF_STRINGS_LOG)];
@@ -91,7 +91,7 @@ public class MinerFulLogMaker {
 	public XLog createLog(ProcessModel processModel) {
 		XFactory xFactory = new XFactoryBufferedImpl();
 		this.log = xFactory.createLog();
-		
+
 		XTrace xTrace = null;
 		XEvent xEvent = null;
 		XConceptExtension concExtino = XConceptExtension.instance();
@@ -106,15 +106,15 @@ public class MinerFulLogMaker {
 				"Synthetic log for process: " + processModel.getName()
 		);
 		lifeExtension.assignModel(this.log, XLifecycleExtension.VALUE_MODEL_STANDARD);
-		
+
 		Automaton automaton = processModel.buildAutomaton();
 		automaton = AutomatonUtils.limitRunLength(automaton, this.parameters.minEventsPerTrace, this.parameters.maxEventsPerTrace);
 
 		AutomatonRandomWalker walker = new AutomatonRandomWalker(automaton);
-		
+
 		TaskChar firedTransition = null;
 		Character pickedTransitionChar = 0;
-		
+
 		Date currentDate = null;
 		int padder = (int)(Math.ceil(Math.log10(this.parameters.tracesInLog)));
 		String traceNameTemplate = "Synthetic trace no. " + (padder < 1 ? "" : "%0" + padder) + "d";
@@ -135,7 +135,7 @@ public class MinerFulLogMaker {
 				if (traceNum < MAX_SIZE_OF_STRINGS_LOG) {
 					sBuf.append(firedTransition + ",");
 				}
-				
+
 				currentDate = generateRandomDateTimeForLogEvent(currentDate);
 				xEvent = makeXEvent(xFactory, concExtino, lifeExtension, timeExtension, firedTransition, currentDate);
 				xTrace.add(xEvent);
@@ -147,10 +147,10 @@ public class MinerFulLogMaker {
 				sBuf = new StringBuffer();
 			}
 		}
-		
+
 		return this.log;
 	}
-	
+
 	/**
 	 * Stores the generated event log, {@link #log log}, in the file specified in
 	 * {@link #parameters parameters}.
@@ -161,7 +161,7 @@ public class MinerFulLogMaker {
 		checkParametersForLogEncoding();
 		if (this.parameters.outputLogFile == null)
 			throw new IllegalStateException("Output file not specified in given parameters");
-		
+
 		File outFile = this.parameters.outputLogFile;
 		OutputStream outStream = new FileOutputStream(outFile);
 		this.printEncodedLogInStream(outStream);
@@ -184,6 +184,19 @@ public class MinerFulLogMaker {
 		return outStream.toString();
 	}
 
+    /**
+     * Return the String event log without commas and r/langle
+     *
+     * @return Event log as array of Strings
+     */
+    public String[] getCleanStringsLog() {
+        String[] clean = new String[stringsLog.length];
+        for (int i = 0; i < stringsLog.length; i++) {
+            clean[i] = stringsLog[i].replace(",", "").replace("<", "").replace(">", "");
+        }
+        return clean;
+    }
+
 	/**
 	 * Prints the generated event log, {@link #log log}, in the specified output stream.
 	 * @return The print-out of the event log
@@ -201,7 +214,7 @@ public class MinerFulLogMaker {
 			PrintWriter priWri = new PrintWriter(outStream);
 			for (String stringTrace : this.stringsLog) {
 				priWri.println(stringTrace);
-				MessagePrinter.printlnOut(stringTrace);
+//                    MessagePrinter.printlnOut(stringTrace); // Print in terminal the log. Temporarily disabled.
 			}
 			priWri.flush();
 			priWri.close();
@@ -251,13 +264,13 @@ public class MinerFulLogMaker {
 	/**
 	 * Generates a random date and time for a log event, no sooner than the
 	 * provided parameter.
-	 * 
+	 *
 	 * @param laterThan The date and time with respect to which the generated time stamp must be later
 	 * @return A random date and time for the log event
 	 */
 	private Date generateRandomDateTimeForLogEvent(Date laterThan) {
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		
+
 		if (laterThan == null) {
 			cal.add(GregorianCalendar.YEAR, -1);
 			cal.add(GregorianCalendar.MONTH, (int) ( Math.round(Math.random() * 12 )) * -1 );
