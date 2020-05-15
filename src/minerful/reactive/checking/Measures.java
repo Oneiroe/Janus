@@ -321,11 +321,7 @@ public class Measures {
      */
     public static double getTraceConfidence(byte[] reactiveConstraintEvaluation) {
         byte[] activatorEval = getActivatorEvaluation(reactiveConstraintEvaluation);
-        double denominator =//        double conf = getTraceConfidence(reactiveConstraintEvaluation);
-//        double probabilityTarget = getFormulaProbability(getTargetEvaluation(reactiveConstraintEvaluation));
-//
-//        // TODO check behaviour when denominator=0
-//        return (conf - probabilityTarget) / (1 - probabilityTarget); // TODO BEWARE WRONG Loevinger formula, this is the certainty factor getFormulaProbability(activatorEval);
+        double denominator = getFormulaProbability(activatorEval);
         if (denominator == 0) return 0;
         return getTraceSupport(reactiveConstraintEvaluation) / denominator;
 //        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
