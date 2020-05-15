@@ -26,6 +26,31 @@ public class Measures {
             "Odds Ratio",   // 9
             "Gini Index",   // 10
             "Certainty factor",   // 11
+            "Coverage",     // 12
+            "Prevalence",     // 13
+            "Added Value",     // 14
+            "Relative Risk",     // 15
+            "Jaccard",     // 16
+            "Ylue Q",     // 17
+            "Ylue Y",     // 18
+            "Klosgen",     // 19
+            "Conviction",     // 20
+            "Interestingness Weighting Dependency",     // 21
+            "Collective Strength",     // 22
+            "Laplace Correction",     // 23
+            "J Measure",     // 24
+            "One-way Support",     // 25
+            "Two-way Support",     // 26
+            "Two-way Support Variation",     // 27
+            "Linear Correlation Coefficient",     // 28
+            "Piatetsky-Shapiro",     // 29
+            "Cosine",     // 30
+            "Information Gain",     // 31
+            "Sebag-Schoenauer",     // 32
+            "Least Contradiction",     // 33
+            "Odd Multiplier",     // 34
+            "Example and Counterexample Rate",     // 35
+            "Zhang"     // 36
     };
 
     //    	TODO improve this hard-code shame
@@ -91,6 +116,106 @@ public class Measures {
             case 11:
 //				Certainty factor
                 result = getTraceCertaintyFactor(reactiveConstraintEvaluation);
+                break;
+            case 12:
+//				Coverage
+                result = getTraceCoverage(reactiveConstraintEvaluation);
+                break;
+            case 13:
+//				Prevalence
+                result = getTracePrevalence(reactiveConstraintEvaluation);
+                break;
+            case 14:
+//				Added Value
+                result = getTraceAddedValue(reactiveConstraintEvaluation);
+                break;
+            case 15:
+//				Relative Risk
+                result = getTraceRelativeRisk(reactiveConstraintEvaluation);
+                break;
+            case 16:
+//				Jaccard
+                result = getTraceJaccard(reactiveConstraintEvaluation);
+                break;
+            case 17:
+//				Ylue Q
+                result = getTraceYlueQ(reactiveConstraintEvaluation);
+                break;
+            case 18:
+//				Ylue Y
+                result = getTraceYlueY(reactiveConstraintEvaluation);
+                break;
+            case 19:
+//				Klosgen
+                result = getTraceKlosgen(reactiveConstraintEvaluation);
+                break;
+            case 20:
+//				Conviction
+                result = getTraceConviction(reactiveConstraintEvaluation);
+                break;
+            case 21:
+//				Interestingness Weighting Dependency
+                result = getTraceInterestingnessWeightingDependency(reactiveConstraintEvaluation);
+                break;
+            case 22:
+//				Collective Strength
+                result = getTraceCollectiveStrength(reactiveConstraintEvaluation);
+                break;
+            case 23:
+//				Laplace Correction
+                result = getTraceLaplaceCorrection(reactiveConstraintEvaluation);
+                break;
+            case 24:
+//				J Measure
+                result = getTraceJMeasure(reactiveConstraintEvaluation);
+                break;
+            case 25:
+//				One-way Support
+                result = getTraceOneWaySupport(reactiveConstraintEvaluation);
+                break;
+            case 26:
+//				Two-way Support
+                result = getTraceTwoWaySupport(reactiveConstraintEvaluation);
+                break;
+            case 27:
+//				Two-way Support Variation
+                result = getTraceTwoWaySupportVariation(reactiveConstraintEvaluation);
+                break;
+            case 28:
+//				Linear Correlation Coefficient
+                result = getTraceLinearCorrelationCoefficient(reactiveConstraintEvaluation);
+                break;
+            case 29:
+//				Piatetsky-Shapiro
+                result = getTracePiatetskyShapiro(reactiveConstraintEvaluation);
+                break;
+            case 30:
+//				Cosine
+                result = getTraceCosine(reactiveConstraintEvaluation);
+                break;
+            case 31:
+//				Information Gain
+                result = getTraceInformationGain(reactiveConstraintEvaluation);
+                break;
+            case 32:
+//				Sebag-Schoenauer
+                result = getTraceSebagSchoenauer(reactiveConstraintEvaluation);
+                break;
+            case 33:
+//				Least Contradiction
+                result = getTraceLeastContradiction(reactiveConstraintEvaluation);
+                break;
+            case 34:
+//				Odd Multiplier
+                result = getTraceOddMultiplier(reactiveConstraintEvaluation);
+                break;
+            case 35:
+//				Example and Counterexample Rate
+                result = getTraceExampleCounterexampleRate(reactiveConstraintEvaluation);
+                break;
+            case 36:
+//				Zhang
+                result = getTraceZhang(reactiveConstraintEvaluation);
                 break;
         }
         return result;
@@ -172,6 +297,18 @@ public class Measures {
             result += eval / 3; // activator and target are both true when the byte is 3
         }
         return result / reactiveConstraintEvaluation.length;
+//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        double pA = p[0];
+//        double pnA = p[2];
+//        double pT = p[1];
+//        double pnT = p[3];
+//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        double pnAnT = pIntersection[0];
+//        double pnAT = pIntersection[1];
+//        double pAnT = pIntersection[2];
+//        double pAT = pIntersection[3];
+//
+//        return pAT;
     }
 
     /**
@@ -184,9 +321,32 @@ public class Measures {
      */
     public static double getTraceConfidence(byte[] reactiveConstraintEvaluation) {
         byte[] activatorEval = getActivatorEvaluation(reactiveConstraintEvaluation);
-        double denominator = getFormulaProbability(activatorEval);
+        double denominator =//        double conf = getTraceConfidence(reactiveConstraintEvaluation);
+//        double probabilityTarget = getFormulaProbability(getTargetEvaluation(reactiveConstraintEvaluation));
+//
+//        // TODO check behaviour when denominator=0
+//        return (conf - probabilityTarget) / (1 - probabilityTarget); // TODO BEWARE WRONG Loevinger formula, this is the certainty factor getFormulaProbability(activatorEval);
         if (denominator == 0) return 0;
         return getTraceSupport(reactiveConstraintEvaluation) / denominator;
+//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        double pA = p[0];
+//        double pnA = p[2];
+//        double pT = p[1];
+//        double pnT = p[3];
+//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        double pnAnT = pIntersection[0];
+//        double pnAT = pIntersection[1];
+//        double pAnT = pIntersection[2];
+//        double pAT = pIntersection[3];
+//
+//        double result= pAT / pA;
+//
+//        if (Double.isNaN(result)){
+//            return 0;
+//        }
+//        else {
+//            return result;
+//        }
     }
 
     /**
@@ -202,22 +362,55 @@ public class Measures {
         double denominator = getFormulaProbability(targetEval);
         if (denominator == 0) return 0;
         return getTraceSupport(reactiveConstraintEvaluation) / denominator;
+//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        double pA = p[0];
+//        double pnA = p[2];
+//        double pT = p[1];
+//        double pnT = p[3];
+//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        double pnAnT = pIntersection[0];
+//        double pnAT = pIntersection[1];
+//        double pAnT = pIntersection[2];
+//        double pAT = pIntersection[3];
+//
+//        double result= pAT / pT;
+//
+//        if (Double.isNaN(result)){
+//            return 0;
+//        }
+//        else {
+//            return result;
+//        }
     }
 
     /**
      * Retrieve the Lovinger's Measure of a constraint for a given trace.
      * <p>
      * The Lovinger's measure is defined as:
-     * Lov(A->T) = ( P(T'|A') - P(T')) / (1 - P(T')) = (Conf(A'->T') - P(T')) / (1 - P(T'))
+     * Lov(A->T) = 1 − ((P(A)P(¬T))/P(A¬T)))
      *
      * @return
      */
     public static double getTraceLovinger(byte[] reactiveConstraintEvaluation) {
-        double conf = getTraceConfidence(reactiveConstraintEvaluation);
-        double probabilityTarget = getFormulaProbability(getTargetEvaluation(reactiveConstraintEvaluation));
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
 
-        // TODO check behaviour when denominator=0
-        return (conf - probabilityTarget) / (1 - probabilityTarget);
+        double result = 1 - ((pA * pnT) / (pAnT));
+
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
     }
 
     /**
@@ -230,18 +423,49 @@ public class Measures {
      */
     public static double getTraceSpecificity(byte[] reactiveConstraintEvaluation) {
         return getTraceConfidence(getNegativeReactiveConstraintEvaluation(reactiveConstraintEvaluation));
+//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        double pA = p[0];
+//        double pnA = p[2];
+//        double pT = p[1];
+//        double pnT = p[3];
+//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        double pnAnT = pIntersection[0];
+//        double pnAT = pIntersection[1];
+//        double pAnT = pIntersection[2];
+//        double pAT = pIntersection[3];
+//
+//        double result= pnAnT / pnA;
+//
+//        if (Double.isNaN(result)){
+//            return 0;
+//        }
+//        else {
+//            return result;
+//        }
     }
 
     /**
      * Retrieve the Accuracy Measure of a constraint for a given trace.
      * <p>
      * The Accuracy measure is defined as:
-     * Specificity(A->T) = P(T' intersection A') + P(¬T' intersection ¬A') = (Supp(A'->T') + Supp(¬A'->¬T'))
+     * Accuracy(A->T) = P(T' intersection A') + P(¬T' intersection ¬A') = (Supp(A'->T') + Supp(¬A'->¬T'))
      *
      * @return
      */
     public static double getTraceAccuracy(byte[] reactiveConstraintEvaluation) {
         return getTraceSupport(reactiveConstraintEvaluation) + getTraceSupport(getNegativeReactiveConstraintEvaluation(reactiveConstraintEvaluation));
+//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        double pA = p[0];
+//        double pnA = p[2];
+//        double pT = p[1];
+//        double pnT = p[3];
+//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        double pnAnT = pIntersection[0];
+//        double pnAT = pIntersection[1];
+//        double pAnT = pIntersection[2];
+//        double pAT = pIntersection[3];
+//
+//        return pAT + pnAnT;
     }
 
     /**
@@ -257,6 +481,25 @@ public class Measures {
         double denominator = getFormulaProbability(targetEval);
         if (denominator == 0) return 0;
         return getTraceConfidence(reactiveConstraintEvaluation) / denominator;
+//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        double pA = p[0];
+//        double pnA = p[2];
+//        double pT = p[1];
+//        double pnT = p[3];
+//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        double pnAnT = pIntersection[0];
+//        double pnAT = pIntersection[1];
+//        double pAnT = pIntersection[2];
+//        double pAT = pIntersection[3];
+//
+//        double result= pAT / (pA * pT);
+//
+//        if (Double.isNaN(result)){
+//            return 0;
+//        }
+//        else {
+//            return result;
+//        }
     }
 
     /**
@@ -273,6 +516,25 @@ public class Measures {
         double pA = getFormulaProbability(activatorEval);
         double pT = getFormulaProbability(targetEval);
         return getTraceConfidence(reactiveConstraintEvaluation) - (pA * pT);
+//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        double pA = p[0];
+//        double pnA = p[2];
+//        double pT = p[1];
+//        double pnT = p[3];
+//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        double pnAnT = pIntersection[0];
+//        double pnAT = pIntersection[1];
+//        double pAnT = pIntersection[2];
+//        double pAT = pIntersection[3];
+//
+//        double result= (pAT / pA) - pA * pT;
+//
+//        if (Double.isNaN(result)){
+//            return 0;
+//        }
+//        else {
+//            return result;
+//        }
     }
 
     /**
@@ -295,6 +557,18 @@ public class Measures {
             }
         }
         return 1 - result / reactiveConstraintEvaluation.length;
+//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        double pA = p[0];
+//        double pnA = p[2];
+//        double pT = p[1];
+//        double pnT = p[3];
+//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        double pnAnT = pIntersection[0];
+//        double pnAT = pIntersection[1];
+//        double pAnT = pIntersection[2];
+//        double pAT = pIntersection[3];
+//
+//        return 1 - pAnT;
     }
 
     /**
@@ -306,12 +580,24 @@ public class Measures {
      * @return
      */
     public static double getTraceOddsRatio(byte[] reactiveConstraintEvaluation) {
-        double[] evals = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);
-        double pnAnT = evals[0];
-        double pnAT = evals[1];
-        double pAnT = evals[2];
-        double pAT = evals[3];
-        return (pAT * pnAnT) / (pAnT * pnAT);
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = (pAT * pnAnT) / (pAnT * pnAT);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
     }
 
     /**
@@ -334,7 +620,13 @@ public class Measures {
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
 
-        return pA * (Math.pow((pAT / pA), 2) + Math.pow(pAnT / pA, 2)) + pnA * (Math.pow(pnAT / pnA, 2) + Math.pow(pnAnT / pnA, 2)) - Math.pow(pT, 2) - Math.pow(pnT, 2);
+        double result = pA * (Math.pow((pAT / pA), 2) + Math.pow(pAnT / pA, 2)) + pnA * (Math.pow(pnAT / pnA, 2) + Math.pow(pnAnT / pnA, 2)) - Math.pow(pT, 2) - Math.pow(pnT, 2);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
     }
 
     /**
@@ -357,7 +649,752 @@ public class Measures {
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
 
-        return ((pAT/pA)-pT)/(1-pT);
+        double result = ((pAT / pA) - pT) / (1 - pT);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Coverage Measure of a constraint for a given trace.
+     * <p>
+     * The coverage measure is defined as:
+     * Coverage(A->T) = P(A)
+     *
+     * @return
+     */
+    public static double getTraceCoverage(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = pA;
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Prevalence Measure of a constraint for a given trace.
+     * <p>
+     * The prevalence measure is defined as:
+     * Prevalence(A->T) = P(T)
+     *
+     * @return
+     */
+    public static double getTracePrevalence(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = pT;
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Added Value Measure of a constraint for a given trace.
+     * <p>
+     * The Added Value measure is defined as:
+     * AddedValue(A->T) = P(T|A)-P(T) = P(AT)/P(A) - P(T)
+     *
+     * @return
+     */
+    public static double getTraceAddedValue(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = pAT / pA - pT;
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Relative Risk Measure of a constraint for a given trace.
+     * <p>
+     * The Relative Risk measure is defined as:
+     * RelativeRisk(A->T) = P(T|A)/P(T|¬A) = ( P(AT)/P(A) ) / ( P(¬AT)/P(¬A) )
+     *
+     * @return
+     */
+    public static double getTraceRelativeRisk(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = (pAT / pA) / (pnAT / pnA);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Jaccard Measure of a constraint for a given trace.
+     * <p>
+     * The Jaccard measure is defined as:
+     * Jaccard(A->T) = P(AT)/ ( P(A)+P(T) - P(AT) )
+     *
+     * @return
+     */
+    public static double getTraceJaccard(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = pAT / (pA + pT - pAT);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Ylue Q Measure of a constraint for a given trace.
+     * <p>
+     * The Ylue Q measure is defined as:
+     * YlueQ(A->T) = ( P(AT) P(¬A¬T) - P(A¬T)P(¬AT) ) / ( P(AT) P(¬A¬T) + P(A¬T)P(¬AT) )
+     *
+     * @return
+     */
+    public static double getTraceYlueQ(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = (pAT * pnAnT - pAnT * pnAT) / (pAT * pnAnT + pAnT * pnAT);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Ylue Y Measure of a constraint for a given trace.
+     * <p>
+     * The Ylue Y measure is defined as:
+     * YlueY(A->T) = ( (P(AT) P(¬A¬T))^1/2 - (P(A¬T)P(¬AT))^1/2 ) / ( (P(AT) P(¬A¬T))^1/2 + (P(A¬T)P(¬AT))^1/2 )
+     *
+     * @return
+     */
+    public static double getTraceYlueY(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = (Math.sqrt(pAT * pnAnT) - Math.sqrt(pAnT * pnAT)) / (Math.sqrt(pAT * pnAnT) + Math.sqrt(pAnT * pnAT));
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Klosgen Measure of a constraint for a given trace.
+     * <p>
+     * The Klosgen measure is defined as:
+     * Klosgen(A->T) = P(AT)^1/2 * Max( P(T|A) - P(T) , P(A|T) -P(A) ) = P(AT)^1/2 * Max( P(AT)/P(A) - P(T) , P(AT)/P(T) -P(A) )
+     *
+     * @return
+     */
+    public static double getTraceKlosgen(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = Math.sqrt(pAT) * Math.max(pAT / pA - pT, pAT / pT - pA);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Conviction Measure of a constraint for a given trace.
+     * <p>
+     * The Conviction measure is defined as:
+     * Conviction(A->T) = ( P(A) P(¬T)) / P(A¬T)
+     *
+     * @return
+     */
+    public static double getTraceConviction(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = (pA * pnT) / pAnT;
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Interestingness Weighting Dependency Measure of a constraint for a given trace.
+     * <p>
+     * The Interestingness Weighting Dependency measure is defined as:
+     * InterestingnessWeightingDependency(A->T) = ( (P(AT)/( P(A)P(T) ))^k -1) * (P(AT))^m
+     * we assume m=2 and k=2 like in (Le and Lo 2015)
+     *
+     * @return
+     */
+    public static double getTraceInterestingnessWeightingDependency(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        int m = 2;
+        int k = 2;
+
+        double result = (Math.pow(pAT / (pA * pT), k) - 1) * Math.pow(pAT, m);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Collective Strength Measure of a constraint for a given trace.
+     * <p>
+     * The Collective Strength measure is defined as:
+     * CollectiveStrength(A->T) = ( P(AT)+P(¬T|¬A) )/( P(A)P(T)+P(¬A)P(¬B) ) * ( 1-P(A)P(T)-P(¬A)P(¬T) )/( 1-P(AT)-P(¬T|¬A) ) =
+     * = ( P(AT)+P(¬T¬A)/P(¬A) )/( P(A)P(T)+P(¬A)P(¬B) ) * ( 1-P(A)P(T)-P(¬A)P(¬T) )/( 1-P(AT)-P(¬T¬A)/P(¬A) )
+     *
+     * @return
+     */
+    public static double getTraceCollectiveStrength(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = (pAT + (pnAnT / pnA)) / (pA * pT + pnA * pnT) * (1 - pA * pT - pnA * pnT) / (1 - pAT - (pnAnT / pnA));
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Laplace Correction Measure of a constraint for a given trace.
+     * <p>
+     * The Laplace Correction measure is defined as:
+     * LaplaceCorrection(A->T) = ( N(AT) +1 ) / (N(A) + 2) = (n*P(AT) +1)/(n*P(A)+2)
+     * where N(x) is not the probability but the number of occurrence of x in the trace, thus n=treche lenght
+     * e.g. P(AB) = N(AB)/Lenght(Trace)
+     *
+     * @return
+     */
+    public static double getTraceLaplaceCorrection(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        int n = reactiveConstraintEvaluation.length;
+
+        double result = (n * pAT + 1) / (n * pA + 2);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the J-Measure Measure of a constraint for a given trace.
+     * <p>
+     * The J-Measure measure is defined as:
+     * JMeasure(A->T) = P(AT) log(P(T|A)/P(T)) + P(A¬T) log( P(¬T|A)/P(¬T) )
+     *
+     * @return
+     */
+    public static double getTraceJMeasure(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = pAT * Math.log((pAT / pA) / pT) + pAnT * Math.log((pAnT / pA) / pnT);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the One-way Support Measure of a constraint for a given trace.
+     * <p>
+     * The One-way Support measure is defined as:
+     * OnewaySupport(A->T) = P(T|A) log_2(P(AT)/(P(A)P(T)))
+     *
+     * @return
+     */
+    public static double getTraceOneWaySupport(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = pAT / pA * log2(pAT / (pA * pT));
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Two-way Support Measure of a constraint for a given trace.
+     * <p>
+     * The Two-way Support measure is defined as:
+     * TwoWaySupport(A->T) = P(AT) log_2(P(AT)/(P(A)P(T)))
+     *
+     * @return
+     */
+    public static double getTraceTwoWaySupport(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = pAT * log2(pAT / (pA * pT));
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+
+    /**
+     * Retrieve the Two-way Support Variation Measure of a constraint for a given trace.
+     * <p>
+     * The Two-way Support Variation measure is defined as:
+     * TwoWaySupportVariation(A->T) = P(AT) log_2( P(AT)/(P(A)P(T)) ) + P(A¬T) log_2( P(A¬T)/(P(A)P(¬T)) )
+     * + P(¬AT) log_2( P(¬AT)/(P(¬A)P(T)) ) + P(¬A¬T) log_2( P(¬A¬T)/(P(¬A)P(¬T)) )
+     *
+     * @return
+     */
+    public static double getTraceTwoWaySupportVariation(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = pAT * log2(pAT / (pA * pT)) +
+                pAnT * log2(pAnT / (pA * pnT)) +
+                pnAT * log2(pnAT / (pnA * pT)) +
+                pnAnT * log2(pnAnT / (pnA * pnT));
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Linear Correlation Coefficient Measure of a constraint for a given trace.
+     * <p>
+     * The Linear Correlation Coefficient measure is defined as:
+     * LinearCorrelationCoefficient(A->T) = (P(AT)-P(A)P(B)) / ((P(A)P(T)P(¬A)P(¬T))^1/2)
+     *
+     * @return
+     */
+    public static double getTraceLinearCorrelationCoefficient(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = (pAT - pA * pT) / Math.sqrt(pA * pT * pnA * pnT);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Piatetsky-Shapiro Measure of a constraint for a given trace.
+     * <p>
+     * The Piatetsky-Shapiro measure is defined as:
+     * PiatetskyShapiro(A->T) = P(AT)-P(A)P(T)
+     *
+     * @return
+     */
+    public static double getTracePiatetskyShapiro(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = pAT - pA * pT;
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Cosine Measure of a constraint for a given trace.
+     * <p>
+     * The Cosine measure is defined as:
+     * Cosine(A->T) = P(AT)/(P(A)P(T))^1/2
+     *
+     * @return
+     */
+    public static double getTraceCosine(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = pAT / Math.sqrt(pA * pT);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Information Gain Measure of a constraint for a given trace.
+     * <p>
+     * The Information Gain measure is defined as:
+     * InformationGain(A->T) = log( P(AT)/(P(A)P(T)) )
+     *
+     * @return
+     */
+    public static double getTraceInformationGain(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = Math.log(pAT / (pA * pT));
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Sebag-Schoenauer Measure of a constraint for a given trace.
+     * <p>
+     * The Sebag-Schoenauer measure is defined as:
+     * SebagSchoenauer(A->T) = P(AT)/P(A¬T)
+     *
+     * @return
+     */
+    public static double getTraceSebagSchoenauer(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = pAT / pAnT;
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Least Contradiction Measure of a constraint for a given trace.
+     * <p>
+     * The Least Contradiction measure is defined as:
+     * LeastContradiction(A->T) = (P(AT)-P(A¬T)/P(T)
+     *
+     * @return
+     */
+    public static double getTraceLeastContradiction(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = (pAT - pAnT) / pT;
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Odd Multiplier Measure of a constraint for a given trace.
+     * <p>
+     * The Odd Multiplier measure is defined as:
+     * OddMultiplier(A->T) = ( P(AT)P(¬T) )/( P(T)P(A¬T) )
+     *
+     * @return
+     */
+    public static double getTraceOddMultiplier(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = (pAT * pnT) / (pT * pAnT);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Example and Counterexample Rate Measure of a constraint for a given trace.
+     * <p>
+     * The Example and Counterexample Rate measure is defined as:
+     * ExampleCounterexampleRate(A->T) = 1- P(A¬T)/P(AT)
+     *
+     * @return
+     */
+    public static double getTraceExampleCounterexampleRate(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = 1 - pAnT / pAT;
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * Retrieve the Zhang Measure of a constraint for a given trace.
+     * <p>
+     * The Zhang measure is defined as:
+     * Zhang(A->T) =  ( P(AT)-P(A)P(T) ) / Max( P(AT)P(¬T), P(T)P(A¬T))
+     *
+     * @return
+     */
+    public static double getTraceZhang(byte[] reactiveConstraintEvaluation) {
+        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        double pnAnT = pIntersection[0];
+        double pnAT = pIntersection[1];
+        double pAnT = pIntersection[2];
+        double pAT = pIntersection[3];
+
+        double result = (pAT - pA * pT) / Math.max(pAT * pnT, pT * pAnT);
+
+        if (Double.isNaN(result)) {
+            return 0;
+        } else {
+            return result;
+        }
     }
 
     /**
@@ -525,4 +1562,14 @@ public class Measures {
         return result;
     }
 
+    /**
+     * Return the logarithm inn base 2 of a given number
+     *
+     * @param number
+     * @return
+     */
+    private static double log2(double number) {
+//        return (Math.log(number) / Math.log(2) + 1e-10);
+        return Math.log(number) / Math.log(2);
+    }
 }
