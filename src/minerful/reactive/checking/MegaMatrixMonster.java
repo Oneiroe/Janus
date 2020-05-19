@@ -77,6 +77,7 @@ public class MegaMatrixMonster {
      */
     public void computeMeasures() {
 //		TRACE MEASURES
+        logger.info("Retrieving Trace Measures...");
         //        for the entire log
         for (int trace = 0; trace < matrix.length; trace++) {
 //              for each trace
@@ -88,6 +89,7 @@ public class MegaMatrixMonster {
             }
         }
 
+        logger.info("Retrieving Log Measures...");
 //		LOG MEASURES
         for (int constraint = 0; constraint < matrix[0].length; constraint++) {
             for (int measure = 0; measure < Measures.MEASURE_NUM; measure++) {

@@ -51,10 +51,12 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
             double before = System.currentTimeMillis();
 
 //			Detailed traces results
-//            exportEncodedReadable3DMatrixToCSV(matrix, outputFile);
-            exportReadable3DMatrixToCSV(matrix, outputFile);
+            logger.info("MegaMatrixMonster...");
+            exportEncodedReadable3DMatrixToCSV(matrix, outputFile);
+//            exportReadable3DMatrixToCSV(matrix, outputFile);
 
 //			Aggregated Log measures
+            logger.info("Aggregated Measures...");
             outputAggregatedMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("AggregatedMeasures.CSV"));
 //            exportEncodedAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
             exportAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
@@ -81,11 +83,13 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 
 
 //			Detailed traces results
+            logger.info("MegaMatrixMonster...");
 // 			TODO parametrize the choice between encoded/unencoded result
             exportEncodedReadable3DMatrixToJson(matrix, outputFile);
 //			exportReadable3DMatrixToJson(matrix, outputFile);
 
 //			Aggregated Log measures
+            logger.info("Aggregated Measures...");
             outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("AggregatedMeasures.json"));
 //            exportEncodedAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
             exportAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
