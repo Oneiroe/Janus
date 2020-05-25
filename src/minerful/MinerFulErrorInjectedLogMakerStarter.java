@@ -9,6 +9,9 @@ import minerful.logmaker.errorinjector.ErrorInjector;
 import minerful.logmaker.errorinjector.ErrorInjectorFactory;
 import minerful.logmaker.errorinjector.params.ErrorInjectorCmdParameters;
 import minerful.logmaker.params.LogMakerParameters;
+import minerful.logparser.LogParser;
+import minerful.logparser.LogTraceParser;
+import minerful.params.InputLogCmdParameters;
 import minerful.params.SystemCmdParameters;
 import minerful.stringsmaker.MinerFulStringTracesMaker;
 import minerful.stringsmaker.params.StringTracesMakerCmdParameters;
@@ -18,8 +21,9 @@ import org.apache.commons.cli.Options;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
 
 public class MinerFulErrorInjectedLogMakerStarter extends MinerFulMinerStarter {
     public static MessagePrinter logger = MessagePrinter.getInstance(MinerFulErrorInjectedLogMakerStarter.class);
@@ -31,7 +35,8 @@ public class MinerFulErrorInjectedLogMakerStarter extends MinerFulMinerStarter {
         Options systemOptions = SystemCmdParameters.parseableOptions(),
                 inputModelOptions = InputModelParameters.parseableOptions(),
                 logMakOptions = LogMakerParameters.parseableOptions(),
-                errorInjectorOptions = ErrorInjectorCmdParameters.parseableOptions();
+                errorInjectorOptions = ErrorInjectorCmdParameters.parseableOptions(),
+                inputLogOptions = InputLogCmdParameters.parseableOptions();
 
         for (Object opt : systemOptions.getOptions()) {
             cmdLineOptions.addOption((Option) opt);
@@ -43,6 +48,9 @@ public class MinerFulErrorInjectedLogMakerStarter extends MinerFulMinerStarter {
             cmdLineOptions.addOption((Option) opt);
         }
         for (Object opt : errorInjectorOptions.getOptions()) {
+            cmdLineOptions.addOption((Option) opt);
+        }
+        for (Object opt : inputLogOptions.getOptions()) {
             cmdLineOptions.addOption((Option) opt);
         }
 
@@ -119,6 +127,10 @@ public class MinerFulErrorInjectedLogMakerStarter extends MinerFulMinerStarter {
                 new ErrorInjectorCmdParameters(
                         cmdLineOptions,
                         args);
+        InputLogCmdParameters inputLogParams =
+                new InputLogCmdParameters(
+                        cmdLineOptions,
+                        args);
 
         if (systemParams.help) {
             systemParams.printHelp(cmdLineOptions);
@@ -132,7 +144,24 @@ public class MinerFulErrorInjectedLogMakerStarter extends MinerFulMinerStarter {
 
         MessagePrinter.configureLogging(systemParams.debugLevel);
 
-        String[] testBedArray = new MinerFulLogMakerLauncher(inputModelParams, logMakParameters, systemParams).makeLog();
+        String[] testBedArray =new String[0];
+
+        if (inputLogParams.inputLogFile == null){
+            testBedArray = new MinerFulLogMakerLauncher(inputModelParams, logMakParameters, systemParams).makeLog();
+        }else {
+            logger.info("Reading input log");
+            List temp= new LinkedList<String>();
+            LogParser logParser= MinerFulMinerLauncher.deriveLogParserFromLogFile(inputLogParams);
+            for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
+                LogTraceParser tr = it.next();
+                tr.init();
+                temp.add(tr.printStringTrace());
+                System.out.println(tr.printStringTrace());
+            }
+            testBedArray= (String[]) temp.toArray(new String[temp.size()]);
+
+        }
+
         Set<Character> tempAlphabet = new HashSet<Character>();
         for (String trace:testBedArray) {
             for (char event : trace.toCharArray()) {
