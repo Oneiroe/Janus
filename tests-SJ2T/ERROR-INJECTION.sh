@@ -45,7 +45,7 @@ OUTPUT_CHECK_JSON=${TEST_FOLDER}/${TEST_BASE_NAME}"-output.json"
 TARGET_CHAR=a # Just one task at the time
 ERROR_PERCENTAGE=10
 ERROR_POLICY="collection"
-ERROR_TYPE="ins"
+ERROR_TYPE="del"
 ERROR_LOG=${TEST_FOLDER}/${TEST_BASE_NAME}"-error-log.txt"
 
 ##################################################################
@@ -82,7 +82,9 @@ do
 ##################################################################
 ## injection error cycle single target
 echo "########### Error-injection cycle"
-for ERROR_PERCENTAGE in 10 20 30 40 50 60 70 80 90 100
+
+for ITERATION in {0..10..1}; do
+for ERROR_PERCENTAGE in 0 10 20 30 40 50 60 70 80 90 100
 do
     # Error injection
     echo "### Error-injection level:"$ERROR_PERCENTAGE
@@ -103,14 +105,17 @@ do
 
     # save result
     echo "########### Post Processing"
-    python pySupport/singleAggregationPerspectiveFocusCSV.py $OUTPUT_CHECK_JSON"AggregatedMeasures.json" $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN]_"${ERROR_PERCENTAGE}".csv"
+    python pySupport/singleAggregationPerspectiveFocusCSV.py $OUTPUT_CHECK_JSON"AggregatedMeasures.json" $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN]_"${ITERATION}"_"${ERROR_PERCENTAGE}".csv"
 
 done
+done
+
+## AVERAGE of results
 
 ##################################################################
 ## Plot results
 echo "########### Plot results"
-/home/alessio/Data/Phd/my_code/PyVEnv/pySupport/bin/python pySupport/error_injection_plots.py $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN]_" $TARGET_CHAR
+/home/alessio/Data/Phd/my_code/PyVEnv/pySupport/bin/python pySupport/error_injection_plots.py $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN]_" $TARGET_CHAR $ERROR_TYPE
 
 done
 
