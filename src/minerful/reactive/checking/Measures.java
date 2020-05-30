@@ -322,7 +322,7 @@ public class Measures {
     public static double getTraceConfidence(byte[] reactiveConstraintEvaluation) {
         byte[] activatorEval = getActivatorEvaluation(reactiveConstraintEvaluation);
         double denominator = getFormulaProbability(activatorEval);
-        if (denominator == 0) return 0;
+        if (denominator == 0) return Double.NaN;
         return getTraceSupport(reactiveConstraintEvaluation) / denominator;
 //        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
 //        double pA = p[0];
@@ -402,11 +402,7 @@ public class Measures {
         double result = 1 - ((pA * pnT) / (pAnT));
 
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -589,11 +585,7 @@ public class Measures {
 
         double result = (pAT * pnAnT) / (pAnT * pnAT);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -618,11 +610,7 @@ public class Measures {
 
         double result = pA * (Math.pow((pAT / pA), 2) + Math.pow(pAnT / pA, 2)) + pnA * (Math.pow(pnAT / pnA, 2) + Math.pow(pnAnT / pnA, 2)) - Math.pow(pT, 2) - Math.pow(pnT, 2);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -647,11 +635,7 @@ public class Measures {
 
         double result = ((pAT / pA) - pT) / (1 - pT);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -676,11 +660,7 @@ public class Measures {
 
         double result = pA;
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -705,11 +685,7 @@ public class Measures {
 
         double result = pT;
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -734,11 +710,7 @@ public class Measures {
 
         double result = pAT / pA - pT;
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -763,11 +735,7 @@ public class Measures {
 
         double result = (pAT / pA) / (pnAT / pnA);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -792,11 +760,7 @@ public class Measures {
 
         double result = pAT / (pA + pT - pAT);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -821,11 +785,7 @@ public class Measures {
 
         double result = (pAT * pnAnT - pAnT * pnAT) / (pAT * pnAnT + pAnT * pnAT);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -850,11 +810,7 @@ public class Measures {
 
         double result = (Math.sqrt(pAT * pnAnT) - Math.sqrt(pAnT * pnAT)) / (Math.sqrt(pAT * pnAnT) + Math.sqrt(pAnT * pnAT));
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -879,11 +835,7 @@ public class Measures {
 
         double result = Math.sqrt(pAT) * Math.max(pAT / pA - pT, pAT / pT - pA);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -908,11 +860,7 @@ public class Measures {
 
         double result = (pA * pnT) / pAnT;
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -941,11 +889,7 @@ public class Measures {
 
         double result = (Math.pow(pAT / (pA * pT), k) - 1) * Math.pow(pAT, m);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -971,11 +915,7 @@ public class Measures {
 
         double result = (pAT + (pnAnT / pnA)) / (pA * pT + pnA * pnT) * (1 - pA * pT - pnA * pnT) / (1 - pAT - (pnAnT / pnA));
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1004,11 +944,7 @@ public class Measures {
 
         double result = (n * pAT + 1) / (n * pA + 2);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1033,11 +969,7 @@ public class Measures {
 
         double result = pAT * Math.log((pAT / pA) / pT) + pAnT * Math.log((pAnT / pA) / pnT);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1062,11 +994,7 @@ public class Measures {
 
         double result = pAT / pA * log2(pAT / (pA * pT));
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1091,11 +1019,7 @@ public class Measures {
 
         double result = pAT * log2(pAT / (pA * pT));
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
 
@@ -1125,11 +1049,7 @@ public class Measures {
                 pnAT * log2(pnAT / (pnA * pT)) +
                 pnAnT * log2(pnAnT / (pnA * pnT));
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1154,11 +1074,7 @@ public class Measures {
 
         double result = (pAT - pA * pT) / Math.sqrt(pA * pT * pnA * pnT);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1183,11 +1099,7 @@ public class Measures {
 
         double result = pAT - pA * pT;
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1212,11 +1124,7 @@ public class Measures {
 
         double result = pAT / Math.sqrt(pA * pT);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1241,11 +1149,7 @@ public class Measures {
 
         double result = Math.log(pAT / (pA * pT));
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1270,11 +1174,7 @@ public class Measures {
 
         double result = pAT / pAnT;
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1299,11 +1199,7 @@ public class Measures {
 
         double result = (pAT - pAnT) / pT;
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1328,11 +1224,7 @@ public class Measures {
 
         double result = (pAT * pnT) / (pT * pAnT);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1357,11 +1249,7 @@ public class Measures {
 
         double result = 1 - pAnT / pAT;
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1386,11 +1274,7 @@ public class Measures {
 
         double result = (pAT - pA * pT) / Math.max(pAT * pnT, pT * pAnT);
 
-        if (Double.isNaN(result)) {
-            return 0;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**
@@ -1463,6 +1347,7 @@ public class Measures {
     public static double[] getMeasureDistribution(double[] traceMeasures) {
         DescriptiveStatistics measureDistribution = new DescriptiveStatistics();
         for (double measure : traceMeasures) {
+            if (Double.isNaN(measure)) continue;
             measureDistribution.addValue(measure);
         }
         double[] result = {
@@ -1491,6 +1376,7 @@ public class Measures {
         DescriptiveStatistics measureDistribution = new DescriptiveStatistics();
 
         for (double[][] traceEval : traceMeasuresMatrix) {
+            if (Double.isNaN(traceEval[constraintIndex][measureIndex])) continue;
             measureDistribution.addValue(traceEval[constraintIndex][measureIndex]);
         }
 
@@ -1559,7 +1445,7 @@ public class Measures {
     }
 
     /**
-     * Return the logarithm inn base 2 of a given number
+     * Return the logarithm in base 2 of a given number
      *
      * @param number
      * @return

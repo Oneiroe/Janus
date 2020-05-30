@@ -266,7 +266,7 @@ def plot_decay_single_constraint(constraint, constraint_measures_trend, threshol
     plt.close()
 
 
-def plotly_decay_single_constraint(constraint, constraint_measures_trend):
+def plotly_decay_single_constraint(constraint, constraint_measures_trend, altered_task='', alteration_type=''):
     fig = go.Figure()
 
     for measure in constraint_measures_trend[constraint]:
@@ -277,7 +277,7 @@ def plotly_decay_single_constraint(constraint, constraint_measures_trend):
             name=measure))
 
     fig.update_layout(
-        title=constraint,
+        title=constraint + ' ' + 'alteration: ' + alteration_type + ':' + altered_task,
         xaxis_title="Error%",
         yaxis_title="Value",
         # font=dict(
@@ -293,15 +293,10 @@ def plotly_decay_single_constraint(constraint, constraint_measures_trend):
     # fig.write_image('tests-SJ2T/ERROR-INJECTION-' + constraint + '-plotly.' + extension)
 
 
-from collections import Counter
-import numpy as np
-
-
-def load_results_average(file_csv_base_name, err_percent):
+def load_results_average(file_csv_base_name, err_percent, iteration):
     # file_csv_base_name = "tests-SJ2T/ERROR-INJECTION-output.jsonAggregatedMeasures[MEAN]_"
     # file_csv_base_name = "tests-SJ2T/ERROR-INJECTION-output.jsonAggregatedMeasures[MEAN]_ITERATION_ERR"
     result = {}
-    iteration = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     for i in iteration:
         measures = load_measures(file_csv_base_name + str(i) + "_", err_percent)
         if i == 0:
@@ -315,17 +310,18 @@ def load_results_average(file_csv_base_name, err_percent):
 
     for constraint in result:
         for measure in result[constraint]:
-            result[constraint][measure]=[i/len(iteration) for i in result[constraint][measure]]
+            result[constraint][measure] = [i / len(iteration) for i in result[constraint][measure]]
     return result
 
 
 def main():
     err_percent = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    iteration = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     file_csv_base_name = sys.argv[1]
     # file_csv_base_name = "tests-SJ2T/ERROR-INJECTION-output.jsonAggregatedMeasures[MEAN]_"
     # {constraint:{measure:[value.....]}}
     # constraint_measures_trend = load_measures(file_csv_base_name, err_percent)
-    constraint_measures_trend = load_results_average(file_csv_base_name, err_percent)
+    constraint_measures_trend = load_results_average(file_csv_base_name, err_percent,iteration)
 
     # plot_decay_single_constraint_single_measure('Init(a)', 'Certainty factor', constraint_measures_trend)
     # plot_decay_single_constraint('Init(a)', constraint_measures_trend, 1)
@@ -337,10 +333,10 @@ def main():
         for constraint in constraint_measures_trend:
             if altered_task in constraint.split("(")[1]:
                 plot_decay_single_constraint(constraint, constraint_measures_trend, 1, altered_task, alteration_type)
-                # plotly_decay_single_constraint(constraint, constraint_measures_trend)
+                plotly_decay_single_constraint(constraint, constraint_measures_trend, altered_task, alteration_type)
     else:
         for constraint in constraint_measures_trend:
-            plot_decay_single_constraint(constraint, constraint_measures_trend, 1)
+            plot_decay_single_constraint(constraint, constraint_measures_trend)
             # plotly_decay_single_constraint(constraint, constraint_measures_trend)
 
 
