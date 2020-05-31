@@ -156,7 +156,7 @@ public class MinerFulErrorInjectedLogMakerStarter extends MinerFulMinerStarter {
                 LogTraceParser tr = it.next();
                 tr.init();
                 temp.add(tr.printStringTrace());
-                System.out.println(tr.printStringTrace());
+//                System.out.println(tr.printStringTrace());
             }
             testBedArray= (String[]) temp.toArray(new String[temp.size()]);
 

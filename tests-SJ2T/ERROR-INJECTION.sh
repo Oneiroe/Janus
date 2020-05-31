@@ -45,8 +45,23 @@ OUTPUT_CHECK_JSON=${TEST_FOLDER}/${TEST_BASE_NAME}"-output.json"
 TARGET_CHAR=a # Just one task at the time
 ERROR_PERCENTAGE=10
 ERROR_POLICY="collection"
+# policy for the distribution of the errors. Possible values are:
+#      'collection'
+#      to spread the errors over the whole collection of traces [DEFAULT];
+#      'string'
+#      to inject the errors in every trace
 ERROR_TYPE="del"
+#type of the errors to inject. Possible values are:
+#      'ins'
+#      suppression of the target task;
+#      'del'
+#      insertion of the target task;
+#      'insdel'
+#      mixed (suppressions or insertions, as decided by random) [DEFAULT]
 ERROR_LOG=${TEST_FOLDER}/${TEST_BASE_NAME}"-error-log.txt"
+
+# Test variables
+ITERATIONS=10
 
 ##################################################################
 # Generate log
@@ -59,7 +74,8 @@ java -Xmx$MEMORY_MAX -cp Janus.jar $LOG_MAINCLASS \
     --minlen $MIN_STRLEN \
     --maxlen $MAX_STRLEN \
     --out-log-encoding $LOG_ENCODING \
-    --out-log-file $TEMP_TEXT_FILE
+    --out-log-file $TEMP_TEXT_FILE \
+    -d none
 
 # remove the unwanted characters to make it readable in input by Janus
 python ${TEST_FOLDER}/cleanStringLog.py $TEMP_TEXT_FILE $ORIGINAL_GENERATED_LOG
@@ -67,7 +83,7 @@ rm $TEMP_TEXT_FILE
 
 # check measures with janus
 echo "##### SJ2T Check original log"
-java -cp Janus.jar minerful.JanusModelCheckStarter -iLF $ORIGINAL_GENERATED_LOG -iLE $LOG_ENCODING -iMF $MODEL -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON
+java -cp Janus.jar minerful.JanusModelCheckStarter -iLF $ORIGINAL_GENERATED_LOG -iLE $LOG_ENCODING -iMF $MODEL -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON -d none
 
 # save result
 # generate MEAN-only CSV of aggregated measures
@@ -79,43 +95,47 @@ python pySupport/singleAggregationPerspectiveFocusCSV.py $OUTPUT_CHECK_JSON"Aggr
 ## injection error cycle
 for TARGET_CHAR in   "a" "b" "c" "d" "e" "f" "g" "h" "i" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "z"
 do
-##################################################################
-## injection error cycle single target
-echo "########### Error-injection cycle"
+    ##################################################################
+    ## injection error cycle single target
+    echo "########### Error-injection cycle"
 
-for ITERATION in {0..10..1}; do
-for ERROR_PERCENTAGE in 0 10 20 30 40 50 60 70 80 90 100
-do
-    # Error injection
-    echo "### Error-injection level:"$ERROR_PERCENTAGE
-    java -Xmx$MEMORY_MAX -cp Janus.jar $ERROR_MAINCLASS \
-    -iLF $ORIGINAL_GENERATED_LOG \
-    -iLE $LOG_ENCODING \
-    --err-target $TARGET_CHAR \
-    --err-out-log $ERROR_LOG \
-    --err-percentage $ERROR_PERCENTAGE \
-    --err-spread-policy $ERROR_POLICY \
-    --err-type $ERROR_TYPE \
-    -iME $MODEL_ENCODING \
-    -iMF $MODEL
+    for ITERATION in $(seq 1 ${ITERATIONS}); do
+        for ERROR_PERCENTAGE in 0 10 20 30 40 50 60 70 80 90 100
+        do
+            # Error injection
+            echo "### Char:"${TARGET_CHAR}" ------ Iteration:"${ITERATION}" ------ Error-injection level:"${ERROR_PERCENTAGE}
+            java -Xmx$MEMORY_MAX -cp Janus.jar $ERROR_MAINCLASS \
+            -iLF $ORIGINAL_GENERATED_LOG \
+            -iLE $LOG_ENCODING \
+            --err-target $TARGET_CHAR \
+            --err-out-log $ERROR_LOG \
+            --err-percentage $ERROR_PERCENTAGE \
+            --err-spread-policy $ERROR_POLICY \
+            --err-type $ERROR_TYPE \
+            -iME $MODEL_ENCODING \
+            -iMF $MODEL \
+            -d none
 
-    # check measures with janus
-    echo "### SJ2T Check"
-    java -cp Janus.jar minerful.JanusModelCheckStarter -iLF $ERROR_LOG -iLE $LOG_ENCODING -iMF $MODEL -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON
+            # check measures with janus
+            echo "### SJ2T Check"
+            java -cp Janus.jar minerful.JanusModelCheckStarter -iLF $ERROR_LOG -iLE $LOG_ENCODING -iMF $MODEL -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON -d none
 
-    # save result
-    echo "########### Post Processing"
-    python pySupport/singleAggregationPerspectiveFocusCSV.py $OUTPUT_CHECK_JSON"AggregatedMeasures.json" $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN]_"${ITERATION}"_"${ERROR_PERCENTAGE}".csv"
+#            echo $'Press any key to continue...\n'
+#            read anyKey
 
-done
-done
+            # save result
+            echo "########### Post Processing"
+            python pySupport/singleAggregationPerspectiveFocusCSV.py $OUTPUT_CHECK_JSON"AggregatedMeasures.json" $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN]_"${ITERATION}"_"${ERROR_PERCENTAGE}".csv"
 
-## AVERAGE of results
+        done
+    done
 
-##################################################################
-## Plot results
-echo "########### Plot results"
-/home/alessio/Data/Phd/my_code/PyVEnv/pySupport/bin/python pySupport/error_injection_plots.py $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN]_" $TARGET_CHAR $ERROR_TYPE
+    ## AVERAGE of results
+
+    ##################################################################
+    ## Plot results
+    echo "########### Plot results"
+    /home/alessio/Data/Phd/my_code/PyVEnv/pySupport/bin/python pySupport/error_injection_plots.py $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN]_" $ITERATIONS $TARGET_CHAR $ERROR_TYPE
 
 done
 

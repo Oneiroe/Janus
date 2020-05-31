@@ -287,10 +287,10 @@ def plotly_decay_single_constraint(constraint, constraint_measures_trend, altere
         # )
     )
 
-    fig.show()
-
-    # extension = 'pdf'
-    # fig.write_image('tests-SJ2T/ERROR-INJECTION-' + constraint + '-plotly.' + extension)
+    # fig.show()
+    extension = 'html'
+    fig.write_html(
+        'tests-SJ2T/ERROR-INJECTION_output/plotly/ERROR-INJECTION-' + altered_task + '-' + constraint + '.' + extension)
 
 
 def load_results_average(file_csv_base_name, err_percent, iteration):
@@ -299,7 +299,7 @@ def load_results_average(file_csv_base_name, err_percent, iteration):
     result = {}
     for i in iteration:
         measures = load_measures(file_csv_base_name + str(i) + "_", err_percent)
-        if i == 0:
+        if len(result) == 0:
             result = measures
             continue
         for constraint in measures:
@@ -316,20 +316,21 @@ def load_results_average(file_csv_base_name, err_percent, iteration):
 
 def main():
     err_percent = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-    iteration = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     file_csv_base_name = sys.argv[1]
+    iterations = sys.argv[2]
+    iteration = range(1, int(iterations) + 1)
     # file_csv_base_name = "tests-SJ2T/ERROR-INJECTION-output.jsonAggregatedMeasures[MEAN]_"
     # {constraint:{measure:[value.....]}}
     # constraint_measures_trend = load_measures(file_csv_base_name, err_percent)
-    constraint_measures_trend = load_results_average(file_csv_base_name, err_percent,iteration)
+    constraint_measures_trend = load_results_average(file_csv_base_name, err_percent, iteration)
 
     # plot_decay_single_constraint_single_measure('Init(a)', 'Certainty factor', constraint_measures_trend)
     # plot_decay_single_constraint('Init(a)', constraint_measures_trend, 1)
     # plotly_decay_single_constraint('Init(a)', constraint_measures_trend)
 
-    if len(sys.argv) > 2:
-        altered_task = sys.argv[2]
-        alteration_type = sys.argv[3]
+    if len(sys.argv) > 3:
+        altered_task = sys.argv[3]
+        alteration_type = sys.argv[4]
         for constraint in constraint_measures_trend:
             if altered_task in constraint.split("(")[1]:
                 plot_decay_single_constraint(constraint, constraint_measures_trend, 1, altered_task, alteration_type)
