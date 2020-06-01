@@ -139,6 +139,9 @@ do
 
 done
 
+echo "########### Informativeness"
+/home/alessio/Data/Phd/my_code/PyVEnv/pySupport/bin/python pySupport/error_injection_informativeness.py ${TEST_FOLDER}/${TEST_BASE_NAME}"_output/" $TEST_BASE_NAME"-INFORMATIVENESS-" ${TEST_FOLDER}/${TEST_BASE_NAME}"_output/"$TEST_BASE_NAME"-"${ERROR_TYPE}"-INFORMATIVENESS_AVG.csv"
+
 ##################################################################
 ## Cleaning
-#rm ${TEST_FOLDER}/${TEST_BASE_NAME}"-output"*
+rm ${TEST_FOLDER}/${TEST_BASE_NAME}"-output"*

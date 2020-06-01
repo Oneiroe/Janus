@@ -314,6 +314,29 @@ def load_results_average(file_csv_base_name, err_percent, iteration):
     return result
 
 
+def export_measure_informativeness(output_file, data):
+    with open(output_file, 'w') as csv_file:
+        writer = csv.writer(csv_file, delimiter=';')
+        header = ['MEASURE', 'INFORMATIVENESS']
+        writer.writerow(header)
+        for i in data.items():
+            writer.writerow(i)
+
+
+def calculate_measures_informativeness(constraint, constraint_measures_trend, altered_task, alteration_type):
+    # Calculate informativeness as the difference between measures at err%=0 and at err%=100
+    result = {}
+    for measure in constraint_measures_trend[constraint]:
+        result[measure] = constraint_measures_trend[constraint][measure][0] - \
+                          constraint_measures_trend[constraint][measure][-1]
+        # result[measure] = abs(constraint_measures_trend[constraint][measure][0] - constraint_measures_trend[constraint][measure][-1])
+    # Export reult
+    extension = 'csv'
+    output_file = 'tests-SJ2T/ERROR-INJECTION_output/ERROR-INJECTION-INFORMATIVENESS-' + altered_task + '-' + constraint + '.' + extension
+    export_measure_informativeness(output_file, result)
+    return result
+
+
 def main():
     err_percent = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
     file_csv_base_name = sys.argv[1]
@@ -333,8 +356,12 @@ def main():
         alteration_type = sys.argv[4]
         for constraint in constraint_measures_trend:
             if altered_task in constraint.split("(")[1]:
+                # Measures decay Plots
                 plot_decay_single_constraint(constraint, constraint_measures_trend, 1, altered_task, alteration_type)
                 plotly_decay_single_constraint(constraint, constraint_measures_trend, altered_task, alteration_type)
+                # Informativeness
+                calculate_measures_informativeness(constraint, constraint_measures_trend, altered_task, alteration_type)
+
     else:
         for constraint in constraint_measures_trend:
             plot_decay_single_constraint(constraint, constraint_measures_trend)
