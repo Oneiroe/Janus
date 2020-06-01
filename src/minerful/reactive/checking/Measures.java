@@ -218,6 +218,9 @@ public class Measures {
                 result = getTraceZhang(reactiveConstraintEvaluation);
                 break;
         }
+
+        if (Double.isNaN(result)) return 0; //TODO
+
         return result;
 
     }
@@ -322,7 +325,7 @@ public class Measures {
     public static double getTraceConfidence(byte[] reactiveConstraintEvaluation) {
         byte[] activatorEval = getActivatorEvaluation(reactiveConstraintEvaluation);
         double denominator = getFormulaProbability(activatorEval);
-        if (denominator == 0) return Double.NaN;
+//        if (denominator == 0) return Double.NaN;
         return getTraceSupport(reactiveConstraintEvaluation) / denominator;
 //        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
 //        double pA = p[0];
@@ -356,7 +359,7 @@ public class Measures {
     public static double getTraceRecall(byte[] reactiveConstraintEvaluation) {
         byte[] targetEval = getTargetEvaluation(reactiveConstraintEvaluation);
         double denominator = getFormulaProbability(targetEval);
-        if (denominator == 0) return 0;
+//        if (denominator == 0) return 0;
         return getTraceSupport(reactiveConstraintEvaluation) / denominator;
 //        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
 //        double pA = p[0];
@@ -471,7 +474,7 @@ public class Measures {
     public static double getTraceLift(byte[] reactiveConstraintEvaluation) {
         byte[] targetEval = getTargetEvaluation(reactiveConstraintEvaluation);
         double denominator = getFormulaProbability(targetEval);
-        if (denominator == 0) return 0;
+//        if (denominator == 0) return 0;
         return getTraceConfidence(reactiveConstraintEvaluation) / denominator;
 //        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
 //        double pA = p[0];
@@ -1376,7 +1379,7 @@ public class Measures {
         DescriptiveStatistics measureDistribution = new DescriptiveStatistics();
 
         for (double[][] traceEval : traceMeasuresMatrix) {
-            if (Double.isNaN(traceEval[constraintIndex][measureIndex])) continue;
+//            if (Double.isNaN(traceEval[constraintIndex][measureIndex])) continue; // TODO
             measureDistribution.addValue(traceEval[constraintIndex][measureIndex]);
         }
 

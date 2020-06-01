@@ -200,7 +200,7 @@ def load_measures(file_csv_base_name, err_percent):
     constraint_measures_trend = {}
 
     for err in err_percent:
-        print("loading err:" + str(err), end='\r')
+        # print("loading err:" + str(err), end='\r')
         with open(file_csv_base_name + str(err) + ".csv", 'r') as csv_file:
             reader = csv.DictReader(csv_file, delimiter=';')
             for line in reader:
@@ -209,7 +209,7 @@ def load_measures(file_csv_base_name, err_percent):
                     constraint_measures_trend.setdefault(constraint, {}).setdefault(measure, [])
                     constraint_measures_trend[constraint][measure] += [line[measure]]
 
-    print("Measures loaded")
+    # print("Measures loaded")
     return constraint_measures_trend
 
 
@@ -310,7 +310,7 @@ def load_results_average(file_csv_base_name, err_percent, iteration):
 
     for constraint in result:
         for measure in result[constraint]:
-            result[constraint][measure] = [i / len(iteration) for i in result[constraint][measure]]
+            result[constraint][measure] = [float(i) / len(iteration) for i in result[constraint][measure]]
     return result
 
 
