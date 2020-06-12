@@ -33,7 +33,7 @@ MIN_STRLEN=10
 MAX_STRLEN=100
 TESTBED_SIZE=100
 #MEMORY_MAX="2048m"
-MEMORY_MAX="12048m"
+MEMORY_MAX="15048m"
 LOG_ENCODING="strings"
 TEMP_TEXT_FILE=${TEST_FOLDER}/${TEST_BASE_NAME}"-log-original.txt"
 CLEAN_TEMP_TEXT_FILE=${TEST_FOLDER}/${TEST_BASE_NAME}"-log-original-clean.txt"
@@ -51,13 +51,16 @@ ERROR_TYPE="ins"
 ERROR_LOG=${TEST_FOLDER}/${TEST_BASE_NAME}"-error-log.txt"
 
 # BPICs vars
-BPIC_LOGS_FOLDER="./logs"
+BPIC_LOGS_FOLDER="./logs-only-events"
 BPIC_LOGS_ENCODING="xes"
 BPIC_MODEL_ENCODING="json"
 SUPPORT=0.05
 CONFIDENCE=0.8
 
 BPIC_TIME_RECORDS=${TEST_FOLDER}/${TEST_BASE_NAME}"-TIMES.csv"
+
+# Test variables
+ITERATIONS=10
 
 ##################################################################
 #### BPICs tests
@@ -85,7 +88,8 @@ do
 done
 
 ### BPICs check models
-echo "######################### Conformance Checking"
+for ITERATION in $(seq 1 ${ITERATIONS}); do
+echo "######################### Conformance Checking------ Iteration:"${ITERATION}
 SECONDS=0
 # BPICs discover models
 for LOG in ${BPIC_LOGS_FOLDER}/*.xes
@@ -106,7 +110,7 @@ do
     echo ${DURATION}s
     echo ${LOG}";check;"${DURATION}";"${MEMORY_MAX} >> ${BPIC_TIME_RECORDS}
 done
-
+done
 ###################################################################
 ###################################################################
 ## Generate log

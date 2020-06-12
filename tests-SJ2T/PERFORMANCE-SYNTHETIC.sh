@@ -31,8 +31,8 @@ MODEL=${TEST_FOLDER}/${TEST_BASE_NAME}"-model.json"
 ## Log generation settings
 MIN_STRLEN=10
 MAX_STRLEN=100
-TESTBED_SIZE=100
-MEMORY_MAX="2048m"
+TESTBED_SIZE=500
+MEMORY_MAX="12048m"
 LOG_ENCODING="strings"
 TEMP_TEXT_FILE=${TEST_FOLDER}/${TEST_BASE_NAME}"-log-original.txt"
 ORIGINAL_GENERATED_LOG=${TEST_FOLDER}/${TEST_BASE_NAME}/${TEST_BASE_NAME}"-log[min_${MIN_STRLEN}_max_${MAX_STRLEN}_size_${TESTBED_SIZE}].txt"
@@ -48,9 +48,10 @@ SUPPORT=0.05
 CONFIDENCE=0.8
 
 
-for TESTBED_SIZE in {100..1000000..100}; do
+for MAX_STRLEN in {0..1000000..500}; do
     ###################################################################
     ## Generate log
+    MIN_STRLEN=$((MAX_STRLEN-500))
     echo "########### Generate Log"
     ORIGINAL_GENERATED_LOG=${TEST_FOLDER}/${TEST_BASE_NAME}/${TEST_BASE_NAME}"-log[min_${MIN_STRLEN}_max_${MAX_STRLEN}_size_${TESTBED_SIZE}].txt"
     if test -f ${ORIGINAL_GENERATED_LOG}; then
