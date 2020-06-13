@@ -1,0 +1,171 @@
+{
+  "name": "GROUND-TRUTH",
+  "tasks": [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "l",
+    "m",
+    "n",
+    "o",
+    "p",
+    "q",
+    "r",
+    "s",
+    "t",
+    "u",
+    "v",
+    "w",
+    "z"
+  ],
+  "constraints": [
+    {
+      "template": "Init",
+      "parameters": [
+        [
+          "a"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "End",
+      "parameters": [
+        [
+          "b"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "AtMostOne",
+      "parameters": [
+        [
+          "c"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "Participation",
+      "parameters": [
+        [
+          "d"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "Response",
+      "parameters": [
+        [
+          "e"
+        ],
+        [
+          "f"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "Precedence",
+      "parameters": [
+        [
+          "g"
+        ],
+        [
+          "h"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "AlternatePrecedence",
+      "parameters": [
+        [
+          "i"
+        ],
+        [
+          "l"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "AlternateResponse",
+      "parameters": [
+        [
+          "m"
+        ],
+        [
+          "n"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "ChainResponse",
+      "parameters": [
+        [
+          "o"
+        ],
+        [
+          "p"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "ChainPrecedence",
+      "parameters": [
+        [
+          "q"
+        ],
+        [
+          "r"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "RespondedExistence",
+      "parameters": [
+        [
+          "s"
+        ],
+        [
+          "t"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    }
+  ]
+}
