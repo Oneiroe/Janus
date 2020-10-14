@@ -20,7 +20,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.io.*;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -52,14 +51,19 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 
 //			Detailed traces results
             logger.info("MegaMatrixMonster...");
-            exportEncodedReadable3DMatrixToCSV(matrix, outputFile);
-//            exportReadable3DMatrixToCSV(matrix, outputFile);
-
+            if (outParams.encodeOutputTasks) {
+                exportEncodedReadable3DMatrixToCSV(matrix, outputFile);
+            } else {
+                exportReadable3DMatrixToCSV(matrix, outputFile);
+            }
 //			Aggregated Log measures
             logger.info("Aggregated Measures...");
             outputAggregatedMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("AggregatedMeasures.CSV"));
-//            exportEncodedAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
-            exportAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
+            if (outParams.encodeOutputTasks) {
+                exportEncodedAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
+            } else {
+                exportAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
+            }
 
             double after = System.currentTimeMillis();
             logger.info("Total CSV serialization time: " + (after - before));
@@ -84,19 +88,25 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 
 //			Detailed traces results
             logger.info("MegaMatrixMonster...");
-// 			TODO parametrize the choice between encoded/unencoded result
-            exportEncodedReadable3DMatrixToJson(matrix, outputFile);
-//			exportReadable3DMatrixToJson(matrix, outputFile);
+            if (outParams.encodeOutputTasks) {
+                exportEncodedReadable3DMatrixToJson(matrix, outputFile);
+            } else {
+                exportReadable3DMatrixToJson(matrix, outputFile);
+            }
 
 //			Aggregated Log measures
             logger.info("Aggregated Measures...");
             outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("AggregatedMeasures.json"));
-//            exportEncodedAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
-            exportAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
+            if (outParams.encodeOutputTasks) {
+                exportEncodedAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
+            } else {
+                exportAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
+            }
 
             double after = System.currentTimeMillis();
             logger.info("Total JSON serialization time: " + (after - before));
         }
+        logger.info("Output encoding: " + outParams.encodeOutputTasks);
     }
 
     public void manageCheckOutput(MegaMatrixMonster matrix,

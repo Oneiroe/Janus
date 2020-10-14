@@ -25,6 +25,7 @@ public class OutputModelParameters extends ParamsManager {
 	public static final String SAVE_XML_WEIGHTED_AUTOMATON_PARAM_NAME = "autoReplayXML";
 	public static final String SAVE_SKIMMED_XML_WEIGHTED_AUTOMATON_PARAM_NAME = "autoReplayTrimXML";
 	public static final String FOLDER_FOR_SAVING_XML_WEIGHTED_SUBAUTOMATA_PARAM_NAME = "subautosReplayXML";
+	public static final String FLAG_ENCODING_OUTPUT_TASKS = "flagEncodingTasks";
 
 	/** File in which discovered constraints are printed in CSV format. Keep it equal to <code>null</code> for avoiding such print-out. */
 	public File fileToSaveConstraintsAsCSV;
@@ -50,8 +51,10 @@ public class OutputModelParameters extends ParamsManager {
 	public File fileToSaveAsJSON;
 	/** Columns to be printed if constraints are printed in CSV format. Notice that this attribute is not associated to a command-line parameter. */
 	public CsvEncoder.PRINT_OUT_ELEMENT[] csvColumnsToPrint = CsvEncoder.PRINT_OUT_ELEMENT.values();
+	/** Flag if the output tasks/events should be encoded (e.g., A B C D E...) or not (original names as in log)  **/
+	public boolean encodeOutputTasks;
 
-    public OutputModelParameters() {
+	public OutputModelParameters() {
     	this.fileToSaveConstraintsAsCSV = null;
     	this.folderToSaveDotFilesForPartialAutomata = null;
     	this.fileToSaveTsmlFileForAutomaton = null;
@@ -63,6 +66,7 @@ public class OutputModelParameters extends ParamsManager {
     	this.folderToSaveXmlFilesForPartialAutomata = null;
     	this.fileToSaveAsXML = null;
     	this.fileToSaveAsJSON = null;
+		this.encodeOutputTasks = false;
     }
 
     public OutputModelParameters(Options options, String[] args) {
@@ -101,8 +105,9 @@ public class OutputModelParameters extends ParamsManager {
         
         this.folderToSaveXmlFilesForPartialAutomata = openOutputDir(line, FOLDER_FOR_SAVING_XML_WEIGHTED_SUBAUTOMATA_PARAM_NAME);
 
+        this.encodeOutputTasks = setOuputEncodingFlag(line,FLAG_ENCODING_OUTPUT_TASKS);
     }
-    
+
 	@Override
     public Options addParseableOptions(Options options) {
 		Options myOptions = listParseableOptions();
@@ -217,6 +222,16 @@ public class OutputModelParameters extends ParamsManager {
         		.desc(
         				attachInstabilityWarningToDescription("write the weighted automaton XML format of activities' finite state sub-automata on separate files, within the given folder"))
         		.type(String.class)
+        		.build()
+        		);
+
+		options.addOption(
+				Option.builder(FLAG_ENCODING_OUTPUT_TASKS)
+        		.hasArg().argName("path")
+        		.longOpt("xml-subautom-folder")
+        		.desc(
+        				attachInstabilityWarningToDescription("Flag if the output tasks/events should be encoded"))
+        		.type(Boolean.class)
         		.build()
         		);
 

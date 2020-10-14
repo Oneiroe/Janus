@@ -13,7 +13,7 @@ import org.apache.commons.cli.PosixParser;
 import minerful.utils.MessagePrinter;
 
 public abstract class ParamsManager {
-    public static final String EXPERIMENTAL_DEVELOPMENT_STAGE_MESSAGE = 
+    public static final String EXPERIMENTAL_DEVELOPMENT_STAGE_MESSAGE =
 			"*** WARNING: experimental development stage of implementation!";
 	private static final int DEFAULT_PROMPT_WIDTH = 160;
     protected HelpFormatter helpFormatter = new HelpFormatter();
@@ -30,12 +30,12 @@ public abstract class ParamsManager {
     public void printHelp(Options options) {
     	helpFormatter.printHelp("cmd_name", options, true);
     }
-    
+
     public void printHelpForWrongUsage(String errorMessage, Options options) {
     	System.err.println("Wrong usage: " + errorMessage);
     	this.printHelp(options);
     }
-    
+
     public void printHelpForWrongUsage(String errorMessage) {
     	this.printHelpForWrongUsage(errorMessage, this.listParseableOptions());
     }
@@ -63,12 +63,12 @@ public abstract class ParamsManager {
     public Options listParseableOptions() {
     	return parseableOptions();
     }
-    
+
 	protected File openInputFile(CommandLine line, String paramName) {
 		File inpuFile = null;
 		if (!line.hasOption(paramName))
 			return inpuFile;
-		
+
 		String inputFilePath = line.getOptionValue(paramName);
         if (inputFilePath != null) {
             inpuFile = new File(inputFilePath);
@@ -80,7 +80,7 @@ public abstract class ParamsManager {
         }
 		return inpuFile;
 	}
-    
+
 	protected File openOutputFile(CommandLine line, String paramName) {
 		if (!line.hasOption(paramName))
 			return null;
@@ -97,7 +97,7 @@ public abstract class ParamsManager {
 		File inpuDir = null;
 		if (!line.hasOption(paramName))
 			return inpuDir;
-		
+
 		String inputDirPath = line.getOptionValue(paramName);
         if (inputDirPath != null) {
             inpuDir = new File(inputDirPath);
@@ -109,7 +109,13 @@ public abstract class ParamsManager {
         }
 		return inpuDir;
 	}
-   
+
+	protected Boolean setOuputEncodingFlag(CommandLine line, String paramName){
+        if (!line.hasOption(paramName))
+            return false;
+        return Boolean.parseBoolean(line.getOptionValue(paramName));
+    }
+
     /**
      * Meant to be hidden by extending classes!
      */
@@ -118,33 +124,33 @@ public abstract class ParamsManager {
 	}
 
 	protected abstract void setup(CommandLine line);
-                
+
     protected static String fromStringToEnumValue(String token) {
     	if (token != null)
     		return token.trim().toUpperCase().replace("-", "_");
     	return null;
 	}
-    
+
     protected static String[] tokenise(String paramString) {
     	return MessagePrinter.tokenise(paramString);
     }
-    
+
     public static String printDefault(Object defaultValue) {
-    	return ".\nDefault is: '" + defaultValue.toString() + "'"; 
+    	return ".\nDefault is: '" + defaultValue.toString() + "'";
     }
 
     protected static String attachInstabilityWarningToDescription(String description) {
     	return EXPERIMENTAL_DEVELOPMENT_STAGE_MESSAGE + "\n" + description;
     }
-    
+
     public static String printValues(Object... values) {
     	return MessagePrinter.printValues(values);
     }
-    
+
     public static String fromEnumValueToString(Object token) {
     	return MessagePrinter.fromEnumValueToString(token);
     }
-    
+
     public static String fromEnumValuesToTokenJoinedString(Object... tokens) {
     	return MessagePrinter.fromEnumValuesToTokenJoinedString(tokens);
     }
