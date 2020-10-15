@@ -25,7 +25,7 @@ public class OutputModelParameters extends ParamsManager {
 	public static final String SAVE_XML_WEIGHTED_AUTOMATON_PARAM_NAME = "autoReplayXML";
 	public static final String SAVE_SKIMMED_XML_WEIGHTED_AUTOMATON_PARAM_NAME = "autoReplayTrimXML";
 	public static final String FOLDER_FOR_SAVING_XML_WEIGHTED_SUBAUTOMATA_PARAM_NAME = "subautosReplayXML";
-	public static final String FLAG_ENCODING_OUTPUT_TASKS = "flagEncodingTasks";
+	public static final String ENCODE_OUTPUT_TASKS_FLAG = "encodeTasksFlag";
 
 	/** File in which discovered constraints are printed in CSV format. Keep it equal to <code>null</code> for avoiding such print-out. */
 	public File fileToSaveConstraintsAsCSV;
@@ -84,28 +84,28 @@ public class OutputModelParameters extends ParamsManager {
 	@Override
 	protected void setup(CommandLine line) {
     	this.fileToSaveAsXML = openOutputFile(line, SAVE_AS_XML_PARAM_NAME);
-        
+
     	this.fileToSaveAsJSON = openOutputFile(line, SAVE_AS_JSON_PARAM_NAME);
 
         this.folderToSaveDotFilesForPartialAutomata = openOutputDir(line, FOLDER_FOR_SAVING_DOT_SUBAUTOMATA_PARAM_NAME);
 
         this.fileToSaveDotFileForAutomaton = openOutputFile(line, SAVE_PROCESS_DOT_AUTOMATON_PARAM_NAME);
-        
+
 //        this.fileToSaveDotFileForCondensedAutomaton = openOutputFile(line, SAVE_PROCESS_CONDENSED_DOT_AUTOMATON_PARAM_NAME); // TODO One day
-        
+
 		this.fileToSaveTsmlFileForAutomaton = openOutputFile(line, SAVE_PROCESS_TSML_AUTOMATON_PARAM_NAME);
-        
+
         this.fileToSaveConstraintsAsCSV = openOutputFile(line, SAVE_AS_CSV_PARAM_NAME);
-        
+
         this.fileToSaveAsConDec = openOutputFile(line, SAVE_AS_CONDEC_PARAM_NAME);
-        
+
         this.fileToSaveXmlFileForAutomaton = openOutputFile(line, SAVE_XML_WEIGHTED_AUTOMATON_PARAM_NAME);
 
         this.fileToSaveSkimmedXmlFileForAutomaton = openOutputFile(line, SAVE_SKIMMED_XML_WEIGHTED_AUTOMATON_PARAM_NAME);
-        
+
         this.folderToSaveXmlFilesForPartialAutomata = openOutputDir(line, FOLDER_FOR_SAVING_XML_WEIGHTED_SUBAUTOMATA_PARAM_NAME);
 
-        this.encodeOutputTasks = setOuputEncodingFlag(line,FLAG_ENCODING_OUTPUT_TASKS);
+        this.encodeOutputTasks = line.hasOption(ENCODE_OUTPUT_TASKS_FLAG);
     }
 
 	@Override
@@ -115,7 +115,7 @@ public class OutputModelParameters extends ParamsManager {
 			options.addOption((Option)myOpt);
         return options;
 	}
-	
+
 	@Override
     public Options listParseableOptions() {
     	return parseableOptions();
@@ -226,11 +226,9 @@ public class OutputModelParameters extends ParamsManager {
         		);
 
 		options.addOption(
-				Option.builder(FLAG_ENCODING_OUTPUT_TASKS)
-        		.hasArg().argName("path")
-        		.longOpt("xml-subautom-folder")
-        		.desc(
-        				attachInstabilityWarningToDescription("Flag if the output tasks/events should be encoded"))
+				Option.builder(ENCODE_OUTPUT_TASKS_FLAG)
+        		.longOpt("flag-encoding-tasks")
+        		.desc("Flag if the output tasks/events should be encoded")
         		.type(Boolean.class)
         		.build()
         		);

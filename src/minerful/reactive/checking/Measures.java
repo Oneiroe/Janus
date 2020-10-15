@@ -65,7 +65,7 @@ public class Measures {
      * @param measureIndex
      * @return
      */
-    public static double getTraceMeasure(byte[] reactiveConstraintEvaluation, int measureIndex) {
+    public static double getTraceMeasure(byte[] reactiveConstraintEvaluation, int measureIndex, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
         //    	TODO improve this hard-code shame
         double result = 0;
         switch (measureIndex) {
@@ -219,7 +219,9 @@ public class Measures {
                 break;
         }
 
-        if (Double.isNaN(result)) return 0; //TODO
+        // according to the input setting, substitute the measure value if it is NaN
+        if (nanTraceSubstituteFlag && Double.isNaN(result))
+            return nanTraceSubstituteValue;
 
         return result;
 
@@ -418,6 +420,7 @@ public class Measures {
      */
     public static double getTraceSpecificity(byte[] reactiveConstraintEvaluation) {
         return getTraceConfidence(getNegativeReactiveConstraintEvaluation(reactiveConstraintEvaluation));
+//        TODO test the validity of this function with experiment del:e-Response(e,f)
 //        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
 //        double pA = p[0];
 //        double pnA = p[2];
@@ -926,8 +929,8 @@ public class Measures {
      * <p>
      * The Laplace Correction measure is defined as:
      * LaplaceCorrection(A->T) = ( N(AT) +1 ) / (N(A) + 2) = (n*P(AT) +1)/(n*P(A)+2)
-     * where N(x) is not the probability but the number of occurrence of x in the trace, thus n=treche lenght
-     * e.g. P(AB) = N(AB)/Lenght(Trace)
+     * where N(x) is not the probability but the number of occurrence of x in the trace, thus n=trace length
+     * e.g. P(AB) = N(AB)/Length(Trace)
      *
      * @return
      */
@@ -1302,7 +1305,7 @@ public class Measures {
      * @param bytesMatrix
      * @return
      */
-    public static double getLogDuckTapeMeasures(int constraintIndex, int measureIndex, byte[][][] bytesMatrix) {
+    public static double getLogDuckTapeMeasures(int constraintIndex, int measureIndex, byte[][][] bytesMatrix, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
         double result = 0;
         byte[] tapeLog = {};
 
@@ -1310,7 +1313,7 @@ public class Measures {
             tapeLog = ArrayUtils.addAll(tapeLog, trace[constraintIndex]);
         }
 
-        return getTraceMeasure(tapeLog, measureIndex);
+        return getTraceMeasure(tapeLog, measureIndex, nanTraceSubstituteFlag, nanTraceSubstituteValue);
     }
 
     /**
@@ -1319,7 +1322,7 @@ public class Measures {
      * @return
      */
     public static double getLogDuckTapeProbability() {
-//		TODO
+//		TODO LogDuckTape
         return 0;
     }
 
@@ -1340,17 +1343,18 @@ public class Measures {
 
 
     /**
-     * retieve the measure distribution info.
+     * Retrieve the measure distribution info.
      * it takes the results of all the traces and draw the distribution properties.
      * i.e. average value, standard deviation, quartile, max, min
      *
-     * @param traceMeasures array containing the measure value for each trace
+     * @param traceMeasures  array containing the measure value for each trace
+     * @param nanLogSkipFlag skip NaN values during the computation
      * @return array with the distribution values
      */
-    public static double[] getMeasureDistribution(double[] traceMeasures) {
+    public static double[] getMeasureDistribution(double[] traceMeasures, boolean nanLogSkipFlag) {
         DescriptiveStatistics measureDistribution = new DescriptiveStatistics();
         for (double measure : traceMeasures) {
-            if (Double.isNaN(measure)) continue;
+            if (nanLogSkipFlag && Double.isNaN(measure)) continue;
             measureDistribution.addValue(measure);
         }
         double[] result = {
@@ -1373,13 +1377,15 @@ public class Measures {
      * @param constraintIndex
      * @param measureIndex
      * @param traceMeasuresMatrix
+     * @param nanLogSkipFlag
      * @return
      */
-    public static DescriptiveStatistics getMeasureDistributionObject(int constraintIndex, int measureIndex, double[][][] traceMeasuresMatrix) {
+    public static DescriptiveStatistics getMeasureDistributionObject(int constraintIndex, int measureIndex, double[][][] traceMeasuresMatrix, boolean nanLogSkipFlag) {
         DescriptiveStatistics measureDistribution = new DescriptiveStatistics();
 
         for (double[][] traceEval : traceMeasuresMatrix) {
-//            if (Double.isNaN(traceEval[constraintIndex][measureIndex])) continue; // TODO
+            if (nanLogSkipFlag && Double.isNaN(traceEval[constraintIndex][measureIndex]))
+                continue;
             measureDistribution.addValue(traceEval[constraintIndex][measureIndex]);
         }
 

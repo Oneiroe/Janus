@@ -110,12 +110,6 @@ public abstract class ParamsManager {
 		return inpuDir;
 	}
 
-	protected Boolean setOuputEncodingFlag(CommandLine line, String paramName){
-        if (!line.hasOption(paramName))
-            return false;
-        return Boolean.parseBoolean(line.getOptionValue(paramName));
-    }
-
     /**
      * Meant to be hidden by extending classes!
      */

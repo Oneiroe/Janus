@@ -75,7 +75,7 @@ public class MegaMatrixMonster {
     /**
      * retrieve the measurements for the current matrix
      */
-    public void computeMeasures() {
+    public void computeMeasures(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
 //		TRACE MEASURES
         logger.info("Retrieving Trace Measures...");
         //        for the entire log
@@ -84,7 +84,7 @@ public class MegaMatrixMonster {
             for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
 //                  for each constraint
                 for (int measure = 0; measure < Measures.MEASURE_NUM; measure++) {
-                    measures[trace][constraint][measure] = Measures.getTraceMeasure(matrix[trace][constraint], measure);
+                    measures[trace][constraint][measure] = Measures.getTraceMeasure(matrix[trace][constraint], measure, nanTraceSubstituteFlag, nanTraceSubstituteValue);
                 }
             }
         }
@@ -94,7 +94,7 @@ public class MegaMatrixMonster {
         for (int constraint = 0; constraint < matrix[0].length; constraint++) {
             for (int measure = 0; measure < Measures.MEASURE_NUM; measure++) {
 //				constraintLogMeasures[constraint][measure] = Measures.getMeasureAverage(constraint, measure, measures);
-                constraintLogMeasures[constraint][measure] = Measures.getMeasureDistributionObject(constraint, measure, measures);
+                constraintLogMeasures[constraint][measure] = Measures.getMeasureDistributionObject(constraint, measure, measures, nanLogSkipFlag);
 //				constraintLogMeasures[constraint][measure] = Measures.getLogDuckTapeMeasures(constraint, measure, matrix);
             }
         }

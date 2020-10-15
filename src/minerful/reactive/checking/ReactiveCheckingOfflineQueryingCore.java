@@ -4,7 +4,7 @@ import minerful.concept.TaskCharArchive;
 import minerful.concept.constraint.ConstraintsBag;
 import minerful.logparser.LogParser;
 import minerful.logparser.LogTraceParser;
-import minerful.miner.params.MinerFulCmdParameters;
+import minerful.reactive.params.JanusCheckingCmdParameters;
 import minerful.miner.stats.GlobalStatsTable;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
 import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
@@ -23,7 +23,7 @@ public class ReactiveCheckingOfflineQueryingCore implements Callable<MegaMatrixM
 
     protected static Logger logger;
     private final LogParser logParser;
-    private final MinerFulCmdParameters minerFulParams;
+    private final JanusCheckingCmdParameters janusCheckingParams;
     private final PostProcessingCmdParameters postPrarams;
     private final TaskCharArchive taskCharArchive; // alphabet
     private final GlobalStatsTable globalStatsTable;
@@ -42,18 +42,18 @@ public class ReactiveCheckingOfflineQueryingCore implements Callable<MegaMatrixM
      *
      * @param jobNum
      * @param logParser
-     * @param minerFulParams
+     * @param janusCheckingParams
      * @param postPrarams
      * @param taskCharArchive
      * @param globalStatsTable
      * @param bag
      */
-    public ReactiveCheckingOfflineQueryingCore(int jobNum, LogParser logParser, MinerFulCmdParameters minerFulParams,
+    public ReactiveCheckingOfflineQueryingCore(int jobNum, LogParser logParser, JanusCheckingCmdParameters janusCheckingParams,
                                                PostProcessingCmdParameters postPrarams, TaskCharArchive taskCharArchive,
                                                GlobalStatsTable globalStatsTable, ConstraintsBag bag) {
         this.jobNum = jobNum;
         this.logParser = logParser;
-        this.minerFulParams = minerFulParams;
+        this.janusCheckingParams = janusCheckingParams;
         this.postPrarams = postPrarams;
         this.taskCharArchive = taskCharArchive;
         this.globalStatsTable = globalStatsTable;
