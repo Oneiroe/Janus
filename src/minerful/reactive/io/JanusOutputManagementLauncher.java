@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import minerful.MinerFulOutputManagementLauncher;
+import minerful.concept.TaskCharArchive;
 import minerful.concept.constraint.Constraint;
 import minerful.io.params.OutputModelParameters;
 import minerful.logparser.LogParser;
@@ -38,31 +39,32 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
      * @param outParams
      * @param viewParams
      * @param systemParams
-     * @param logParser
+     * @param alphabet
      */
-    public void manageCheckOutput(MegaMatrixMonster matrix, NavigableMap<Constraint, String> additionalCnsIndexedInfo, OutputModelParameters outParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, LogParser logParser) {
+    public void manageCheckOutput(MegaMatrixMonster matrix, NavigableMap<Constraint, String> additionalCnsIndexedInfo, OutputModelParameters outParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, TaskCharArchive alphabet) {
         File outputFile = null;
         File outputAggregatedMeasuresFile = null;
 
+        // ************* CSV
         if (outParams.fileToSaveConstraintsAsCSV != null) {
             outputFile = retrieveFile(outParams.fileToSaveConstraintsAsCSV);
             logger.info("Saving the discovered process as CSV in " + outputFile + "...");
             double before = System.currentTimeMillis();
 
-//			Detailed traces results
+            // Detailed traces results
             logger.info("MegaMatrixMonster...");
             if (outParams.encodeOutputTasks) {
                 exportEncodedReadable3DMatrixToCSV(matrix, outputFile);
             } else {
-                exportReadable3DMatrixToCSV(matrix, outputFile);
+                exportReadable3DMatrixToCSV(matrix, outputFile, alphabet);
             }
-//			Aggregated Log measures
+            // Aggregated Log measures
             logger.info("Aggregated Measures...");
             outputAggregatedMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("AggregatedMeasures.CSV"));
             if (outParams.encodeOutputTasks) {
                 exportEncodedAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
             } else {
-                exportAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
+                exportAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile, alphabet);
             }
 
             double after = System.currentTimeMillis();
@@ -79,6 +81,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
             logger.info("XML output yet not implemented");
         }
 
+        // ************* JSON
         if (outParams.fileToSaveAsJSON != null) {
             outputFile = retrieveFile(outParams.fileToSaveAsJSON);
             logger.info("Saving the discovered process as JSON in " + outputFile + "...");
@@ -86,21 +89,21 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
             double before = System.currentTimeMillis();
 
 
-//			Detailed traces results
+            // Detailed traces results
             logger.info("MegaMatrixMonster...");
             if (outParams.encodeOutputTasks) {
                 exportEncodedReadable3DMatrixToJson(matrix, outputFile);
             } else {
-                exportReadable3DMatrixToJson(matrix, outputFile);
+                exportReadable3DMatrixToJson(matrix, outputFile, alphabet);
             }
 
-//			Aggregated Log measures
+            // Aggregated Log measures
             logger.info("Aggregated Measures...");
             outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("AggregatedMeasures.json"));
             if (outParams.encodeOutputTasks) {
                 exportEncodedAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
             } else {
-                exportAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
+                exportAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile, alphabet);
             }
 
             double after = System.currentTimeMillis();
@@ -110,8 +113,8 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
     }
 
     public void manageCheckOutput(MegaMatrixMonster matrix,
-                                  ViewCmdParameters viewParams, OutputModelParameters outParams, SystemCmdParameters systemParams) {
-        this.manageCheckOutput(matrix, null, outParams, viewParams, systemParams, null);
+                                  ViewCmdParameters viewParams, OutputModelParameters outParams, SystemCmdParameters systemParams, TaskCharArchive alphabet) {
+        this.manageCheckOutput(matrix, null, outParams, viewParams, systemParams, alphabet);
     }
 
 
@@ -120,8 +123,9 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
      *
      * @param megaMatrix
      * @param outputFile
+     * @param alphabet
      */
-    public void exportReadable3DMatrixToCSV(MegaMatrixMonster megaMatrix, File outputFile) {
+    public void exportReadable3DMatrixToCSV(MegaMatrixMonster megaMatrix, File outputFile, TaskCharArchive alphabet) {
         logger.debug("CSV readable serialization...");
 
 //		header row
@@ -174,7 +178,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
                     String[] row = ArrayUtils.addAll(
                             new String[]{
                                     traceString,
-                                    automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById()),
+                                    automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById()),
                                     Arrays.toString(matrix[trace][constraint])
                             }, measurements);
                     printer.printRecord(row);
@@ -251,8 +255,9 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
      *
      * @param megaMatrix
      * @param outputAggregatedMeasuresFile
+     * @param alphabet
      */
-    public void exportAggregatedMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile) {
+    public void exportAggregatedMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile, TaskCharArchive alphabet) {
         logger.debug("CSV aggregated measures...");
         DescriptiveStatistics[][] constraintsLogMeasure = megaMatrix.getConstraintLogMeasures();
 
@@ -284,7 +289,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
             //		Row builder
             for (int constraint = 0; constraint < constraintsLogMeasure.length; constraint++) {
 //				String constraintName = automata.get(constraint).toString();
-                String constraintName = automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById());
+                String constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
                 DescriptiveStatistics[] constraintLogMeasure = constraintsLogMeasure[constraint];
 
                 for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
@@ -407,11 +412,11 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 
     /**
      * write the jon file with the aggregated measures
-     *
-     * @param megaMatrix
+     *  @param megaMatrix
      * @param outputFile
+     * @param alphabet
      */
-    public void exportAggregatedMeasuresToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+    public void exportAggregatedMeasuresToJson(MegaMatrixMonster megaMatrix, File outputFile, TaskCharArchive alphabet) {
         logger.debug("JSON aggregated measures...");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try {
@@ -428,7 +433,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
 
             for (int constraint = 0; constraint < constraintLogMeasure.length; constraint++) {
                 jsonOutput.add(
-                        automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById()),
+                        automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById()),
                         aggregatedConstraintMeasuresJsonBuilder(megaMatrix, constraint, constraintLogMeasure[constraint])
                 );
             }
@@ -558,7 +563,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
     /**
      * Serialize the 3D matrix into a Json file to have a readable result
      */
-    public void exportReadable3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+    public void exportReadable3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile, TaskCharArchive alphabet) {
         logger.info("JSON readable serialization...");
         try {
             FileWriter fw = new FileWriter(outputFile);
@@ -589,7 +594,7 @@ public class JanusOutputManagementLauncher extends MinerFulOutputManagementLaunc
                 for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
                     tr.init();
 //                  for each constraint
-                    String constraintString = automata.get(constraint).toStringDecoded(tr.getLogParser().getTaskCharArchive().getTranslationMapById());
+                    String constraintString = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
 
                     fw.write("\t\t{\"" + constraintString + "\": [ ");
                     for (int eventResult = 0; eventResult < matrix[trace][constraint].length; eventResult++) {
