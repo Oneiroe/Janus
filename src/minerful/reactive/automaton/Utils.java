@@ -469,6 +469,84 @@ public class Utils {
         return resAutomaton;
     }
 
+
+    /**
+     * Get the automaton representing the !()A constraint for the undesired letter of an alphabet
+     *
+     * @param undesired character
+     * @param others    alphabet without the undesired character
+     * @return automaton for !()undesired
+     */
+    public static Automaton getNegativeNextAutomaton(char undesired, char[] others) {
+        State NonAcceptingState_initial = new State();
+        State NonAcceptingState_middle = new State();
+        State AcceptingState = new State();
+        AcceptingState.setAccept(true);
+        State NonAcceptingState_sink = new State();
+
+        NonAcceptingState_initial.addTransition(new Transition(undesired, NonAcceptingState_middle));
+        for (char other : others) {
+            NonAcceptingState_initial.addTransition(new Transition(other, NonAcceptingState_middle));
+        }
+        NonAcceptingState_middle.addTransition(new Transition(undesired, NonAcceptingState_sink));
+        for (char other : others) {
+            NonAcceptingState_middle.addTransition(new Transition(other, AcceptingState));
+        }
+        NonAcceptingState_sink.addTransition(new Transition(undesired, NonAcceptingState_sink));
+        for (char other : others) {
+            NonAcceptingState_sink.addTransition(new Transition(other, NonAcceptingState_sink));
+        }
+        AcceptingState.addTransition(new Transition(undesired, AcceptingState));
+        for (char other : others) {
+            AcceptingState.addTransition(new Transition(other, AcceptingState));
+        }
+
+        Automaton resAutomaton = new Automaton();
+        resAutomaton.setInitialState(NonAcceptingState_initial);
+
+        return resAutomaton;
+    }
+
+
+    /**
+     * Get the automaton representing the reverse of !()A constraint for the undesired letter of an alphabet
+     *
+     * @param undesired character
+     * @param others    alphabet without the undesired character
+     * @return reversed automaton for !()undesired
+     */
+    public static Automaton getNegativeReversedNextAutomaton(char undesired, char[] others) {
+        State AcceptingState_initial = new State();
+        State AcceptingState_middle = new State();
+        AcceptingState_initial.setAccept(true);
+        AcceptingState_middle.setAccept(true);
+        State NonAcceptingState_b = new State();
+        State NonAcceptingState_c = new State();
+
+        AcceptingState_initial.addTransition(new Transition(undesired, AcceptingState_middle));
+        for (char other : others) {
+            AcceptingState_initial.addTransition(new Transition(other, AcceptingState_initial));
+        }
+        AcceptingState_middle.addTransition(new Transition(undesired, NonAcceptingState_b));
+        for (char other : others) {
+            AcceptingState_middle.addTransition(new Transition(other, NonAcceptingState_c));
+        }
+        NonAcceptingState_b.addTransition(new Transition(undesired, NonAcceptingState_b));
+        for (char other : others) {
+            NonAcceptingState_b.addTransition(new Transition(other, NonAcceptingState_c));
+        }
+        NonAcceptingState_c.addTransition(new Transition(undesired, AcceptingState_middle));
+        for (char other : others) {
+            NonAcceptingState_c.addTransition(new Transition(other, AcceptingState_initial));
+        }
+
+        Automaton resAutomaton = new Automaton();
+        resAutomaton.setInitialState(AcceptingState_initial);
+
+        return resAutomaton;
+    }
+
+
     /**
      * Get the automaton representing the []<>A constraint for a desired letter of an alphabet
      *
