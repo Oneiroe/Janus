@@ -574,7 +574,7 @@ public class Utils {
     }
 
     /**
-     * Get the automaton checking is the current transition is equal to a desired letter of an alphabet
+     * Get the automaton checking if the current transition is equal to a desired letter of an alphabet
      * i.e. checks the present
      *
      * @param desired desired character
@@ -583,13 +583,14 @@ public class Utils {
      */
     public static Automaton getPresentAutomaton(char desired, char[] others) {
         State NonAcceptingState_initial = new State();
-        State NonAcceptingState_sink = new State();
         State AcceptingState = new State();
         AcceptingState.setAccept(true);
 
         NonAcceptingState_initial.addTransition(new Transition(desired, AcceptingState));
+        AcceptingState.addTransition(new Transition(desired, AcceptingState));
         for (char other : others) {
-            NonAcceptingState_initial.addTransition(new Transition(other, NonAcceptingState_sink));
+            NonAcceptingState_initial.addTransition(new Transition(other, NonAcceptingState_initial));
+            AcceptingState.addTransition(new Transition(other, NonAcceptingState_initial));
         }
 
         Automaton resAutomaton = new Automaton();
