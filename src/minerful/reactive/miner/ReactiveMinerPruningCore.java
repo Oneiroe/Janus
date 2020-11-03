@@ -33,6 +33,9 @@ public class ReactiveMinerPruningCore {
 	 */
 	public void pruneNonActiveConstraints() {
 		logger.info("Pruning non active constraints...");
+		if(!this.postParams.cropRedundantAndInconsistentConstraints){
+			return;
+		}
 		for (Constraint c : this.processModel.bag.getAllConstraints()) {
 			if ((c.getConfidence() >= postParams.confidenceThreshold) && ((c.getSupport() >= postParams.supportThreshold))) continue;
 			this.processModel.bag.remove(c);
