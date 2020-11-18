@@ -36,7 +36,7 @@ Alessio Cecconi, Claudio Di Ciccio, Giuseppe De Giacomo, Jan Mendling:
 - Declarative Measurement System
 Alessio Cecconi, Giuseppe De Giacomo, Claudio Di Ciccio, Fabrizio Maria Maggi, Jan Mendling:
 *A Temporal Logic-Based Measurement Framework for Process Mining*. ICPM 2020
-	- DOI: upcoming
+	- DOI: [https://doi.org/10.1109/ICPM49681.2020.00026](https://doi.org/10.1109/ICPM49681.2020.00026)
 
 
 Licensing
