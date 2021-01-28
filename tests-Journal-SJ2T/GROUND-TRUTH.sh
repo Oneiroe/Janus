@@ -59,24 +59,24 @@ SIMPLE_MODEL_CSV=${TEST_FOLDER}/${TEST_BASE_NAME}"-model-SIMPLIFIED[s_${SUPPORT}
 
 # Test variables
 ITERATIONS=10
-BEST_N=50
+BEST_N=100
 MEASURES_RANKING_CSV=${TEST_FOLDER}/${TEST_BASE_NAME}"-measures-ranking[top"${BEST_N}${NaN_LOG}"].csv"
 
 ##################################################################
 # 0 input model M
 # 1 Simulate M -> Log L
+if ! test -f ${OUTPUT_MODEL_JSON}; then
 echo "########### Log Generation"
-### GENERATE LOG with MinerFulLogMakerStarter ****
-java -Xmx$MEMORY_MAX -cp Janus.jar $LOG_MAINCLASS --input-model-file $ORIGINAL_MODEL --input-model-encoding $MODEL_ENCODING --size $TESTBED_SIZE --minlen $MIN_STRLEN --maxlen $MAX_STRLEN --out-log-encoding $LOG_ENCODING --out-log-file $TEMP_TEXT_FILE
-# remove the unwanted characters to make it readable in input by Janus
-python pySupport/cleanStringLog.py $TEMP_TEXT_FILE $LOG_FILE
-rm $TEMP_TEXT_FILE
-#   1.1 OPT inject error
-# TODO
+  ### GENERATE LOG with MinerFulLogMakerStarter ****
+  java -Xmx$MEMORY_MAX -cp Janus.jar $LOG_MAINCLASS --input-model-file $ORIGINAL_MODEL --input-model-encoding $MODEL_ENCODING --size $TESTBED_SIZE --minlen $MIN_STRLEN --maxlen $MAX_STRLEN --out-log-encoding $LOG_ENCODING --out-log-file $TEMP_TEXT_FILE
+  # remove the unwanted characters to make it readable in input by Janus
+  python pySupport/cleanStringLog.py $TEMP_TEXT_FILE $LOG_FILE
+  rm $TEMP_TEXT_FILE
+  #   1.1 OPT inject error
+  # TODO
 
 # 2 mine very loose model out of L -> C
 echo "########### Model mining"
-if ! test -f ${OUTPUT_MODEL_JSON}; then
   java -Xmx$MEMORY_MAX -cp Janus.jar $JANUS_MINER_MAINCLASS \
     -iLF ${LOG_FILE} \
     -iLE ${LOG_ENCODING} \
@@ -85,9 +85,9 @@ if ! test -f ${OUTPUT_MODEL_JSON}; then
     -oCSV ${OUTPUT_MODEL_CSV} \
     -vShush true
 else
-  echo "Model already existing: "${OUTPUT_MODEL_JSON}
+  echo "Log and Model already existing: "${OUTPUT_MODEL_JSON}
 fi
-#   2.1 OPT remove/mark constraints derived from M
+#   2.1 remove/mark constraints (only hierarchically?) derived from M, otherwise the experiment is compromised
 # -prune,--prune-with <type>                            type of post-processing analysis over constraints. It can be one of the following:
 #                                                       {'none','hierarchy','hierarchyconflict','hierarchyconflictredundancy','hierarchyconflictredundancydouble'
 #                                                       }.
