@@ -11,7 +11,6 @@ public class JanusCheckingCmdParameters extends ParamsManager {
     public static final String NaN_TRACE_SUBSTITUTE_VALUE_PARAM_NAME = "nanTraceValue";
     public static final String NaN_LOG_SKIP_FLAG_PARAM_NAME = "nanLogSkip";
 
-
     /**
      * decide if a NaN should be kept as-is in a measure-trace evaluation should be substituted with a certain value
      */
@@ -29,6 +28,13 @@ public class JanusCheckingCmdParameters extends ParamsManager {
         this.nanLogSkipFlag = false;
     }
 
+    public JanusCheckingCmdParameters(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
+        super();
+        this.nanTraceSubstituteFlag = nanTraceSubstituteFlag;
+        this.nanTraceSubstituteValue = nanTraceSubstituteValue;
+        this.nanLogSkipFlag = nanLogSkipFlag;
+    }
+
     public JanusCheckingCmdParameters(Options options, String[] args) {
         this();
         // parse the command line arguments
@@ -39,6 +45,30 @@ public class JanusCheckingCmdParameters extends ParamsManager {
         this();
         // parse the command line arguments
         this.parseAndSetup(new Options(), args);
+    }
+
+    public boolean isNanTraceSubstituteFlag() {
+        return nanTraceSubstituteFlag;
+    }
+
+    public void setNanTraceSubstituteFlag(boolean nanTraceSubstituteFlag) {
+        this.nanTraceSubstituteFlag = nanTraceSubstituteFlag;
+    }
+
+    public double getNanTraceSubstituteValue() {
+        return nanTraceSubstituteValue;
+    }
+
+    public void setNanTraceSubstituteValue(double nanTraceSubstituteValue) {
+        this.nanTraceSubstituteValue = nanTraceSubstituteValue;
+    }
+
+    public boolean isNanLogSkipFlag() {
+        return nanLogSkipFlag;
+    }
+
+    public void setNanLogSkipFlag(boolean nanLogSkipFlag) {
+        this.nanLogSkipFlag = nanLogSkipFlag;
     }
 
     @Override
