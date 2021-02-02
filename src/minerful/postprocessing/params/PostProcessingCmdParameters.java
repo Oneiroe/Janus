@@ -1,5 +1,6 @@
 package minerful.postprocessing.params;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.apache.commons.cli.CommandLine;
@@ -100,6 +101,7 @@ public class PostProcessingCmdParameters extends ParamsManager {
 	public static final String RANKING_POLICY_PARAM_NAME = "pruneRnk";
 //	public static final String HIERARCHY_SUBSUMPTION_PRUNING_POLICY_PARAM_NAME = "ppHSPP"; // TODO One day
 	public static final String KEEP_CONSTRAINTS_PARAM_NAME = "keep";
+	public static final String KEEP_MODEL_PARAM_NAME = "keepModel";
 	public static final char SUPPORT_THRESHOLD_PARAM_NAME = 's';
 	public static final char INTEREST_THRESHOLD_PARAM_NAME = 'i';
 	public static final char CONFIDENCE_THRESHOLD_PARAM_NAME = 'c';
@@ -125,6 +127,8 @@ public class PostProcessingCmdParameters extends ParamsManager {
 	public Double interestFactorThreshold;
 	/** Specifies whether the redundant or inconsistent constraints should be only marked as such (<code>false</code>), hence hidden, or cropped (removed) from the model (<code>true</code>) */
 	public boolean cropRedundantAndInconsistentConstraints;
+	/** JSON File contining a model (set of constraints) that must not be removed in the pruning */
+	public File fixpointModel;
 
 	public static final ConstraintSortingPolicy[] DEFAULT_PRIORITY_POLICIES = new ConstraintSortingPolicy[] {
 		ConstraintSortingPolicy.ACTIVATIONTARGETBONDS,
@@ -202,7 +206,11 @@ public class PostProcessingCmdParameters extends ParamsManager {
 				System.err.println("Invalid option for " + ANALYSIS_TYPE_PARAM_NAME + ": " + analysisTypeString + ". Using default value.");
 			}
 		}
-		
+
+		if(line.hasOption(KEEP_MODEL_PARAM_NAME)){
+			this.fixpointModel =openInputFile(line, KEEP_MODEL_PARAM_NAME);
+		}
+
 		this.updateRankingPolicies(line.getOptionValue(RANKING_POLICY_PARAM_NAME));
 	}
 
@@ -286,6 +294,14 @@ public class PostProcessingCmdParameters extends ParamsManager {
 						.type(Boolean.class)
 						.build()
         		);
+		options.addOption(
+				Option.builder(KEEP_MODEL_PARAM_NAME)
+						.hasArg().argName("path")
+						.longOpt("keep-model")
+						.desc("path to read a file containing the fixpoint model (encoding must be equal to the input model")
+						.type(String.class)
+						.build()
+		);
         return options;
 	}
 	

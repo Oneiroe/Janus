@@ -14,109 +14,125 @@ import minerful.postprocessing.pruning.SubsumptionHierarchyMarker;
 import org.apache.log4j.Logger;
 
 public class MinerFulPruningCore {
-	protected static Logger logger;
-	protected ProcessModel processModel;
-	protected Collection<TaskChar> tasksToQueryFor; 
-	protected PostProcessingCmdParameters postProcParams;
-	protected SubsumptionHierarchyMarker subMarker;
-	protected ThresholdsMarker threshMarker;
+    protected static Logger logger;
+    protected ProcessModel processModel;
+    protected Collection<TaskChar> tasksToQueryFor;
+    protected PostProcessingCmdParameters postProcParams;
+    protected SubsumptionHierarchyMarker subMarker;
+    protected ThresholdsMarker threshMarker;
+    protected ProcessModel fixpointModel;
 
-	{
+    {
         if (logger == null) {
-    		logger = Logger.getLogger(MinerFulQueryingCore.class.getCanonicalName());
+            logger = Logger.getLogger(MinerFulQueryingCore.class.getCanonicalName());
         }
-	}
-	
-	public MinerFulPruningCore(ProcessModel processModel,
-			PostProcessingCmdParameters postProcParams) {
-		this(	processModel,
-				processModel.getProcessAlphabet(),
-				postProcParams);
-	}
-	
-	public MinerFulPruningCore(ProcessModel processModel,
-			Collection<TaskChar> tasksToQueryFor,
-			PostProcessingCmdParameters postProcParams) {
-		this.processModel = processModel;
-		this.tasksToQueryFor = tasksToQueryFor;
-		this.postProcParams = postProcParams;
-		this.subMarker = new SubsumptionHierarchyMarker(processModel.bag);
-		// FIXME Make it parametric
-		this.subMarker.setPolicy(SubsumptionHierarchyMarkingPolicy.EAGER_ON_SUPPORT_OVER_HIERARCHY);
-		this.threshMarker = new ThresholdsMarker(processModel.bag);
-	}
+    }
 
-	public ConstraintsBag massageConstraints() {
-		logger.info("Post-processing the discovered model...");
-		
-		if (this.postProcParams.postProcessingAnalysisType.isPostProcessingRequested()) {
-			this.markConstraintsBelowThresholds();
-			if (this.postProcParams.postProcessingAnalysisType.isHierarchySubsumptionResolutionRequested()) {
-				this.markRedundancyBySubsumptionHierarchy();
-			}
-			if (this.postProcParams.postProcessingAnalysisType.isRedundancyResolutionRequested()) {
-				this.detectConflictsOrRedundancies();
-			}
-		}
-		
-		if (this.postProcParams.cropRedundantAndInconsistentConstraints) {
-			this.processModel.bag.removeMarkedConstraints();
-		}
+    public MinerFulPruningCore(ProcessModel processModel,
+                               PostProcessingCmdParameters postProcParams) {
+        this(processModel,
+                processModel.getProcessAlphabet(),
+                postProcParams);
+    }
 
-		return this.processModel.bag;
-	}
+    public MinerFulPruningCore(ProcessModel processModel,
+                               PostProcessingCmdParameters postProcParams,
+                               ProcessModel fixpointModel) {
+        this.processModel = processModel;
+        this.tasksToQueryFor = processModel.getProcessAlphabet();
+        this.postProcParams = postProcParams;
+        this.subMarker = new SubsumptionHierarchyMarker(processModel.bag, fixpointModel.bag);
+        this.threshMarker = new ThresholdsMarker(processModel.bag, fixpointModel.bag);
+        this.fixpointModel = fixpointModel;
+    }
 
-	private ConstraintsBag markConstraintsBelowThresholds() {
-		logger.info("Pruning constraints below thresholds...");
-		
-		long beforeThresholdsPruning = System.currentTimeMillis();
-		
-		this.processModel.bag = this.threshMarker.markConstraintsBelowThresholds(
-				this.postProcParams.supportThreshold,
-				this.postProcParams.confidenceThreshold,
-				this.postProcParams.interestFactorThreshold);
+    public MinerFulPruningCore(ProcessModel processModel,
+                               Collection<TaskChar> tasksToQueryFor,
+                               PostProcessingCmdParameters postProcParams) {
+        this.processModel = processModel;
+        this.tasksToQueryFor = tasksToQueryFor;
+        this.postProcParams = postProcParams;
+        this.subMarker = new SubsumptionHierarchyMarker(processModel.bag);
+        // FIXME Make it parametric
+        this.subMarker.setPolicy(SubsumptionHierarchyMarkingPolicy.EAGER_ON_SUPPORT_OVER_HIERARCHY);
+        this.threshMarker = new ThresholdsMarker(processModel.bag);
+    }
 
-		long afterThresholdsPruning = System.currentTimeMillis();
-    	
-		this.threshMarker.printComputationStats(beforeThresholdsPruning, afterThresholdsPruning);
-		
-		if (this.postProcParams.cropRedundantAndInconsistentConstraints) {
-			this.processModel.bag.removeMarkedConstraints();
-		}
+    public ConstraintsBag massageConstraints() {
+        logger.info("Post-processing the discovered model...");
 
-		// Let us try to free memory!
-        System.gc();
-        
+        if (this.postProcParams.postProcessingAnalysisType.isPostProcessingRequested()) {
+            this.markConstraintsBelowThresholds();
+            if (this.postProcParams.postProcessingAnalysisType.isHierarchySubsumptionResolutionRequested()) {
+                this.markRedundancyBySubsumptionHierarchy();
+            }
+            if (this.postProcParams.postProcessingAnalysisType.isRedundancyResolutionRequested()) {
+                this.detectConflictsOrRedundancies();
+            }
+        }
+
+        if (this.postProcParams.cropRedundantAndInconsistentConstraints) {
+            this.processModel.bag.removeMarkedConstraints();
+        }
+
         return this.processModel.bag;
-	}
+    }
 
-	private ConstraintsBag detectConflictsOrRedundancies() {
+    private ConstraintsBag markConstraintsBelowThresholds() {
+        logger.info("Pruning constraints below thresholds...");
 
-    	long beforeConflictResolution = System.currentTimeMillis();
-    	
-    	ConflictAndRedundancyResolver confliReso = new ConflictAndRedundancyResolver(processModel, postProcParams);
+        long beforeThresholdsPruning = System.currentTimeMillis();
+
+        this.processModel.bag = this.threshMarker.markConstraintsBelowThresholds(
+                this.postProcParams.supportThreshold,
+                this.postProcParams.confidenceThreshold,
+                this.postProcParams.interestFactorThreshold);
+
+        long afterThresholdsPruning = System.currentTimeMillis();
+
+        this.threshMarker.printComputationStats(beforeThresholdsPruning, afterThresholdsPruning);
+
+        if (this.postProcParams.cropRedundantAndInconsistentConstraints) {
+            this.processModel.bag.removeMarkedConstraints();
+        }
+
+        // Let us try to free memory!
+        System.gc();
+
+        return this.processModel.bag;
+    }
+
+    private ConstraintsBag detectConflictsOrRedundancies() {
+
+        long beforeConflictResolution = System.currentTimeMillis();
+        ConflictAndRedundancyResolver confliReso;
+        if (fixpointModel == null) {
+            confliReso = new ConflictAndRedundancyResolver(processModel, postProcParams);
+        } else {
+            confliReso = new ConflictAndRedundancyResolver(processModel, postProcParams, fixpointModel);
+        }
 //    	this.processModel = confliReso.resolveConflictsOrRedundancies();
-    	confliReso.resolveConflictsOrRedundancies();
+        confliReso.resolveConflictsOrRedundancies();
 
-    	long afterConflictResolution = System.currentTimeMillis();
-        
+        long afterConflictResolution = System.currentTimeMillis();
+
         confliReso.printComputationStats(beforeConflictResolution, afterConflictResolution);
 
         if (this.postProcParams.cropRedundantAndInconsistentConstraints) {
-			this.processModel.bag.removeMarkedConstraints();
-		}
-		
-		// Let us try to free memory!
-        System.gc();
-		
-        return this.processModel.bag;
-	}
+            this.processModel.bag.removeMarkedConstraints();
+        }
 
-	public ConstraintsBag markRedundancyBySubsumptionHierarchy() {
-		long
-       	beforeSubCheck = 0L,
-       	afterSubCheck = 0L;
-		
+        // Let us try to free memory!
+        System.gc();
+
+        return this.processModel.bag;
+    }
+
+    public ConstraintsBag markRedundancyBySubsumptionHierarchy() {
+        long
+                beforeSubCheck = 0L,
+                afterSubCheck = 0L;
+
 //		if (!this.postProcParams.cropRedundantAndInconsistentConstraints) {
 //			this.processModel.resetMarks();
 //		}
@@ -125,22 +141,25 @@ public class MinerFulPruningCore {
 
         beforeSubCheck = System.currentTimeMillis();
 
-        this.subMarker.markSubsumptionRedundantConstraints(this.tasksToQueryFor);
-
+        if (this.subMarker.getFixpointConstraintsBag() != null) {
+            this.subMarker.markSubsumptionRedundantConstraintsFromSeed(this.tasksToQueryFor);
+        } else {
+            this.subMarker.markSubsumptionRedundantConstraints(this.tasksToQueryFor);
+        }
         afterSubCheck = System.currentTimeMillis();
-		this.subMarker.printComputationStats(beforeSubCheck, afterSubCheck);
-    	
-		if (this.postProcParams.cropRedundantAndInconsistentConstraints) {
-			this.processModel.bag.removeMarkedConstraints();
-		}
-    	
+        this.subMarker.printComputationStats(beforeSubCheck, afterSubCheck);
+
+        if (this.postProcParams.cropRedundantAndInconsistentConstraints) {
+            this.processModel.bag.removeMarkedConstraints();
+        }
+
         // Let us try to free memory!
         System.gc();
-	    
-	    return this.processModel.bag;
-	}
 
-	public ProcessModel getProcessModel() {
-		return this.processModel;
-	}
+        return this.processModel.bag;
+    }
+
+    public ProcessModel getProcessModel() {
+        return this.processModel;
+    }
 }
