@@ -40,9 +40,24 @@ def main():
         ordered_measures[m] = sorted(ordered_measures[m], reverse=True)
         # check how many constraints from the original model are in the top N constraints
         counter = 0
-        for value, constraint in ordered_measures[m][:best_N_threshold]:
+        index = 0
+        previous = ""
+#         test = 0
+        # for value, constraint in ordered_measures[m][:best_N_threshold]:
+        for value, constraint in ordered_measures[m]:
+            # test += 1
+            if value == 'nan':
+                continue
             if constraint in model:
                 counter += 1
+            if value != previous:
+#               in this way we can keep constraints that have the same values together,
+#               i.e. ranking of the first N DISTINCT results, not the first N
+                previous = value
+                index += 1
+            if index > best_N_threshold:
+                break
+#         print(m + " stopped at ordered constraint number " + str(test))
         measures_ranking += [(counter, m)]
 
     measures_ranking = sorted(measures_ranking, reverse=True)

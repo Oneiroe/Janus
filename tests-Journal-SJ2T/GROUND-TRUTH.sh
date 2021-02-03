@@ -33,8 +33,8 @@ TEST_FOLDER=${TEST_FOLDER}"/"${TEST_BASE_NAME}
 
 ## Log generation settings
 MIN_STRLEN=10
-MAX_STRLEN=100
-TESTBED_SIZE=1000
+MAX_STRLEN=50
+TESTBED_SIZE=500
 MEMORY_MAX="2048m"
 LOG_ENCODING="strings"
 TEMP_TEXT_FILE=${TEST_FOLDER}/${TEST_BASE_NAME}"-log-original.txt"
@@ -42,6 +42,7 @@ LOG_FILE=${TEST_FOLDER}/${TEST_BASE_NAME}"-log.txt"
 
 ## model checking settings
 NaN_LOG="-nanLogSkip"
+#NaN_LOG=""
 OUTPUT_CHECK_CSV=${TEST_FOLDER}/${TEST_BASE_NAME}"-output"${NaN_LOG}".csv"
 OUTPUT_CHECK_JSON=${TEST_FOLDER}/${TEST_BASE_NAME}"-output"${NaN_LOG}".json"
 #-encodeTasksFlag Flag if the output tasks/events should be encoded
@@ -65,8 +66,8 @@ MEASURES_RANKING_CSV=${TEST_FOLDER}/${TEST_BASE_NAME}"-measures-ranking[top"${BE
 ##################################################################
 # 0 input model M
 # 1 Simulate M -> Log L
-if ! test -f ${OUTPUT_MODEL_JSON}; then
-echo "########### Log Generation"
+if ! test -f ${LOG_FILE}; then
+  echo "########### Log Generation"
   ### GENERATE LOG with MinerFulLogMakerStarter ****
   java -Xmx$MEMORY_MAX -cp Janus.jar $LOG_MAINCLASS --input-model-file $ORIGINAL_MODEL --input-model-encoding $MODEL_ENCODING --size $TESTBED_SIZE --minlen $MIN_STRLEN --maxlen $MAX_STRLEN --out-log-encoding $LOG_ENCODING --out-log-file $TEMP_TEXT_FILE
   # remove the unwanted characters to make it readable in input by Janus
@@ -74,9 +75,13 @@ echo "########### Log Generation"
   rm $TEMP_TEXT_FILE
   #   1.1 OPT inject error
   # TODO
+else
+  echo "Log already generated: "${LOG_FILE}
+fi
 
 # 2 mine very loose model out of L -> C
-echo "########### Model mining"
+if ! test -f ${OUTPUT_MODEL_JSON}; then
+  echo "########### Model mining"
   java -Xmx$MEMORY_MAX -cp Janus.jar $JANUS_MINER_MAINCLASS \
     -iLF ${LOG_FILE} \
     -iLE ${LOG_ENCODING} \
@@ -84,24 +89,24 @@ echo "########### Model mining"
     -oJSON ${OUTPUT_MODEL_JSON} \
     -oCSV ${OUTPUT_MODEL_CSV} \
     -vShush true
+  #   2.1 remove/mark constraints (only hierarchically?) derived from M, otherwise the experiment is compromised
+  # -prune,--prune-with <type>                            type of post-processing analysis over constraints. It can be one of the following:
+  #                                                       {'none','hierarchy','hierarchyconflict','hierarchyconflictredundancy','hierarchyconflictredundancydouble'
+  #                                                       }.
+  #                                                       Default is: 'hierarchy'
+  # -pruneRnk,--prune-ranking-by <policy>                 type of ranking of constraints for post-processing analysis. It can be a :-separated list of the
+  #                                                       following:
+  #                                                       {'supportconfidenceinterestfactor','familyhierarchy','activationtargetbonds','default','random'}.
+  #                                                       Default is: 'activationtargetbonds:familyhierarchy:supportconfidenceinterestfactor'
+  # -keepModel <file>   use a reference model to prune out all its derived constraints
+  java -cp Janus.jar $MINERFUL_SIMPLIFICATION_MAINCLASS -iMF $OUTPUT_MODEL_JSON -iME $MODEL_ENCODING -oCSV $SIMPLE_MODEL_CSV -oJSON $SIMPLE_MODEL_JSON -s 0 -c 0 -i 0 -prune hierarchyconflictredundancydouble -keepModel $ORIGINAL_MODEL
 else
-  echo "Log and Model already existing: "${OUTPUT_MODEL_JSON}
+  echo "Model already existing: "${OUTPUT_MODEL_JSON}
 fi
-#   2.1 remove/mark constraints (only hierarchically?) derived from M, otherwise the experiment is compromised
-# -prune,--prune-with <type>                            type of post-processing analysis over constraints. It can be one of the following:
-#                                                       {'none','hierarchy','hierarchyconflict','hierarchyconflictredundancy','hierarchyconflictredundancydouble'
-#                                                       }.
-#                                                       Default is: 'hierarchy'
-# -pruneRnk,--prune-ranking-by <policy>                 type of ranking of constraints for post-processing analysis. It can be a :-separated list of the
-#                                                       following:
-#                                                       {'supportconfidenceinterestfactor','familyhierarchy','activationtargetbonds','default','random'}.
-#                                                       Default is: 'activationtargetbonds:familyhierarchy:supportconfidenceinterestfactor'
-#   TODO
-#java -cp Janus.jar $MINERFUL_SIMPLIFICATION_MAINCLASS -iMF $OUTPUT_MODEL_JSON -iME $MODEL_ENCODING -oJSON $SIMPLE_MODEL_JSON -s 0 -c 0 -i 0 -prune hierarchyconflictredundancydouble
 
 # check measures of C with janus
 echo "########### SJ2T Check"
-java -cp Janus.jar minerful.JanusModelCheckStarter -iLF $LOG_FILE -iLE $LOG_ENCODING -iMF $OUTPUT_MODEL_JSON -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON $NaN_LOG
+java -cp Janus.jar minerful.JanusModelCheckStarter -iLF $LOG_FILE -iLE $LOG_ENCODING -iMF $SIMPLE_MODEL_JSON -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON $NaN_LOG
 # generate MEAN-only CSV of aggregated measures
 echo "########### Post Processing"
 python pySupport/singleAggregationPerspectiveFocusCSV.py $OUTPUT_CHECK_JSON"AggregatedMeasures.json" $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN].csv"
