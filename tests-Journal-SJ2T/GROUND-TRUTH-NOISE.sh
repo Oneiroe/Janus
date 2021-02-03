@@ -15,7 +15,7 @@ clear
 ##################################################################
 ## script variables
 TEST_FOLDER="./tests-Journal-SJ2T"
-TEST_BASE_NAME="GROUND-TRUTH"
+TEST_BASE_NAME="GROUND-TRUTH-NOISE"
 
 ## Runtime environment constants
 LOG_MAINCLASS="minerful.MinerFulLogMakerStarter"
@@ -38,7 +38,26 @@ TESTBED_SIZE=500
 MEMORY_MAX="2048m"
 LOG_ENCODING="strings"
 TEMP_TEXT_FILE=${TEST_FOLDER}/${TEST_BASE_NAME}"-log-original.txt"
-LOG_FILE=${TEST_FOLDER}/${TEST_BASE_NAME}"-log.txt"
+LOG_FILE_CLEAN=${TEST_FOLDER}/${TEST_BASE_NAME}"-log.txt"
+
+## error injection settings
+TARGET_CHAR=a # Just one task at the time
+ERROR_PERCENTAGE=5
+ERROR_POLICY="collection"
+# policy for the distribution of the errors. Possible values are:
+#      'collection'
+#      to spread the errors over the whole collection of traces [DEFAULT];
+#      'string'
+#      to inject the errors in every trace
+ERROR_TYPE="insdel"
+#type of the errors to inject. Possible values are:
+#      'ins'
+#      suppression of the target task;
+#      'del'
+#      insertion of the target task;
+#      'insdel'
+#      mixed (suppressions or insertions, as decided by random) [DEFAULT]
+ERROR_LOG=${TEST_FOLDER}/${TEST_BASE_NAME}"-error-log.txt"
 
 ## model checking settings
 NaN_LOG="-nanLogSkip"
@@ -66,24 +85,41 @@ MEASURES_RANKING_CSV=${TEST_FOLDER}/${TEST_BASE_NAME}"-measures-ranking[top"${BE
 ##################################################################
 # 0 input model M
 # 1 Simulate M -> Log L
-if ! test -f ${LOG_FILE}; then
+if ! test -f ${LOG_FILE_CLEAN}; then
   echo "########### Log Generation"
   ### GENERATE LOG with MinerFulLogMakerStarter ****
   java -Xmx$MEMORY_MAX -cp Janus.jar $LOG_MAINCLASS --input-model-file $ORIGINAL_MODEL --input-model-encoding $MODEL_ENCODING --size $TESTBED_SIZE --minlen $MIN_STRLEN --maxlen $MAX_STRLEN --out-log-encoding $LOG_ENCODING --out-log-file $TEMP_TEXT_FILE
   # remove the unwanted characters to make it readable in input by Janus
-  python pySupport/cleanStringLog.py $TEMP_TEXT_FILE $LOG_FILE
+  python pySupport/cleanStringLog.py $TEMP_TEXT_FILE $LOG_FILE_CLEAN
   rm $TEMP_TEXT_FILE
+  TEMP_TEXT_FILE=$LOG_FILE_CLEAN
   #   1.1 OPT inject error
-  # OTHER EXPERIMENT
+  echo "########### Error-injection cycle"
+  for TARGET_CHAR in "a" "b" "c" "d" "e" "f" "g" "h" "i" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "z"; do
+    # Error injection
+    java -Xmx$MEMORY_MAX -cp Janus.jar $ERROR_MAINCLASS \
+      -iLF $TEMP_TEXT_FILE \
+      -iLE $LOG_ENCODING \
+      --err-target $TARGET_CHAR \
+      --err-out-log $ERROR_LOG \
+      --err-percentage $ERROR_PERCENTAGE \
+      --err-spread-policy $ERROR_POLICY \
+      --err-type $ERROR_TYPE \
+      -iME $MODEL_ENCODING \
+      -iMF $ORIGINAL_MODEL \
+      -d none
+
+    TEMP_TEXT_FILE=$ERROR_LOG
+  done
 else
-  echo "Log already generated: "${LOG_FILE}
+  echo "Log already generated: "${LOG_FILE_CLEAN}
 fi
 
 # 2 mine very loose model out of L -> C
 if ! test -f ${OUTPUT_MODEL_JSON}; then
   echo "########### Model mining"
   java -Xmx$MEMORY_MAX -cp Janus.jar $JANUS_MINER_MAINCLASS \
-    -iLF ${LOG_FILE} \
+    -iLF ${ERROR_LOG} \
     -iLE ${LOG_ENCODING} \
     -s $SUPPORT -c $CONFIDENCE \
     -oJSON ${OUTPUT_MODEL_JSON} \
@@ -106,7 +142,7 @@ fi
 
 # check measures of C with janus
 echo "########### SJ2T Check"
-java -cp Janus.jar $JANUS_CHECK_MAINCLASS -iLF $LOG_FILE -iLE $LOG_ENCODING -iMF $SIMPLE_MODEL_JSON -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON $NaN_LOG
+java -cp Janus.jar $JANUS_CHECK_MAINCLASS -iLF $ERROR_LOG -iLE $LOG_ENCODING -iMF $SIMPLE_MODEL_JSON -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON $NaN_LOG
 # generate MEAN-only CSV of aggregated measures
 echo "########### Post Processing"
 python pySupport/singleAggregationPerspectiveFocusCSV.py $OUTPUT_CHECK_JSON"AggregatedMeasures.json" $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN].csv"
