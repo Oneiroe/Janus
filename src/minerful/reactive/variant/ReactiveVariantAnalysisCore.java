@@ -10,6 +10,7 @@ import minerful.reactive.params.JanusCheckingCmdParameters;
 import minerful.reactive.params.JanusVariantCmdParameters;
 import org.apache.log4j.Logger;
 
+import java.time.Duration;
 import java.util.*;
 
 /**
@@ -24,14 +25,29 @@ public class ReactiveVariantAnalysisCore {
     private ProcessModel processSpecification2;  // original set of constraints mined from log2
     private final JanusVariantCmdParameters janusVariantParams;  // input parameter of the analysis
 
-    private Map lCoded; // encoded log for efficient permutations
+    private Map<String, Map<String, Double>> lCoded; // encoded log for efficient permutations
     private Set mTot;  // total set of constraints to analyse, i.e., union of process specification 1 adn 2
     private ProcessModel processSpecificationUnion;  // total set of constraints to analyse, i.e., union of process specification 1 adn 2
     private Set mDiffs;  // initial differences of specification 1 and 2 to be checked through the analysis
     private ProcessModel processSpecificationDifference;  // initial differences of specification 1 and 2 to be checked through the analysis
-    private Object theMatrixRes;  // encoded partial result
+    private double pValueThreshold;
     private static final String MEASURE = "Confidence";  // expose measure selection to the user
     private static final int MEASURE_INDEX = 1;
+    private static final double MEASURE_THRESHOLD = 0.8;
+
+    private static class PermutationResult {
+        double[][] result1; // permutation test results for first group
+        double[][] result2; // permutation test results for second group
+        String[] constraints;  // list of constraint names
+        double[] test;  // test statistics for the difference of the groups, mind that constraints and permutations indices as swapped wrt the permutation results
+
+        public PermutationResult(double[][] result1, double[][] result2, String[] constraints) {
+            this.result1 = result1;
+            this.result2 = result2;
+            this.constraints = constraints;
+            this.test = new double[constraints.length];
+        }
+    }
 
     {
         if (logger == null) {
@@ -52,6 +68,12 @@ public class ReactiveVariantAnalysisCore {
         this.logParser_2 = logParser_2;
         this.processSpecification2 = processSpecification2;
         this.janusVariantParams = janusVariantParams;
+        this.pValueThreshold = 0.05;
+    }
+
+    public ReactiveVariantAnalysisCore(LogParser logParser_1, ProcessModel processSpecification1, LogParser logParser_2, ProcessModel processSpecification2, JanusVariantCmdParameters janusVariantParams, double pValueThreshold) {
+        this(logParser_1, processSpecification1, logParser_2, processSpecification2, janusVariantParams);
+        this.pValueThreshold = pValueThreshold;
     }
 
     /**
@@ -60,28 +82,108 @@ public class ReactiveVariantAnalysisCore {
     public void check() {
 //        PREPROCESSING
         double before = System.currentTimeMillis();
-//        1. Models differences
+        //        1. Models differences
         setModelsDifferences(processSpecification1, processSpecification2);
-//        2. Models Union (total set of rules to check afterwards)
+        //        2. Models Union (total set of rules to check afterwards)
         setModelsUnion(processSpecification1, processSpecification2);
-//        3. Encode log (create efficient log structure for the permutations)
-//        4. Precompute all possible results for the Encoded Log
+        //        3. Encode log (create efficient log structure for the permutations)
+        //        4. Precompute all possible results for the Encoded Log
         encodeLogs(logParser_1, logParser_2, processSpecificationUnion);
         double after = System.currentTimeMillis();
-
         logger.info("Preprocessing time: " + (after - before));
+
 //        PERMUTATION TEST
         before = System.currentTimeMillis();
-        // TODO WIP
-        logger.info("HERE");
-
+        logger.info("Permutations processing...");
+        PermutationResult pRes = permuteResults(lCoded, janusVariantParams.nPermutations, true);
+        logger.info("Significance testing...");
+        significanceTest(pRes, pValueThreshold);
         after = System.currentTimeMillis();
         logger.info("Permutation test time: " + (after - before));
+
 //        POSTPROCESSING / RESULTS
         before = System.currentTimeMillis();
 
         after = System.currentTimeMillis();
         logger.info("Postprocessing time: " + (after - before));
+    }
+
+    private void significanceTest(PermutationResult pRes, double pValueThreshold) {
+        for (int cIndex = 0; cIndex < pRes.constraints.length; cIndex++) {
+            double initialreference = pRes.result1[0][cIndex] - pRes.result2[0][cIndex];
+            for (int permutation = 1; permutation < pRes.result1.length; permutation++) {
+//                TODO consider absolute values
+                if (pRes.result1[permutation][cIndex] - pRes.result2[permutation][cIndex] >= initialreference) {
+                    pRes.test[cIndex] += 1.0;
+                }
+            }
+            pRes.test[cIndex] = pRes.test[cIndex] / pRes.test.length;
+//            if (pRes.test[cIndex]<=pValueThreshold) System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
+            System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
+        }
+    }
+
+    private PermutationResult permuteResults(Map<String, Map<String, Double>> lCoded, int nPermutations, boolean nanCheck) {
+        int nConstraints = processSpecificationUnion.howManyConstraints();
+        double[][] result1 = new double[nPermutations][nConstraints];
+        double[][] result2 = new double[nPermutations][nConstraints];
+
+        String[] constraints = new String[nConstraints];
+        int constraintIndex = 0;
+        for (String c : lCoded.values().iterator().next().keySet()) {
+//        for (Constraint c : processSpecificationUnion.getAllConstraints()) {
+//            constraints[constraintIndex] = c.toString();  // TODO model string encoding of constraints is different form automata runner one
+            if (c == "TraceFrequency") continue;
+            constraints[constraintIndex] = c;
+            constraintIndex++;
+        }
+
+        int log1Size = logParser_1.length();
+        int log2Size = logParser_2.length();
+        List<String> permutableTracesList = new LinkedList<>();
+        for (Iterator<LogTraceParser> it = logParser_1.traceIterator(); it.hasNext(); ) {
+            permutableTracesList.add(it.next().printStringTrace());
+        }
+        for (Iterator<LogTraceParser> it = logParser_2.traceIterator(); it.hasNext(); ) {
+            permutableTracesList.add(it.next().printStringTrace());
+        }
+//        for (String t : lCoded.keySet()) {
+//            for (int i = 0; i < lCoded.get(t).get("TraceFrequency"); i++) {
+//                permutableTracesList.add(t);
+//            }
+//        }
+//        List uniqueTracesList = Arrays.asList(lCoded.keySet().toArray());
+
+        /*
+        * Time notes (from SEPSIS):
+        * - self-time       320  sec
+        * - HashMap.get()   3.9  sec
+        * - shuffle()       0.98 sec
+        *
+        * */
+        for (int i = 0; i < nPermutations; i++) {
+            System.out.print("\rPermutation: " + i + "/" + nPermutations);  // Status counter "current trace/total trace"
+            int cIndex = 0;
+            for (String c : constraints) {
+                int traceIndex = 0;
+                for (String t : permutableTracesList) {
+                    if (nanCheck & lCoded.get(t).get(c).isNaN()) continue; // TODO expose in input
+                    if (traceIndex < log1Size) {
+                        result1[i][cIndex] += lCoded.get(t).get(c);
+                    } else {
+                        result2[i][cIndex] += lCoded.get(t).get(c);
+                    }
+                    traceIndex++;
+                }
+                result1[i][cIndex] = result1[i][cIndex] / log1Size;
+                result2[i][cIndex] = result2[i][cIndex] / log2Size;
+                cIndex++;
+            }
+//            permutation "0" are the original logs
+            Collections.shuffle(permutableTracesList);
+        }
+        // TODO output these partial result for debugging
+        return new PermutationResult(result1, result2, constraints);
     }
 
 
@@ -103,14 +205,19 @@ public class ReactiveVariantAnalysisCore {
         for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
             LogTraceParser tr = it.next();
             String stringTrace = tr.printStringTrace();
-            result.put(stringTrace, new HashMap<String, Double>());
-            int cIndex = 0;
-            for (SeparatedAutomatonOfflineRunner c : measures.getAutomata()) {
-                result.get(stringTrace).put(
-                        c.toString(),
-                        measures.getSpecificMeasure(currentTrace, cIndex, MEASURE_INDEX)
-                );
-                cIndex++;
+            if (result.containsKey(stringTrace)) {
+                result.get(stringTrace).put("TraceFrequency", result.get(stringTrace).get("TraceFrequency") + 1);
+            } else {
+                result.put(stringTrace, new HashMap<String, Double>());
+                result.get(stringTrace).put("TraceFrequency", 1.0);
+                int cIndex = 0;
+                for (SeparatedAutomatonOfflineRunner c : measures.getAutomata()) {
+                    result.get(stringTrace).put(
+                            c.toString(),
+                            measures.getSpecificMeasure(currentTrace, cIndex, MEASURE_INDEX)
+                    );
+                    cIndex++;
+                }
             }
             currentTrace++;
         }
@@ -128,8 +235,8 @@ public class ReactiveVariantAnalysisCore {
      * @param model
      * @return
      */
-    private Map encodeLogs(LogParser logParser_1, LogParser logParser_2, ProcessModel model) {
-        lCoded = new HashMap<String, Map>();
+    private Map<String, Map<String, Double>> encodeLogs(LogParser logParser_1, LogParser logParser_2, ProcessModel model) {
+        lCoded = new HashMap<String, Map<String, Double>>();
         lCoded.putAll(encodeLog(logParser_1, model));
         lCoded.putAll(encodeLog(logParser_2, model));
         return lCoded;

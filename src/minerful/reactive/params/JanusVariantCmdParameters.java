@@ -23,6 +23,7 @@ public class JanusVariantCmdParameters extends ParamsManager {
     public static final String INPUT_LOG_1_ENCODING_PARAM_NAME = "iLE1";  // second log variant to analyse
     public static final String INPUT_LOG_2_ENCODING_PARAM_NAME = "iLE2";  // second log variant to analyse
     public static final String EVENT_CLASSIFICATION_PARAM_NAME = "iLClassif";
+    public static final String N_PERMUTATIONS_PARAM_NAME = "permutations";
 
     public enum InputEncoding {
         /**
@@ -75,6 +76,10 @@ public class JanusVariantCmdParameters extends ParamsManager {
      * threshold for the measure to consider it relevant, default: "0.8"
      */
     public double measureThreshold;
+    /**
+     * number of permutations to perform, default: 1000
+     */
+    public int nPermutations;
 
     public JanusVariantCmdParameters() {
         super();
@@ -86,6 +91,7 @@ public class JanusVariantCmdParameters extends ParamsManager {
         this.pValue = DEFAULT_P_VALUE;
         this.measure = DEFAULT_MEASURE;
         this.measureThreshold = DEFAULT_MEASURE_THRESHOLD;
+        this.nPermutations = 1000;
     }
 
     public JanusVariantCmdParameters(Options options, String[] args) {
@@ -141,6 +147,13 @@ public class JanusVariantCmdParameters extends ParamsManager {
                 line.getOptionValue(
                         MEASURE_THRESHOLD_NAME,
                         Double.toString(this.measureThreshold)
+                )
+        );
+
+        this.nPermutations = Integer.parseInt(
+                line.getOptionValue(
+                        N_PERMUTATIONS_PARAM_NAME,
+                        Integer.toString(this.nPermutations)
                 )
         );
     }
@@ -227,6 +240,14 @@ public class JanusVariantCmdParameters extends ParamsManager {
                         .hasArg().argName("number")
                         .longOpt("p-value")
                         .desc("p-value threshold for statistical relevance of the results. default: 0.05")
+                        .type(Double.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(N_PERMUTATIONS_PARAM_NAME)
+                        .hasArg().argName("number")
+                        .longOpt("number-of-permutations")
+                        .desc("number of permutations to perform during the statistical test. default: 1000")
                         .type(Double.class)
                         .build()
         );
