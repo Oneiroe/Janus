@@ -124,17 +124,17 @@ public class JanusVariantAnalysisLauncher {
             // Variant 1 discovery
             TaskCharArchive taskCharArchive1 = eventLog1.getTaskCharArchive();
             JanusOfflineMinerStarter minerMinaStarter = new JanusOfflineMinerStarter();
-            processSpecification1 = minerMinaStarter.mine(eventLog1, taskCharArchive1);
+            processSpecification1 = minerMinaStarter.mine(eventLog1, taskCharArchive1, 0.1, 0.8);
             // variant 2 discovery
             TaskCharArchive taskCharArchive2 = eventLog2.getTaskCharArchive();
             minerMinaStarter = new JanusOfflineMinerStarter();
-            processSpecification2 = minerMinaStarter.mine(eventLog2, taskCharArchive2);
+            processSpecification2 = minerMinaStarter.mine(eventLog2, taskCharArchive2, 0.1, 0.8);
             double after = System.currentTimeMillis();
             logger.info("Variants constraints discovery time: " + (after - before));
         }
 
-        ReactiveVariantAnalysisCore variantAnalysisCore=new ReactiveVariantAnalysisCore(
-                eventLog1,processSpecification1,eventLog2,processSpecification2, janusParams
+        ReactiveVariantAnalysisCore variantAnalysisCore = new ReactiveVariantAnalysisCore(
+                eventLog1, processSpecification1, eventLog2, processSpecification2, janusParams
         );
         variantAnalysisCore.check();
 //        TODO results

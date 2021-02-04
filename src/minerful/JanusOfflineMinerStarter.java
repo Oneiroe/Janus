@@ -175,6 +175,33 @@ public class JanusOfflineMinerStarter extends AbstractMinerFulStarter {
         return proMod;
     }
 
+    public ProcessModel mine(LogParser logParser, TaskCharArchive taskCharArchive) {
+        return mine(logParser, taskCharArchive, 0.1, 0.8);// todo warning: hard coded default
+    }
+
+    public ProcessModel mine(LogParser logParser, TaskCharArchive taskCharArchive, double supportThreshold, double confidenceThreshold) {
+        System.gc();
+
+        ProcessModel proMod = ProcessModel.generateNonEvaluatedBinaryModel(taskCharArchive);
+
+        proMod.setName(logParser.toString());
+
+        MinerFulCmdParameters minerFulParams = new MinerFulCmdParameters();
+        PostProcessingCmdParameters postParams = new PostProcessingCmdParameters();
+        postParams.supportThreshold = supportThreshold;
+        postParams.confidenceThreshold = confidenceThreshold;
+
+        /* Substitution of mining core with the Janus reactiveMiner */
+        proMod.bag = reactiveOfflineQueryForConstraints(logParser, minerFulParams, postParams, taskCharArchive, null, proMod.bag);
+
+        System.gc();
+
+        /* TODO take back the full post processing and adapt it to the separation technique*/
+//		pruneConstraints(proMod, minerFulParams, postParams);
+        new ReactiveMinerPruningCore(proMod, minerFulParams, postParams).pruneNonActiveConstraints();
+        return proMod;
+    }
+
     public static String makeDiscoveredProcessName(InputLogCmdParameters inputParams) {
         return (inputParams != null && inputParams.inputLogFile != null) ?
                 String.format(JanusOfflineMinerStarter.PROCESS_MODEL_NAME_PATTERN, inputParams.inputLogFile.getName()) :
