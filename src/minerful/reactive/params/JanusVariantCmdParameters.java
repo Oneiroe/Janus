@@ -24,6 +24,9 @@ public class JanusVariantCmdParameters extends ParamsManager {
     public static final String INPUT_LOG_2_ENCODING_PARAM_NAME = "iLE2";  // second log variant to analyse
     public static final String EVENT_CLASSIFICATION_PARAM_NAME = "iLClassif";
     public static final String N_PERMUTATIONS_PARAM_NAME = "permutations";
+    public static final String OUTPUT_FILE_CSV_PARAM_NAME = "oCSV";
+    public static final String OUTPUT_FILE_JSON_PARAM_NAME = "oJSON";
+    public static final String OUTPUT_KEEP_FLAG_NAME = "oKeep";
 
     public enum InputEncoding {
         /**
@@ -80,6 +83,18 @@ public class JanusVariantCmdParameters extends ParamsManager {
      * number of permutations to perform, default: 1000
      */
     public int nPermutations;
+    /**
+     * output file in CSV format
+     */
+    public File outputCvsFile;
+    /**
+     * output file in JSON format
+     */
+    public File outputJsonFile;
+    /**
+     * keep the irrelevant results in output
+     */
+    public boolean oKeep;
 
     public JanusVariantCmdParameters() {
         super();
@@ -92,6 +107,9 @@ public class JanusVariantCmdParameters extends ParamsManager {
         this.measure = DEFAULT_MEASURE;
         this.measureThreshold = DEFAULT_MEASURE_THRESHOLD;
         this.nPermutations = 1000;
+        this.outputCvsFile = null;
+        this.outputJsonFile = null;
+        this.oKeep= false;
     }
 
     public JanusVariantCmdParameters(Options options, String[] args) {
@@ -156,6 +174,9 @@ public class JanusVariantCmdParameters extends ParamsManager {
                         Integer.toString(this.nPermutations)
                 )
         );
+        this.outputCvsFile = openOutputFile(line, OUTPUT_FILE_CSV_PARAM_NAME);
+        this.outputJsonFile = openOutputFile(line, OUTPUT_FILE_JSON_PARAM_NAME);
+        this.oKeep= line.hasOption(OUTPUT_KEEP_FLAG_NAME);
     }
 
     @Override
@@ -249,6 +270,32 @@ public class JanusVariantCmdParameters extends ParamsManager {
                         .longOpt("number-of-permutations")
                         .desc("number of permutations to perform during the statistical test. default: 1000")
                         .type(Double.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(OUTPUT_FILE_CSV_PARAM_NAME)
+                        .hasArg().argName("path")
+//                .isRequired(true) // Causing more problems than not
+                        .longOpt("out-csv-file")
+                        .desc("path to output CSV file")
+                        .type(String.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(OUTPUT_FILE_JSON_PARAM_NAME)
+                        .hasArg().argName("path")
+//                .isRequired(true) // Causing more problems than not
+                        .longOpt("out-json-file")
+                        .desc("path to output JSON file")
+                        .type(String.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(OUTPUT_KEEP_FLAG_NAME)
+//                .isRequired(true) // Causing more problems than not
+                        .longOpt("output-keep")
+                        .desc("keep irrelevant results in output")
+                        .type(Boolean.class)
                         .build()
         );
         return options;

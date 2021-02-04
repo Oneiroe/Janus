@@ -173,8 +173,7 @@ public class ReactiveCheckingOfflineQueryingCore implements Callable<MegaMatrixM
                 timeElapsed = Duration.between(start, end);
                 TracesTillSampling = currentTraceNumber;
             }
-            System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces +
-                    " [ estimated time left: " + Duration.ofMillis((numberOfTotalTraces - currentTraceNumber) / TracesTillSampling * timeElapsed.toMillis()) + " ] ");  // Status counter "current trace/total trace"
+            System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
         }
         System.out.println();
 
@@ -228,8 +227,7 @@ public class ReactiveCheckingOfflineQueryingCore implements Callable<MegaMatrixM
                 timeElapsed = Duration.between(start, end);
                 TracesTillSampling = currentTraceNumber;
             }
-            System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces +
-                    " [ estimated time left: " + Duration.ofMillis((numberOfTotalTraces - currentTraceNumber) / TracesTillSampling * timeElapsed.toMillis()) + " ] ");  // Status counter "current trace/total trace"
+            System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
         }
         System.out.println();
 

@@ -29,7 +29,7 @@ import java.util.NavigableMap;
 /**
  * Class to handle the output of Janus
  */
-public class JanusOutputManagementLauncher extends MinerFulOutputManagementLauncher {
+public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagementLauncher {
 
     /**
      * reads the terminal input parameters and launch the proper output functions

@@ -10,7 +10,6 @@ import minerful.reactive.params.JanusCheckingCmdParameters;
 import minerful.reactive.params.JanusVariantCmdParameters;
 import org.apache.log4j.Logger;
 
-import java.time.Duration;
 import java.util.*;
 
 /**
@@ -78,8 +77,9 @@ public class ReactiveVariantAnalysisCore {
 
     /**
      * Launcher for variant analysis of two logs
+     * @return
      */
-    public void check() {
+    public Map<String, Double> check() {
 //        PREPROCESSING
         double before = System.currentTimeMillis();
         //        1. Models differences
@@ -97,18 +97,14 @@ public class ReactiveVariantAnalysisCore {
         logger.info("Permutations processing...");
         PermutationResult pRes = permuteResults(lCoded, janusVariantParams.nPermutations, true);
         logger.info("Significance testing...");
-        significanceTest(pRes, pValueThreshold);
+        Map<String, Double> results = significanceTest(pRes, pValueThreshold);
         after = System.currentTimeMillis();
         logger.info("Permutation test time: " + (after - before));
-
-//        POSTPROCESSING / RESULTS
-        before = System.currentTimeMillis();
-
-        after = System.currentTimeMillis();
-        logger.info("Postprocessing time: " + (after - before));
+        return results;
     }
 
-    private void significanceTest(PermutationResult pRes, double pValueThreshold) {
+    private Map<String, Double> significanceTest(PermutationResult pRes, double pValueThreshold) {
+        Map<String, Double> result = new HashMap<String, Double>();
         for (int cIndex = 0; cIndex < pRes.constraints.length; cIndex++) {
             double initialreference = pRes.result1[0][cIndex] - pRes.result2[0][cIndex];
             for (int permutation = 1; permutation < pRes.result1.length; permutation++) {
@@ -119,8 +115,10 @@ public class ReactiveVariantAnalysisCore {
             }
             pRes.test[cIndex] = pRes.test[cIndex] / pRes.test.length;
 //            if (pRes.test[cIndex]<=pValueThreshold) System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
-            System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
+//            System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
+            result.put(pRes.constraints[cIndex], pRes.test[cIndex]);
         }
+        return result;
     }
 
     private PermutationResult permuteResults(Map<String, Map<String, Double>> lCoded, int nPermutations, boolean nanCheck) {
@@ -155,12 +153,12 @@ public class ReactiveVariantAnalysisCore {
 //        List uniqueTracesList = Arrays.asList(lCoded.keySet().toArray());
 
         /*
-        * Time notes (from SEPSIS):
-        * - self-time       320  sec
-        * - HashMap.get()   3.9  sec
-        * - shuffle()       0.98 sec
-        *
-        * */
+         * Time notes (from SEPSIS):
+         * - self-time       320  sec
+         * - HashMap.get()   3.9  sec
+         * - shuffle()       0.98 sec
+         *
+         * */
         for (int i = 0; i < nPermutations; i++) {
             System.out.print("\rPermutation: " + i + "/" + nPermutations);  // Status counter "current trace/total trace"
             int cIndex = 0;
@@ -189,7 +187,7 @@ public class ReactiveVariantAnalysisCore {
 
     private Map<String, Map<String, Double>> encodeLog(LogParser logParser, ProcessModel model) {
         Map<String, Map<String, Double>> result = new HashMap();
-        JanusCheckingCmdParameters janusCheckingParams = new JanusCheckingCmdParameters(false, 0, true);
+        JanusCheckingCmdParameters janusCheckingParams = new JanusCheckingCmdParameters(false, 0, true, true);
         ReactiveCheckingOfflineQueryingCore reactiveCheckingOfflineQueryingCore = new ReactiveCheckingOfflineQueryingCore(
                 0, logParser, janusCheckingParams, null, logParser.getTaskCharArchive(), null, model.bag);
         double before = System.currentTimeMillis();

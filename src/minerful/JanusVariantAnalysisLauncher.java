@@ -12,6 +12,7 @@ import minerful.reactive.variant.ReactiveVariantAnalysisCore;
 import minerful.utils.MessagePrinter;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * Class for launching Janus variant analysis on two logs
@@ -116,8 +117,9 @@ public class JanusVariantAnalysisLauncher {
 
     /**
      * analyse the DECLARE rules differences of the two input log with statistical guarantees
+     * @return
      */
-    public void checkVariants() {
+    public Map<String, Double> checkVariants() {
 //        1. Rules discovery for each log
         if (processSpecification1 == null || processSpecification2 == null) {
             double before = System.currentTimeMillis();
@@ -136,8 +138,8 @@ public class JanusVariantAnalysisLauncher {
         ReactiveVariantAnalysisCore variantAnalysisCore = new ReactiveVariantAnalysisCore(
                 eventLog1, processSpecification1, eventLog2, processSpecification2, janusParams
         );
-        variantAnalysisCore.check();
-//        TODO results
+
+        return variantAnalysisCore.check();
     }
 
 }

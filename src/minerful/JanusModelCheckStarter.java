@@ -13,7 +13,7 @@ import minerful.params.SystemCmdParameters;
 import minerful.params.ViewCmdParameters;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
 import minerful.reactive.checking.MegaMatrixMonster;
-import minerful.reactive.io.JanusOutputManagementLauncher;
+import minerful.reactive.io.JanusCheckingOutputManagementLauncher;
 import minerful.reactive.params.JanusCheckingCmdParameters;
 import minerful.utils.MessagePrinter;
 import org.apache.commons.cli.Option;
@@ -110,6 +110,6 @@ public class JanusModelCheckStarter extends MinerFulMinerStarter {
         MegaMatrixMonster evaluation = miFuCheLa.checkModel();
 
         TaskCharArchive alphabet = miFuCheLa.getProcessSpecification().getTaskCharArchive(); // note. The character mapping of the model is greater or equal to the log parser one because it is constructed starting from it
-        new JanusOutputManagementLauncher().manageCheckOutput(evaluation, viewParams, outParams, systemParams, alphabet);
+        new JanusCheckingOutputManagementLauncher().manageCheckOutput(evaluation, viewParams, outParams, systemParams, alphabet);
     }
 }

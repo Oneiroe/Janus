@@ -7,10 +7,13 @@ import minerful.io.params.OutputModelParameters;
 import minerful.params.SystemCmdParameters;
 import minerful.params.ViewCmdParameters;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
+import minerful.reactive.io.JanusVariantOutputManagementLauncher;
 import minerful.reactive.params.JanusVariantCmdParameters;
 import minerful.utils.MessagePrinter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+
+import java.util.Map;
 
 /**
  * Class to start from terminal Janus variant analysis
@@ -87,10 +90,10 @@ public class JanusVariantAnalysisStarter extends MinerFulMinerStarter {
 //                new InputModelParameters(
 //                        cmdLineOptions,
 //                        args);
-//        ViewCmdParameters viewParams =
-//                new ViewCmdParameters(
-//                        cmdLineOptions,
-//                        args);
+        ViewCmdParameters viewParams =
+                new ViewCmdParameters(
+                        cmdLineOptions,
+                        args);
         JanusVariantCmdParameters janusParams =
                 new JanusVariantCmdParameters(
                         cmdLineOptions,
@@ -104,9 +107,9 @@ public class JanusVariantAnalysisStarter extends MinerFulMinerStarter {
         }
 
         JanusVariantAnalysisLauncher variantAnalysis = new JanusVariantAnalysisLauncher(janusParams, systemParams);
-        variantAnalysis.checkVariants();
-//        TODO output/post processing
+        Map<String, Double> result = variantAnalysis.checkVariants();
 
+        new JanusVariantOutputManagementLauncher().manageVariantOutput(result, viewParams, janusParams, systemParams, null);
     }
 
 }
