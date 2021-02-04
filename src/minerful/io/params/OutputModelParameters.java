@@ -26,6 +26,8 @@ public class OutputModelParameters extends ParamsManager {
 	public static final String SAVE_SKIMMED_XML_WEIGHTED_AUTOMATON_PARAM_NAME = "autoReplayTrimXML";
 	public static final String FOLDER_FOR_SAVING_XML_WEIGHTED_SUBAUTOMATA_PARAM_NAME = "subautosReplayXML";
 	public static final String ENCODE_OUTPUT_TASKS_FLAG = "encodeTasksFlag";
+	public static final String DETAILS_LEVEL_PARAM_NAME = "detailsLevel";
+	public static final String DEFAULT_DETAILS_LEVEL = "both";
 
 	/** File in which discovered constraints are printed in CSV format. Keep it equal to <code>null</code> for avoiding such print-out. */
 	public File fileToSaveConstraintsAsCSV;
@@ -53,6 +55,9 @@ public class OutputModelParameters extends ParamsManager {
 	public CsvEncoder.PRINT_OUT_ELEMENT[] csvColumnsToPrint = CsvEncoder.PRINT_OUT_ELEMENT.values();
 	/** Flag if the output tasks/events should be encoded (e.g., A B C D E...) or not (original names as in log)  **/
 	public boolean encodeOutputTasks;
+	/** parameter to set to output only the traces result, the aggregated measures, or both. default= both  **/
+	public String detailsLevel;
+
 
 	public OutputModelParameters() {
     	this.fileToSaveConstraintsAsCSV = null;
@@ -67,6 +72,7 @@ public class OutputModelParameters extends ParamsManager {
     	this.fileToSaveAsXML = null;
     	this.fileToSaveAsJSON = null;
 		this.encodeOutputTasks = false;
+		this.detailsLevel = DEFAULT_DETAILS_LEVEL;
     }
 
     public OutputModelParameters(Options options, String[] args) {
@@ -106,6 +112,8 @@ public class OutputModelParameters extends ParamsManager {
         this.folderToSaveXmlFilesForPartialAutomata = openOutputDir(line, FOLDER_FOR_SAVING_XML_WEIGHTED_SUBAUTOMATA_PARAM_NAME);
 
         this.encodeOutputTasks = line.hasOption(ENCODE_OUTPUT_TASKS_FLAG);
+
+        this.detailsLevel = line.getOptionValue(DETAILS_LEVEL_PARAM_NAME,DEFAULT_DETAILS_LEVEL);
     }
 
 	@Override
@@ -232,6 +240,14 @@ public class OutputModelParameters extends ParamsManager {
         		.type(Boolean.class)
         		.build()
         		);
+		options.addOption(
+				Option.builder(DETAILS_LEVEL_PARAM_NAME)
+						.hasArg().argName("name")
+						.longOpt("details-level")
+						.desc("levels of details of the output. {trace, aggregated, both}. Default: both")
+						.type(String.class)
+						.build()
+		);
 
 		return options;
 	}

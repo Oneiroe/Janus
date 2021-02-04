@@ -10,6 +10,7 @@ public class JanusCheckingCmdParameters extends ParamsManager {
     public static final String NaN_TRACE_SUBSTITUTE_FLAG_PARAM_NAME = "nanTraceSubstitute";
     public static final String NaN_TRACE_SUBSTITUTE_VALUE_PARAM_NAME = "nanTraceValue";
     public static final String NaN_LOG_SKIP_FLAG_PARAM_NAME = "nanLogSkip";
+    public static final String LITE_FLAG_PARAM_NAME = "lite";
 
     /**
      * decide if a NaN should be kept as-is in a measure-trace evaluation should be substituted with a certain value
@@ -20,12 +21,17 @@ public class JanusCheckingCmdParameters extends ParamsManager {
      * decide if a NaN should be skipped or not during the computation of the log level aggregated measures
      */
     public boolean nanLogSkipFlag;
+    /**
+     * decide if to use the MEgaMatrixMonster (details for singles events) or the MegaMatrixLite (space reduction, only traces results)
+     */
+    public boolean liteFlag;
 
     public JanusCheckingCmdParameters() {
         super();
         this.nanTraceSubstituteFlag = false;
         this.nanTraceSubstituteValue = 0;
         this.nanLogSkipFlag = false;
+        this.liteFlag = false;
     }
 
     public JanusCheckingCmdParameters(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
@@ -33,6 +39,14 @@ public class JanusCheckingCmdParameters extends ParamsManager {
         this.nanTraceSubstituteFlag = nanTraceSubstituteFlag;
         this.nanTraceSubstituteValue = nanTraceSubstituteValue;
         this.nanLogSkipFlag = nanLogSkipFlag;
+    }
+
+    public JanusCheckingCmdParameters(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag, boolean liteFlag) {
+        super();
+        this.nanTraceSubstituteFlag = nanTraceSubstituteFlag;
+        this.nanTraceSubstituteValue = nanTraceSubstituteValue;
+        this.nanLogSkipFlag = nanLogSkipFlag;
+        this.liteFlag = liteFlag;
     }
 
     public JanusCheckingCmdParameters(Options options, String[] args) {
@@ -71,6 +85,14 @@ public class JanusCheckingCmdParameters extends ParamsManager {
         this.nanLogSkipFlag = nanLogSkipFlag;
     }
 
+    public boolean isLiteFlag() {
+        return liteFlag;
+    }
+
+    public void setLiteFlag(boolean liteFlag) {
+        this.liteFlag = liteFlag;
+    }
+
     @Override
     protected void setup(CommandLine line) {
         this.nanTraceSubstituteFlag = line.hasOption(NaN_TRACE_SUBSTITUTE_FLAG_PARAM_NAME);
@@ -80,6 +102,7 @@ public class JanusCheckingCmdParameters extends ParamsManager {
                 )
         );
         this.nanLogSkipFlag = line.hasOption(NaN_LOG_SKIP_FLAG_PARAM_NAME);
+        this.liteFlag=line.hasOption(LITE_FLAG_PARAM_NAME);
     }
 
     @Override
@@ -116,6 +139,12 @@ public class JanusCheckingCmdParameters extends ParamsManager {
                 Option.builder(NaN_LOG_SKIP_FLAG_PARAM_NAME)
                         .longOpt("nan-log-skip")
                         .desc("Flag to skip or not NaN values when computing log measures")
+                        .build()
+        );
+        options.addOption(
+                Option.builder(LITE_FLAG_PARAM_NAME)
+                        .longOpt("lite-flag")
+                        .desc("Flag to use the space saving data structure")
                         .build()
         );
         return options;

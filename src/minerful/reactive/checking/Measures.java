@@ -56,177 +56,436 @@ public class Measures {
     //    	TODO improve this hard-code shame
     public static int MEASURE_NUM = MEASURE_NAMES.length;
 
-    /**
-     * Generic method to return  the trace measure for a specific measure.
-     * <p>
-     * The usage of this function is intended for batch measurement involving all measures, to avoid to call them one by one.
-     *
-     * @param reactiveConstraintEvaluation
-     * @param measureIndex
-     * @return
-     */
+
     public static double getTraceMeasure(byte[] reactiveConstraintEvaluation, int measureIndex, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
-        //    	TODO improve this hard-code shame
-        double result = 0;
-        switch (measureIndex) {
-            case 0:
-//				support
-                result = getTraceSupport(reactiveConstraintEvaluation);
-                break;
-            case 1:
-//				confidence
-                result = getTraceConfidence(reactiveConstraintEvaluation);
-                break;
-            case 2:
-//				recall
-                result = getTraceRecall(reactiveConstraintEvaluation);
-                break;
-            case 3:
-//				Lovinger
-                result = getTraceLovinger(reactiveConstraintEvaluation);
-                break;
-            case 4:
-//				Specificity
-                result = getTraceSpecificity(reactiveConstraintEvaluation);
-                break;
-            case 5:
-//				Accuracy
-                result = getTraceAccuracy(reactiveConstraintEvaluation);
-                break;
-            case 6:
-//				Accuracy
-                result = getTraceLift(reactiveConstraintEvaluation);
-                break;
-            case 7:
-//				Leverage
-                result = getTraceLeverage(reactiveConstraintEvaluation);
-                break;
-            case 8:
-//				Compliance
-                result = getTraceCompliance(reactiveConstraintEvaluation);
-                break;
-            case 9:
-//				Odds Ratio
-                result = getTraceOddsRatio(reactiveConstraintEvaluation);
-                break;
-            case 10:
-//				Gini Index
-                result = getTraceGiniIndex(reactiveConstraintEvaluation);
-                break;
-            case 11:
-//				Certainty factor
-                result = getTraceCertaintyFactor(reactiveConstraintEvaluation);
-                break;
-            case 12:
-//				Coverage
-                result = getTraceCoverage(reactiveConstraintEvaluation);
-                break;
-            case 13:
-//				Prevalence
-                result = getTracePrevalence(reactiveConstraintEvaluation);
-                break;
-            case 14:
-//				Added Value
-                result = getTraceAddedValue(reactiveConstraintEvaluation);
-                break;
-            case 15:
-//				Relative Risk
-                result = getTraceRelativeRisk(reactiveConstraintEvaluation);
-                break;
-            case 16:
-//				Jaccard
-                result = getTraceJaccard(reactiveConstraintEvaluation);
-                break;
-            case 17:
-//				Ylue Q
-                result = getTraceYlueQ(reactiveConstraintEvaluation);
-                break;
-            case 18:
-//				Ylue Y
-                result = getTraceYlueY(reactiveConstraintEvaluation);
-                break;
-            case 19:
-//				Klosgen
-                result = getTraceKlosgen(reactiveConstraintEvaluation);
-                break;
-            case 20:
-//				Conviction
-                result = getTraceConviction(reactiveConstraintEvaluation);
-                break;
-            case 21:
-//				Interestingness Weighting Dependency
-                result = getTraceInterestingnessWeightingDependency(reactiveConstraintEvaluation);
-                break;
-            case 22:
-//				Collective Strength
-                result = getTraceCollectiveStrength(reactiveConstraintEvaluation);
-                break;
-            case 23:
-//				Laplace Correction
-                result = getTraceLaplaceCorrection(reactiveConstraintEvaluation);
-                break;
-            case 24:
-//				J Measure
-                result = getTraceJMeasure(reactiveConstraintEvaluation);
-                break;
-            case 25:
-//				One-way Support
-                result = getTraceOneWaySupport(reactiveConstraintEvaluation);
-                break;
-            case 26:
-//				Two-way Support
-                result = getTraceTwoWaySupport(reactiveConstraintEvaluation);
-                break;
-            case 27:
-//				Two-way Support Variation
-                result = getTraceTwoWaySupportVariation(reactiveConstraintEvaluation);
-                break;
-            case 28:
-//				Linear Correlation Coefficient
-                result = getTraceLinearCorrelationCoefficient(reactiveConstraintEvaluation);
-                break;
-            case 29:
-//				Piatetsky-Shapiro
-                result = getTracePiatetskyShapiro(reactiveConstraintEvaluation);
-                break;
-            case 30:
-//				Cosine
-                result = getTraceCosine(reactiveConstraintEvaluation);
-                break;
-            case 31:
-//				Information Gain
-                result = getTraceInformationGain(reactiveConstraintEvaluation);
-                break;
-            case 32:
-//				Sebag-Schoenauer
-                result = getTraceSebagSchoenauer(reactiveConstraintEvaluation);
-                break;
-            case 33:
-//				Least Contradiction
-                result = getTraceLeastContradiction(reactiveConstraintEvaluation);
-                break;
-            case 34:
-//				Odd Multiplier
-                result = getTraceOddMultiplier(reactiveConstraintEvaluation);
-                break;
-            case 35:
-//				Example and Counterexample Rate
-                result = getTraceExampleCounterexampleRate(reactiveConstraintEvaluation);
-                break;
-            case 36:
-//				Zhang
-                result = getTraceZhang(reactiveConstraintEvaluation);
-                break;
-        }
+        double[] traceProbabilities = getTraceProbabilities(reactiveConstraintEvaluation);
+
+        double result = getTraceMeasure(traceProbabilities, measureIndex);
 
         // according to the input setting, substitute the measure value if it is NaN
         if (nanTraceSubstituteFlag && Double.isNaN(result))
             return nanTraceSubstituteValue;
 
         return result;
+    }
+
+    public static double getTraceMeasure(int[] traceEvaluation, int measureIndex, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
+        double[] traceProbabilities = getTraceProbabilities(traceEvaluation);
+
+        double result = getTraceMeasure(traceProbabilities, measureIndex);
+
+        // according to the input setting, substitute the measure value if it is NaN
+        if (nanTraceSubstituteFlag && Double.isNaN(result))
+            return nanTraceSubstituteValue;
+
+        return result;
+    }
+
+//    /**
+//     * LEGACY Generic method to return  the trace measure for a specific measure using the single events evaluation.
+//     * <p>
+//     * The usage of this function is intended for batch measurement involving all measures, to avoid to call them one by one.
+//     *
+//     * @param reactiveConstraintEvaluation
+//     * @param measureIndex
+//     * @return
+//     */
+//    @Deprecated
+//    public static double getTraceMeasure(byte[] reactiveConstraintEvaluation, int measureIndex, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
+//        //    	TODO improve this hard-code shame
+//        double result = 0;
+//        switch (measureIndex) {
+//            case 0:
+////				support
+//                result = getTraceSupport(reactiveConstraintEvaluation);
+//                break;
+//            case 1:
+////				confidence
+//                result = getTraceConfidence(reactiveConstraintEvaluation);
+//                break;
+//            case 2:
+////				recall
+//                result = getTraceRecall(reactiveConstraintEvaluation);
+//                break;
+//            case 3:
+////				Lovinger
+//                result = getTraceLovinger(reactiveConstraintEvaluation);
+//                break;
+//            case 4:
+////				Specificity
+//                result = getTraceSpecificity(reactiveConstraintEvaluation);
+//                break;
+//            case 5:
+////				Accuracy
+//                result = getTraceAccuracy(reactiveConstraintEvaluation);
+//                break;
+//            case 6:
+////				Accuracy
+//                result = getTraceLift(reactiveConstraintEvaluation);
+//                break;
+//            case 7:
+////				Leverage
+//                result = getTraceLeverage(reactiveConstraintEvaluation);
+//                break;
+//            case 8:
+////				Compliance
+//                result = getTraceCompliance(reactiveConstraintEvaluation);
+//                break;
+//            case 9:
+////				Odds Ratio
+//                result = getTraceOddsRatio(reactiveConstraintEvaluation);
+//                break;
+//            case 10:
+////				Gini Index
+//                result = getTraceGiniIndex(reactiveConstraintEvaluation);
+//                break;
+//            case 11:
+////				Certainty factor
+//                result = getTraceCertaintyFactor(reactiveConstraintEvaluation);
+//                break;
+//            case 12:
+////				Coverage
+//                result = getTraceCoverage(reactiveConstraintEvaluation);
+//                break;
+//            case 13:
+////				Prevalence
+//                result = getTracePrevalence(reactiveConstraintEvaluation);
+//                break;
+//            case 14:
+////				Added Value
+//                result = getTraceAddedValue(reactiveConstraintEvaluation);
+//                break;
+//            case 15:
+////				Relative Risk
+//                result = getTraceRelativeRisk(reactiveConstraintEvaluation);
+//                break;
+//            case 16:
+////				Jaccard
+//                result = getTraceJaccard(reactiveConstraintEvaluation);
+//                break;
+//            case 17:
+////				Ylue Q
+//                result = getTraceYlueQ(reactiveConstraintEvaluation);
+//                break;
+//            case 18:
+////				Ylue Y
+//                result = getTraceYlueY(reactiveConstraintEvaluation);
+//                break;
+//            case 19:
+////				Klosgen
+//                result = getTraceKlosgen(reactiveConstraintEvaluation);
+//                break;
+//            case 20:
+////				Conviction
+//                result = getTraceConviction(reactiveConstraintEvaluation);
+//                break;
+//            case 21:
+////				Interestingness Weighting Dependency
+//                result = getTraceInterestingnessWeightingDependency(reactiveConstraintEvaluation);
+//                break;
+//            case 22:
+////				Collective Strength
+//                result = getTraceCollectiveStrength(reactiveConstraintEvaluation);
+//                break;
+//            case 23:
+////				Laplace Correction
+//                result = getTraceLaplaceCorrection(reactiveConstraintEvaluation);
+//                break;
+//            case 24:
+////				J Measure
+//                result = getTraceJMeasure(reactiveConstraintEvaluation);
+//                break;
+//            case 25:
+////				One-way Support
+//                result = getTraceOneWaySupport(reactiveConstraintEvaluation);
+//                break;
+//            case 26:
+////				Two-way Support
+//                result = getTraceTwoWaySupport(reactiveConstraintEvaluation);
+//                break;
+//            case 27:
+////				Two-way Support Variation
+//                result = getTraceTwoWaySupportVariation(reactiveConstraintEvaluation);
+//                break;
+//            case 28:
+////				Linear Correlation Coefficient
+//                result = getTraceLinearCorrelationCoefficient(reactiveConstraintEvaluation);
+//                break;
+//            case 29:
+////				Piatetsky-Shapiro
+//                result = getTracePiatetskyShapiro(reactiveConstraintEvaluation);
+//                break;
+//            case 30:
+////				Cosine
+//                result = getTraceCosine(reactiveConstraintEvaluation);
+//                break;
+//            case 31:
+////				Information Gain
+//                result = getTraceInformationGain(reactiveConstraintEvaluation);
+//                break;
+//            case 32:
+////				Sebag-Schoenauer
+//                result = getTraceSebagSchoenauer(reactiveConstraintEvaluation);
+//                break;
+//            case 33:
+////				Least Contradiction
+//                result = getTraceLeastContradiction(reactiveConstraintEvaluation);
+//                break;
+//            case 34:
+////				Odd Multiplier
+//                result = getTraceOddMultiplier(reactiveConstraintEvaluation);
+//                break;
+//            case 35:
+////				Example and Counterexample Rate
+//                result = getTraceExampleCounterexampleRate(reactiveConstraintEvaluation);
+//                break;
+//            case 36:
+////				Zhang
+//                result = getTraceZhang(reactiveConstraintEvaluation);
+//                break;
+//        }
+//
+//        // according to the input setting, substitute the measure value if it is NaN
+//        if (nanTraceSubstituteFlag && Double.isNaN(result))
+//            return nanTraceSubstituteValue;
+//
+//        return result;
+//
+//    }
+
+
+    /**
+     * Generic method to return  the trace measure for a specific measure using the already computed trace probabilities.
+     * <p>
+     * The usage of this function is intended for batch measurement involving all measures, to avoid to call them one by one.
+     *
+     * @param traceProbabilities
+     * @param measureIndex
+     * @return
+     */
+    public static double getTraceMeasure(double[] traceProbabilities, int measureIndex) {
+        //    	TODO improve this hard-code shame
+        double result = 0;
+        switch (measureIndex) {
+            case 0:
+//				support
+                result = getTraceSupport(traceProbabilities);
+                break;
+            case 1:
+//				confidence
+                result = getTraceConfidence(traceProbabilities);
+                break;
+            case 2:
+//				recall
+                result = getTraceRecall(traceProbabilities);
+                break;
+            case 3:
+//				Lovinger
+                result = getTraceLovinger(traceProbabilities);
+                break;
+            case 4:
+//				Specificity
+                result = getTraceSpecificity(traceProbabilities);
+                break;
+            case 5:
+//				Accuracy
+                result = getTraceAccuracy(traceProbabilities);
+                break;
+            case 6:
+//				Accuracy
+                result = getTraceLift(traceProbabilities);
+                break;
+            case 7:
+//				Leverage
+                result = getTraceLeverage(traceProbabilities);
+                break;
+            case 8:
+//				Compliance
+                result = getTraceCompliance(traceProbabilities);
+                break;
+            case 9:
+//				Odds Ratio
+                result = getTraceOddsRatio(traceProbabilities);
+                break;
+            case 10:
+//				Gini Index
+                result = getTraceGiniIndex(traceProbabilities);
+                break;
+            case 11:
+//				Certainty factor
+                result = getTraceCertaintyFactor(traceProbabilities);
+                break;
+            case 12:
+//				Coverage
+                result = getTraceCoverage(traceProbabilities);
+                break;
+            case 13:
+//				Prevalence
+                result = getTracePrevalence(traceProbabilities);
+                break;
+            case 14:
+//				Added Value
+                result = getTraceAddedValue(traceProbabilities);
+                break;
+            case 15:
+//				Relative Risk
+                result = getTraceRelativeRisk(traceProbabilities);
+                break;
+            case 16:
+//				Jaccard
+                result = getTraceJaccard(traceProbabilities);
+                break;
+            case 17:
+//				Ylue Q
+                result = getTraceYlueQ(traceProbabilities);
+                break;
+            case 18:
+//				Ylue Y
+                result = getTraceYlueY(traceProbabilities);
+                break;
+            case 19:
+//				Klosgen
+                result = getTraceKlosgen(traceProbabilities);
+                break;
+            case 20:
+//				Conviction
+                result = getTraceConviction(traceProbabilities);
+                break;
+            case 21:
+//				Interestingness Weighting Dependency
+                result = getTraceInterestingnessWeightingDependency(traceProbabilities);
+                break;
+            case 22:
+//				Collective Strength
+                result = getTraceCollectiveStrength(traceProbabilities);
+                break;
+            case 23:
+//				Laplace Correction
+                result = getTraceLaplaceCorrection(traceProbabilities);
+                break;
+            case 24:
+//				J Measure
+                result = getTraceJMeasure(traceProbabilities);
+                break;
+            case 25:
+//				One-way Support
+                result = getTraceOneWaySupport(traceProbabilities);
+                break;
+            case 26:
+//				Two-way Support
+                result = getTraceTwoWaySupport(traceProbabilities);
+                break;
+            case 27:
+//				Two-way Support Variation
+                result = getTraceTwoWaySupportVariation(traceProbabilities);
+                break;
+            case 28:
+//				Linear Correlation Coefficient
+                result = getTraceLinearCorrelationCoefficient(traceProbabilities);
+                break;
+            case 29:
+//				Piatetsky-Shapiro
+                result = getTracePiatetskyShapiro(traceProbabilities);
+                break;
+            case 30:
+//				Cosine
+                result = getTraceCosine(traceProbabilities);
+                break;
+            case 31:
+//				Information Gain
+                result = getTraceInformationGain(traceProbabilities);
+                break;
+            case 32:
+//				Sebag-Schoenauer
+                result = getTraceSebagSchoenauer(traceProbabilities);
+                break;
+            case 33:
+//				Least Contradiction
+                result = getTraceLeastContradiction(traceProbabilities);
+                break;
+            case 34:
+//				Odd Multiplier
+                result = getTraceOddMultiplier(traceProbabilities);
+                break;
+            case 35:
+//				Example and Counterexample Rate
+                result = getTraceExampleCounterexampleRate(traceProbabilities);
+                break;
+            case 36:
+//				Zhang
+                result = getTraceZhang(traceProbabilities);
+                break;
+        }
+
+        return result;
 
     }
 
+
+    /**
+     * From the events evaluation, retrieve the probabilities of both activator and target (plus their negatives) formula of a reactive constraint.
+     * * i.e. P(A),P(T),P(¬A),P(¬T)
+     * and the probabilities of the combinations of  activator and target formula of a reactive constraint.
+     * * i.e. P(¬A¬T),P(A¬T),P(¬AT),P(¬A¬T)
+     * and the lenght of the trace
+     *
+     * @param reactiveConstraintEvaluation
+     * @return
+     */
+    public static double[] getTraceProbabilities(byte[] reactiveConstraintEvaluation) {
+        double[] result = new double[9];
+        if (reactiveConstraintEvaluation.length == 0) return result;
+
+        // result { 0: activation, 1: target, 2: no activation, 3: no target}
+        // result {4: 00, 5: 01, , 6: 10, 7:11}
+        for (byte eval : reactiveConstraintEvaluation) {
+            result[0] += eval / 2; // the activator is true if the byte is >1, i.e. 2 or 3
+            result[1] += eval % 2; // the target is true if the byte is odd, i,e, 1 or 3
+            result[eval + 4]++;
+        }
+        double l = reactiveConstraintEvaluation.length;
+        result[2] = l - result[0];
+        result[3] = l - result[1];
+
+        result[0] /= l;
+        result[1] /= l;
+        result[2] /= l;
+        result[3] /= l;
+        result[4] /= l;
+        result[5] /= l;
+        result[6] /= l;
+        result[7] /= l;
+        result[8] = l;
+        return result;
+    }
+
+    /**
+     * From the trace evaluation, retrieve the probabilities of both activator and target (plus their negatives) formula of a reactive constraint.
+     * * i.e. P(A),P(T),P(¬A),P(¬T)
+     * and the probabilities of the combinations of  activator and target formula of a reactive constraint.
+     * * i.e. P(¬A¬T),P(A¬T),P(¬AT),P(¬A¬T)
+     * and the lenght of the trace
+     *
+     * @param traceEvaluation
+     * @return
+     */
+    public static double[] getTraceProbabilities(int[] traceEvaluation) {
+        double[] result = new double[9];
+        if (traceEvaluation.length == 0) return result;
+
+        double l = traceEvaluation[8];
+
+        result[0] = traceEvaluation[0] / l;
+        result[1] = traceEvaluation[1] / l;
+        result[2] = traceEvaluation[2] / l;
+        result[3] = traceEvaluation[3] / l;
+        result[4] = traceEvaluation[4] / l;
+        result[5] = traceEvaluation[5] / l;
+        result[6] = traceEvaluation[6] / l;
+        result[7] = traceEvaluation[7] / l;
+        result[8] = l;
+        return result;
+    }
 
     /**
      * Retrieve the probabilities of both activator and target (plus their negatives) formula of a reactive constraint.
@@ -317,6 +576,27 @@ public class Measures {
     }
 
     /**
+     * retrieve the support measure of a constraint for a given trace.
+     * <p>
+     * The support measure is defined as:
+     * Supp(A->T) = P(A' intersection T') =
+     *
+     * @return
+     */
+    public static double getTraceSupport(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        return pAT;
+    }
+
+    /**
      * retrieve the confidence of a constraint for a given trace.
      * <p>
      * The confidence measure is defined as:
@@ -348,6 +628,29 @@ public class Measures {
 //        else {
 //            return result;
 //        }
+    }
+
+    /**
+     * retrieve the confidence of a constraint for a given trace.
+     * <p>
+     * The confidence measure is defined as:
+     * Conf(A->T) = P(T'|A') =  P(T' intersection A') / P(A') = Supp(A'->T')/P(A')
+     *
+     * @return
+     */
+    public static double getTraceConfidence(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        double result = pAT / pA;
+
+        return result;
     }
 
     /**
@@ -385,6 +688,29 @@ public class Measures {
     }
 
     /**
+     * retrieve the recall of a constraint for a given trace.
+     * <p>
+     * The recall measure is defined as:
+     * Recall(A->T) = P(A'|T') =  P(T' intersection A') / P(T') = Supp(A'->T')/P(T')
+     *
+     * @return
+     */
+    public static double getTraceRecall(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        double result = pAT / pT;
+
+        return result;
+    }
+
+    /**
      * Retrieve the Lovinger's Measure of a constraint for a given trace.
      * <p>
      * The Lovinger's measure is defined as:
@@ -403,6 +729,30 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = 1 - ((pA * pnT) / (pAnT));
+
+
+        return result;
+    }
+
+    /**
+     * Retrieve the Lovinger's Measure of a constraint for a given trace.
+     * <p>
+     * The Lovinger's measure is defined as:
+     * Lov(A->T) = 1 − ((P(A)P(¬T))/P(A¬T)))
+     *
+     * @return
+     */
+    public static double getTraceLovinger(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
 
         double result = 1 - ((pA * pnT) / (pAnT));
 
@@ -443,6 +793,29 @@ public class Measures {
     }
 
     /**
+     * Retrieve the Specificity Measure of a constraint for a given trace.
+     * <p>
+     * The Specificity measure is defined as:
+     * Specificity(A->T) = P(¬T'|¬A') = (Conf(¬A'->¬T'))
+     *
+     * @return
+     */
+    public static double getTraceSpecificity(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        double result = pnAnT / pnA;
+
+        return result;
+    }
+
+    /**
      * Retrieve the Accuracy Measure of a constraint for a given trace.
      * <p>
      * The Accuracy measure is defined as:
@@ -464,6 +837,29 @@ public class Measures {
 //        double pAT = pIntersection[3];
 //
 //        return pAT + pnAnT;
+    }
+
+    /**
+     * Retrieve the Accuracy Measure of a constraint for a given trace.
+     * <p>
+     * The Accuracy measure is defined as:
+     * Accuracy(A->T) = P(T' intersection A') + P(¬T' intersection ¬A') = (Supp(A'->T') + Supp(¬A'->¬T'))
+     *
+     * @return
+     */
+    public static double getTraceAccuracy(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        double result = pAT + pnAnT;
+
+        return result;
     }
 
     /**
@@ -498,6 +894,29 @@ public class Measures {
 //        else {
 //            return result;
 //        }
+    }
+
+    /**
+     * Retrieve the Lift Measure of a constraint for a given trace.
+     * <p>
+     * The Lift measure is defined as:
+     * Specificity(A->T) = P(T'|A') / P(T') = (Conf(A'->T') / P(T'))
+     *
+     * @return
+     */
+    public static double getTraceLift(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        double result = pAT / (pA * pT);
+
+        return result;
     }
 
     /**
@@ -536,6 +955,29 @@ public class Measures {
     }
 
     /**
+     * Retrieve the Leverage Measure of a constraint for a given trace.
+     * <p>
+     * The Leverage measure is defined as:
+     * Specificity(A->T) = P(T'|A') - P(A')P(T') = (Conf(A'->T') - P(A')P(T'))
+     *
+     * @return
+     */
+    public static double getTraceLeverage(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        double result = (pAT / pA) - pA * pT;
+
+        return result;
+    }
+
+    /**
      * ORIGINAL MEASURE! Retrieve the Compliance Measure of a constraint for a given trace.
      * We developed this measure to emulate the original support intuition,
      * i.e., the percentage of the trace which do not conflict with the constraint.
@@ -570,6 +1012,32 @@ public class Measures {
     }
 
     /**
+     * ORIGINAL MEASURE! Retrieve the Compliance Measure of a constraint for a given trace.
+     * We developed this measure to emulate the original support intuition,
+     * i.e., the percentage of the trace which do not conflict with the constraint.
+     * Thus we count all the points except the active violations (activation true but target false)
+     * <p>
+     * The Compliance measure is defined as:
+     * Compliance(A->T) = 1 - P(A' intersection ¬T')
+     *
+     * @return
+     */
+    public static double getTraceCompliance(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        double result = 1 - pAnT;
+
+        return result;
+    }
+
+    /**
      * Retrieve the Odds Ratio Measure of a constraint for a given trace.
      * <p>
      * The Odds Ratio measure is defined as:
@@ -588,6 +1056,29 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = (pAT * pnAnT) / (pAnT * pnAT);
+
+        return result;
+    }
+
+    /**
+     * Retrieve the Odds Ratio Measure of a constraint for a given trace.
+     * <p>
+     * The Odds Ratio measure is defined as:
+     * OddsRatio(A->T) = ( P(A' intersection T') P(¬A' intersection ¬T') ) / ( P(A' intersection ¬T') P(¬A' intersection T') )
+     *
+     * @return
+     */
+    public static double getTraceOddsRatio(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
 
         double result = (pAT * pnAnT) / (pAnT * pnAT);
 
@@ -620,6 +1111,29 @@ public class Measures {
     }
 
     /**
+     * Retrieve the Gini Index Measure of a constraint for a given trace.
+     * <p>
+     * The Gini Index measure is defined as:
+     * GiniIndex(A->T) = P(A) ∗ {P(B|A)^2 + P(¬B|A)^2} + P(¬A) ∗ {P(B|¬A)^2 * +P(¬B|¬A)^2} − P(B)^2 − P(¬B)^2
+     *
+     * @return
+     */
+    public static double getTraceGiniIndex(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        double result = pA * (Math.pow((pAT / pA), 2) + Math.pow(pAnT / pA, 2)) + pnA * (Math.pow(pnAT / pnA, 2) + Math.pow(pnAnT / pnA, 2)) - Math.pow(pT, 2) - Math.pow(pnT, 2);
+
+        return result;
+    }
+
+    /**
      * Retrieve the Certainty Factor Measure of a constraint for a given trace.
      * <p>
      * The Certainty Factor measure is defined as:
@@ -638,6 +1152,29 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = ((pAT / pA) - pT) / (1 - pT);
+
+        return result;
+    }
+
+    /**
+     * Retrieve the Certainty Factor Measure of a constraint for a given trace.
+     * <p>
+     * The Certainty Factor measure is defined as:
+     * CertaintyFactor(A->T) = (P(B|A) − P(B))/(1 − P(B))
+     *
+     * @return
+     */
+    public static double getTraceCertaintyFactor(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
 
         double result = ((pAT / pA) - pT) / (1 - pT);
 
@@ -670,6 +1207,29 @@ public class Measures {
     }
 
     /**
+     * Retrieve the Coverage Measure of a constraint for a given trace.
+     * <p>
+     * The coverage measure is defined as:
+     * Coverage(A->T) = P(A)
+     *
+     * @return
+     */
+    public static double getTraceCoverage(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        double result = pA;
+
+        return result;
+    }
+
+    /**
      * Retrieve the Prevalence Measure of a constraint for a given trace.
      * <p>
      * The prevalence measure is defined as:
@@ -688,6 +1248,29 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = pT;
+
+        return result;
+    }
+
+    /**
+     * Retrieve the Prevalence Measure of a constraint for a given trace.
+     * <p>
+     * The prevalence measure is defined as:
+     * Prevalence(A->T) = P(T)
+     *
+     * @return
+     */
+    public static double getTracePrevalence(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
 
         double result = pT;
 
@@ -720,6 +1303,29 @@ public class Measures {
     }
 
     /**
+     * Retrieve the Added Value Measure of a constraint for a given trace.
+     * <p>
+     * The Added Value measure is defined as:
+     * AddedValue(A->T) = P(T|A)-P(T) = P(AT)/P(A) - P(T)
+     *
+     * @return
+     */
+    public static double getTraceAddedValue(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        double result = pAT / pA - pT;
+
+        return result;
+    }
+
+    /**
      * Retrieve the Relative Risk Measure of a constraint for a given trace.
      * <p>
      * The Relative Risk measure is defined as:
@@ -738,6 +1344,29 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = (pAT / pA) / (pnAT / pnA);
+
+        return result;
+    }
+
+    /**
+     * Retrieve the Relative Risk Measure of a constraint for a given trace.
+     * <p>
+     * The Relative Risk measure is defined as:
+     * RelativeRisk(A->T) = P(T|A)/P(T|¬A) = ( P(AT)/P(A) ) / ( P(¬AT)/P(¬A) )
+     *
+     * @return
+     */
+    public static double getTraceRelativeRisk(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
 
         double result = (pAT / pA) / (pnAT / pnA);
 
@@ -770,6 +1399,29 @@ public class Measures {
     }
 
     /**
+     * Retrieve the Jaccard Measure of a constraint for a given trace.
+     * <p>
+     * The Jaccard measure is defined as:
+     * Jaccard(A->T) = P(AT)/ ( P(A)+P(T) - P(AT) )
+     *
+     * @return
+     */
+    public static double getTraceJaccard(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        double result = pAT / (pA + pT - pAT);
+
+        return result;
+    }
+
+    /**
      * Retrieve the Ylue Q Measure of a constraint for a given trace.
      * <p>
      * The Ylue Q measure is defined as:
@@ -788,6 +1440,29 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = (pAT * pnAnT - pAnT * pnAT) / (pAT * pnAnT + pAnT * pnAT);
+
+        return result;
+    }
+
+    /**
+     * Retrieve the Ylue Q Measure of a constraint for a given trace.
+     * <p>
+     * The Ylue Q measure is defined as:
+     * YlueQ(A->T) = ( P(AT) P(¬A¬T) - P(A¬T)P(¬AT) ) / ( P(AT) P(¬A¬T) + P(A¬T)P(¬AT) )
+     *
+     * @return
+     */
+    public static double getTraceYlueQ(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
 
         double result = (pAT * pnAnT - pAnT * pnAT) / (pAT * pnAnT + pAnT * pnAT);
 
@@ -820,6 +1495,29 @@ public class Measures {
     }
 
     /**
+     * Retrieve the Ylue Y Measure of a constraint for a given trace.
+     * <p>
+     * The Ylue Y measure is defined as:
+     * YlueY(A->T) = ( (P(AT) P(¬A¬T))^1/2 - (P(A¬T)P(¬AT))^1/2 ) / ( (P(AT) P(¬A¬T))^1/2 + (P(A¬T)P(¬AT))^1/2 )
+     *
+     * @return
+     */
+    public static double getTraceYlueY(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        double result = (Math.sqrt(pAT * pnAnT) - Math.sqrt(pAnT * pnAT)) / (Math.sqrt(pAT * pnAnT) + Math.sqrt(pAnT * pnAT));
+
+        return result;
+    }
+
+    /**
      * Retrieve the Klosgen Measure of a constraint for a given trace.
      * <p>
      * The Klosgen measure is defined as:
@@ -845,6 +1543,29 @@ public class Measures {
     }
 
     /**
+     * Retrieve the Klosgen Measure of a constraint for a given trace.
+     * <p>
+     * The Klosgen measure is defined as:
+     * Klosgen(A->T) = P(AT)^1/2 * Max( P(T|A) - P(T) , P(A|T) -P(A) ) = P(AT)^1/2 * Max( P(AT)/P(A) - P(T) , P(AT)/P(T) -P(A) )
+     *
+     * @return
+     */
+    public static double getTraceKlosgen(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        double result = Math.sqrt(pAT) * Math.max(pAT / pA - pT, pAT / pT - pA);
+
+        return result;
+    }
+
+    /**
      * Retrieve the Conviction Measure of a constraint for a given trace.
      * <p>
      * The Conviction measure is defined as:
@@ -863,6 +1584,29 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = (pA * pnT) / pAnT;
+
+        return result;
+    }
+
+    /**
+     * Retrieve the Conviction Measure of a constraint for a given trace.
+     * <p>
+     * The Conviction measure is defined as:
+     * Conviction(A->T) = ( P(A) P(¬T)) / P(A¬T)
+     *
+     * @return
+     */
+    public static double getTraceConviction(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
 
         double result = (pA * pnT) / pAnT;
 
@@ -899,6 +1643,33 @@ public class Measures {
     }
 
     /**
+     * Retrieve the Interestingness Weighting Dependency Measure of a constraint for a given trace.
+     * <p>
+     * The Interestingness Weighting Dependency measure is defined as:
+     * InterestingnessWeightingDependency(A->T) = ( (P(AT)/( P(A)P(T) ))^k -1) * (P(AT))^m
+     * we assume m=2 and k=2 like in (Le and Lo 2015)
+     *
+     * @return
+     */
+    public static double getTraceInterestingnessWeightingDependency(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+
+        int m = 2;
+        int k = 2;
+
+        double result = (Math.pow(pAT / (pA * pT), k) - 1) * Math.pow(pAT, m);
+
+        return result;
+    }
+
+    /**
      * Retrieve the Collective Strength Measure of a constraint for a given trace.
      * <p>
      * The Collective Strength measure is defined as:
@@ -918,6 +1689,30 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = (pAT + (pnAnT / pnA)) / (pA * pT + pnA * pnT) * (1 - pA * pT - pnA * pnT) / (1 - pAT - (pnAnT / pnA));
+
+        return result;
+    }
+
+    /**
+     * Retrieve the Collective Strength Measure of a constraint for a given trace.
+     * <p>
+     * The Collective Strength measure is defined as:
+     * CollectiveStrength(A->T) = ( P(AT)+P(¬T|¬A) )/( P(A)P(T)+P(¬A)P(¬B) ) * ( 1-P(A)P(T)-P(¬A)P(¬T) )/( 1-P(AT)-P(¬T|¬A) ) =
+     * = ( P(AT)+P(¬T¬A)/P(¬A) )/( P(A)P(T)+P(¬A)P(¬B) ) * ( 1-P(A)P(T)-P(¬A)P(¬T) )/( 1-P(AT)-P(¬T¬A)/P(¬A) )
+     *
+     * @return
+     */
+    public static double getTraceCollectiveStrength(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
 
         double result = (pAT + (pnAnT / pnA)) / (pA * pT + pnA * pnT) * (1 - pA * pT - pnA * pnT) / (1 - pAT - (pnAnT / pnA));
 
@@ -954,6 +1749,34 @@ public class Measures {
     }
 
     /**
+     * Retrieve the Laplace Correction Measure of a constraint for a given trace.
+     * <p>
+     * The Laplace Correction measure is defined as:
+     * LaplaceCorrection(A->T) = ( N(AT) +1 ) / (N(A) + 2) = (n*P(AT) +1)/(n*P(A)+2)
+     * where N(x) is not the probability but the number of occurrence of x in the trace, thus n=trace length
+     * e.g. P(AB) = N(AB)/Length(Trace)
+     *
+     * @return
+     */
+    public static double getTraceLaplaceCorrection(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
+
+//        int n = reactiveConstraintEvaluation.length;
+
+        double result = (n * pAT + 1) / (n * pA + 2);
+
+        return result;
+    }
+
+    /**
      * Retrieve the J-Measure Measure of a constraint for a given trace.
      * <p>
      * The J-Measure measure is defined as:
@@ -972,6 +1795,29 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = pAT * Math.log((pAT / pA) / pT) + pAnT * Math.log((pAnT / pA) / pnT);
+
+        return result;
+    }
+    /**
+     * Retrieve the J-Measure Measure of a constraint for a given trace.
+     * <p>
+     * The J-Measure measure is defined as:
+     * JMeasure(A->T) = P(AT) log(P(T|A)/P(T)) + P(A¬T) log( P(¬T|A)/P(¬T) )
+     *
+     * @return
+     */
+    public static double getTraceJMeasure(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
 
         double result = pAT * Math.log((pAT / pA) / pT) + pAnT * Math.log((pAnT / pA) / pnT);
 
@@ -1002,6 +1848,29 @@ public class Measures {
 
         return result;
     }
+    /**
+     * Retrieve the One-way Support Measure of a constraint for a given trace.
+     * <p>
+     * The One-way Support measure is defined as:
+     * OnewaySupport(A->T) = P(T|A) log_2(P(AT)/(P(A)P(T)))
+     *
+     * @return
+     */
+    public static double getTraceOneWaySupport(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
+
+        double result = pAT / pA * log2(pAT / (pA * pT));
+
+        return result;
+    }
 
     /**
      * Retrieve the Two-way Support Measure of a constraint for a given trace.
@@ -1022,6 +1891,29 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = pAT * log2(pAT / (pA * pT));
+
+        return result;
+    }
+    /**
+     * Retrieve the Two-way Support Measure of a constraint for a given trace.
+     * <p>
+     * The Two-way Support measure is defined as:
+     * TwoWaySupport(A->T) = P(AT) log_2(P(AT)/(P(A)P(T)))
+     *
+     * @return
+     */
+    public static double getTraceTwoWaySupport(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
 
         double result = pAT * log2(pAT / (pA * pT));
 
@@ -1057,6 +1949,33 @@ public class Measures {
 
         return result;
     }
+    /**
+     * Retrieve the Two-way Support Variation Measure of a constraint for a given trace.
+     * <p>
+     * The Two-way Support Variation measure is defined as:
+     * TwoWaySupportVariation(A->T) = P(AT) log_2( P(AT)/(P(A)P(T)) ) + P(A¬T) log_2( P(A¬T)/(P(A)P(¬T)) )
+     * + P(¬AT) log_2( P(¬AT)/(P(¬A)P(T)) ) + P(¬A¬T) log_2( P(¬A¬T)/(P(¬A)P(¬T)) )
+     *
+     * @return
+     */
+    public static double getTraceTwoWaySupportVariation(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
+
+        double result = pAT * log2(pAT / (pA * pT)) +
+                pAnT * log2(pAnT / (pA * pnT)) +
+                pnAT * log2(pnAT / (pnA * pT)) +
+                pnAnT * log2(pnAnT / (pnA * pnT));
+
+        return result;
+    }
 
     /**
      * Retrieve the Linear Correlation Coefficient Measure of a constraint for a given trace.
@@ -1077,6 +1996,29 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = (pAT - pA * pT) / Math.sqrt(pA * pT * pnA * pnT);
+
+        return result;
+    }
+    /**
+     * Retrieve the Linear Correlation Coefficient Measure of a constraint for a given trace.
+     * <p>
+     * The Linear Correlation Coefficient measure is defined as:
+     * LinearCorrelationCoefficient(A->T) = (P(AT)-P(A)P(B)) / ((P(A)P(T)P(¬A)P(¬T))^1/2)
+     *
+     * @return
+     */
+    public static double getTraceLinearCorrelationCoefficient(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
 
         double result = (pAT - pA * pT) / Math.sqrt(pA * pT * pnA * pnT);
 
@@ -1107,6 +2049,29 @@ public class Measures {
 
         return result;
     }
+    /**
+     * Retrieve the Piatetsky-Shapiro Measure of a constraint for a given trace.
+     * <p>
+     * The Piatetsky-Shapiro measure is defined as:
+     * PiatetskyShapiro(A->T) = P(AT)-P(A)P(T)
+     *
+     * @return
+     */
+    public static double getTracePiatetskyShapiro(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
+
+        double result = pAT - pA * pT;
+
+        return result;
+    }
 
     /**
      * Retrieve the Cosine Measure of a constraint for a given trace.
@@ -1127,6 +2092,29 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = pAT / Math.sqrt(pA * pT);
+
+        return result;
+    }
+    /**
+     * Retrieve the Cosine Measure of a constraint for a given trace.
+     * <p>
+     * The Cosine measure is defined as:
+     * Cosine(A->T) = P(AT)/(P(A)P(T))^1/2
+     *
+     * @return
+     */
+    public static double getTraceCosine(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
 
         double result = pAT / Math.sqrt(pA * pT);
 
@@ -1157,6 +2145,29 @@ public class Measures {
 
         return result;
     }
+    /**
+     * Retrieve the Information Gain Measure of a constraint for a given trace.
+     * <p>
+     * The Information Gain measure is defined as:
+     * InformationGain(A->T) = log( P(AT)/(P(A)P(T)) )
+     *
+     * @return
+     */
+    public static double getTraceInformationGain(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
+
+        double result = Math.log(pAT / (pA * pT));
+
+        return result;
+    }
 
     /**
      * Retrieve the Sebag-Schoenauer Measure of a constraint for a given trace.
@@ -1177,6 +2188,29 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = pAT / pAnT;
+
+        return result;
+    }
+    /**
+     * Retrieve the Sebag-Schoenauer Measure of a constraint for a given trace.
+     * <p>
+     * The Sebag-Schoenauer measure is defined as:
+     * SebagSchoenauer(A->T) = P(AT)/P(A¬T)
+     *
+     * @return
+     */
+    public static double getTraceSebagSchoenauer(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
 
         double result = pAT / pAnT;
 
@@ -1207,6 +2241,29 @@ public class Measures {
 
         return result;
     }
+    /**
+     * Retrieve the Least Contradiction Measure of a constraint for a given trace.
+     * <p>
+     * The Least Contradiction measure is defined as:
+     * LeastContradiction(A->T) = (P(AT)-P(A¬T)/P(T)
+     *
+     * @return
+     */
+    public static double getTraceLeastContradiction(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
+
+        double result = (pAT - pAnT) / pT;
+
+        return result;
+    }
 
     /**
      * Retrieve the Odd Multiplier Measure of a constraint for a given trace.
@@ -1227,6 +2284,29 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = (pAT * pnT) / (pT * pAnT);
+
+        return result;
+    }
+    /**
+     * Retrieve the Odd Multiplier Measure of a constraint for a given trace.
+     * <p>
+     * The Odd Multiplier measure is defined as:
+     * OddMultiplier(A->T) = ( P(AT)P(¬T) )/( P(T)P(A¬T) )
+     *
+     * @return
+     */
+    public static double getTraceOddMultiplier(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
 
         double result = (pAT * pnT) / (pT * pAnT);
 
@@ -1257,6 +2337,29 @@ public class Measures {
 
         return result;
     }
+    /**
+     * Retrieve the Example and Counterexample Rate Measure of a constraint for a given trace.
+     * <p>
+     * The Example and Counterexample Rate measure is defined as:
+     * ExampleCounterexampleRate(A->T) = 1- P(A¬T)/P(AT)
+     *
+     * @return
+     */
+    public static double getTraceExampleCounterexampleRate(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
+
+        double result = 1 - pAnT / pAT;
+
+        return result;
+    }
 
     /**
      * Retrieve the Zhang Measure of a constraint for a given trace.
@@ -1277,6 +2380,29 @@ public class Measures {
         double pnAT = pIntersection[1];
         double pAnT = pIntersection[2];
         double pAT = pIntersection[3];
+
+        double result = (pAT - pA * pT) / Math.max(pAT * pnT, pT * pAnT);
+
+        return result;
+    }
+    /**
+     * Retrieve the Zhang Measure of a constraint for a given trace.
+     * <p>
+     * The Zhang measure is defined as:
+     * Zhang(A->T) =  ( P(AT)-P(A)P(T) ) / Max( P(AT)P(¬T), P(T)P(A¬T))
+     *
+     * @return
+     */
+    public static double getTraceZhang(double[] p) {
+        double pA = p[0];
+        double pnA = p[2];
+        double pT = p[1];
+        double pnT = p[3];
+        double pnAnT = p[4];
+        double pnAT = p[5];
+        double pAnT = p[6];
+        double pAT = p[7];
+        double n = p[8];
 
         double result = (pAT - pA * pT) / Math.max(pAT * pnT, pT * pAnT);
 
