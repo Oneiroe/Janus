@@ -50,14 +50,21 @@ public class XesLogParser extends AbstractLogParser implements LogParser {
     
     public XesLogParser(File xesFile,
     		LogEventClassifier.ClassificationType evtClassType) throws Exception {
-    	this(xesFile, evtClassType, 0, 0);
+    	this(xesFile, evtClassType, 0, 0, null);
     }
+
+	public XesLogParser(File xesFile,
+						LogEventClassifier.ClassificationType evtClassType,
+						TaskCharArchive taskCharArchive) throws Exception {
+		this(xesFile, evtClassType, 0, 0, taskCharArchive);
+	}
 
     public XesLogParser(
     		File xesFile,
     		LogEventClassifier.ClassificationType evtClassType,
 			Integer startingTrace,
-			Integer subLogLength) throws Exception {
+			Integer subLogLength,
+			TaskCharArchive taskCharArchive) throws Exception {
     	this.init(evtClassType, startingTrace, subLogLength);
     	
         if (!this.parser.canParse(xesFile)) {
@@ -73,7 +80,7 @@ public class XesLogParser extends AbstractLogParser implements LogParser {
         	}
         }
 
-        super.archiveTaskChars(this.parseLog(xesFile));
+        super.archiveTaskChars(this.parseLog(xesFile), taskCharArchive);
         
         super.postInit();
 	}
@@ -91,7 +98,7 @@ public class XesLogParser extends AbstractLogParser implements LogParser {
 			Integer subLogLength) {
     	this.init(evtClassType, startingTrace, subLogLength);
     	
-    	super.archiveTaskChars(this.parseLog(xLog));
+    	super.archiveTaskChars(this.parseLog(xLog), null);
         
     	super.postInit();
     }

@@ -102,7 +102,7 @@ public class MinerFulMinerLauncher {
 			ClassificationType evtClassi = MinerFulMinerLauncher.fromInputParamToXesLogClassificationType(inputParams.eventClassification);
 			try {
 				if (doAnalyseSubLog) {
-					logParser = new XesLogParser(inputParams.inputLogFile, evtClassi, inputParams.startFromTrace, inputParams.subLogLength);
+					logParser = new XesLogParser(inputParams.inputLogFile, evtClassi, inputParams.startFromTrace, inputParams.subLogLength, null);
 				} else {
 					logParser = new XesLogParser(inputParams.inputLogFile, evtClassi);
 				}
@@ -123,7 +123,7 @@ public class MinerFulMinerLauncher {
 		case strings:
 			try {
 				if (doAnalyseSubLog) {
-					logParser = new StringLogParser(inputParams.inputLogFile, ClassificationType.NAME, inputParams.startFromTrace, inputParams.subLogLength);
+					logParser = new StringLogParser(inputParams.inputLogFile, ClassificationType.NAME, inputParams.startFromTrace, inputParams.subLogLength, null);
 				} else {
 					logParser = new StringLogParser(inputParams.inputLogFile, ClassificationType.NAME);
 				}

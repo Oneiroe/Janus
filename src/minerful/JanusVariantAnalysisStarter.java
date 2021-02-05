@@ -1,6 +1,7 @@
 package minerful;
 
 import minerful.checking.params.CheckingCmdParameters;
+import minerful.concept.TaskCharArchive;
 import minerful.io.params.InputModelParameters;
 import minerful.io.params.OutputModelParameters;
 //import minerful.params.InputLogCmdParameters;
@@ -109,7 +110,8 @@ public class JanusVariantAnalysisStarter extends MinerFulMinerStarter {
         JanusVariantAnalysisLauncher variantAnalysis = new JanusVariantAnalysisLauncher(janusParams, systemParams);
         Map<String, Double> result = variantAnalysis.checkVariants();
 
-        new JanusVariantOutputManagementLauncher().manageVariantOutput(result, viewParams, janusParams, systemParams, null);
+        TaskCharArchive alphabet = variantAnalysis.getAlphabetDecoder();
+        new JanusVariantOutputManagementLauncher().manageVariantOutput(result, viewParams, janusParams, systemParams, alphabet);
     }
 
 }

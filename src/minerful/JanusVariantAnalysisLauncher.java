@@ -32,8 +32,10 @@ public class JanusVariantAnalysisLauncher {
         this.janusParams = janusParams;
         this.systemParams = systemParams;
 
-        this.eventLog1 = deriveLogParserFromLogFile(janusParams.inputLanguage1, janusParams.inputLogFile1, janusParams.eventClassification);
-        this.eventLog2 = deriveLogParserFromLogFile(janusParams.inputLanguage2, janusParams.inputLogFile2, janusParams.eventClassification);
+        this.eventLog1 = deriveLogParserFromLogFile(janusParams.inputLanguage1, janusParams.inputLogFile1, janusParams.eventClassification, null);
+        this.eventLog2 = deriveLogParserFromLogFile(janusParams.inputLanguage2, janusParams.inputLogFile2, janusParams.eventClassification, eventLog1.getTaskCharArchive());
+//        this is a bit redundant, but to make sure that both have the same alphabet we recompute the first parser with the alphabet of the second, which now has both alphabets
+        this.eventLog1 = deriveLogParserFromLogFile(janusParams.inputLanguage1, janusParams.inputLogFile1, janusParams.eventClassification, eventLog2.getTaskCharArchive());
     }
 
     public JanusVariantAnalysisLauncher(JanusVariantCmdParameters janusParams, SystemCmdParameters systemParams, ProcessModel processSpecification1, ProcessModel processSpecification2) {
@@ -51,14 +53,14 @@ public class JanusVariantAnalysisLauncher {
      * @param eventClassification
      * @return LogParser of the input log
      */
-    public static LogParser deriveLogParserFromLogFile(JanusVariantCmdParameters.InputEncoding inputLanguage, File inputLogFile, JanusVariantCmdParameters.EventClassification eventClassification) {
+    public static LogParser deriveLogParserFromLogFile(JanusVariantCmdParameters.InputEncoding inputLanguage, File inputLogFile, JanusVariantCmdParameters.EventClassification eventClassification, TaskCharArchive taskCharArchive) {
         LogParser logParser = null;
         switch (inputLanguage) {
             case xes:
             case mxml:
                 LogEventClassifier.ClassificationType evtClassi = fromInputParamToXesLogClassificationType(eventClassification);
                 try {
-                    logParser = new XesLogParser(inputLogFile, evtClassi);
+                    logParser = new XesLogParser(inputLogFile, evtClassi, taskCharArchive);
                 } catch (Exception e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
@@ -69,7 +71,7 @@ public class JanusVariantAnalysisLauncher {
                 break;
             case strings:
                 try {
-                    logParser = new StringLogParser(inputLogFile, LogEventClassifier.ClassificationType.NAME);
+                    logParser = new StringLogParser(inputLogFile, LogEventClassifier.ClassificationType.NAME, taskCharArchive);
                 } catch (Exception e) {
                     e.printStackTrace();
                     System.exit(1);
@@ -113,6 +115,10 @@ public class JanusVariantAnalysisLauncher {
 
     public void setProcessSpecification2(ProcessModel processSpecification2) {
         this.processSpecification2 = processSpecification2;
+    }
+
+    public TaskCharArchive getAlphabetDecoder(){
+        return eventLog2.getTaskCharArchive();
     }
 
     /**

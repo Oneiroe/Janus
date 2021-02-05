@@ -145,20 +145,7 @@ public class ReactiveVariantAnalysisCore {
         for (Iterator<LogTraceParser> it = logParser_2.traceIterator(); it.hasNext(); ) {
             permutableTracesList.add(it.next().printStringTrace());
         }
-//        for (String t : lCoded.keySet()) {
-//            for (int i = 0; i < lCoded.get(t).get("TraceFrequency"); i++) {
-//                permutableTracesList.add(t);
-//            }
-//        }
-//        List uniqueTracesList = Arrays.asList(lCoded.keySet().toArray());
 
-        /*
-         * Time notes (from SEPSIS):
-         * - self-time       320  sec
-         * - HashMap.get()   3.9  sec
-         * - shuffle()       0.98 sec
-         *
-         * */
         for (int i = 0; i < nPermutations; i++) {
             System.out.print("\rPermutation: " + i + "/" + nPermutations);  // Status counter "current trace/total trace"
             int cIndex = 0;
