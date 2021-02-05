@@ -50,8 +50,7 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
         }
 
         if (viewParams != null && !viewParams.suppressScreenPrintOut) {
-//			TODO print result in terminal
-            logger.info("Terminal output yet not implemented");
+            printVariantResultsToScreen(variantResults, varParams, alphabet);
         }
 
         // ************* JSON
@@ -68,6 +67,20 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
             logger.info("Total JSON serialization time: " + (after - before));
         }
 
+    }
+
+    private void printVariantResultsToScreen(Map<String, Double> variantResults, JanusVariantCmdParameters varParams, TaskCharArchive alphabet) {
+        //		header row
+        System.out.println("--------------------");
+        System.out.println("relevant constraints differences");
+        System.out.println("CONSTRAINT : P_VALUE");
+
+        Map<Character, TaskChar> translationMap = alphabet.getTranslationMapById();
+        for (String constraint : variantResults.keySet()) {
+            if (variantResults.get(constraint) <= varParams.pValue) {
+                System.out.println(decodeConstraint(constraint, translationMap) + " : " + variantResults.get(constraint).toString());
+            }
+        }
     }
 
     private void exportVariantResultsToCSV(Map<String, Double> variantResults, File outputFile, JanusVariantCmdParameters varParams, TaskCharArchive alphabet) {

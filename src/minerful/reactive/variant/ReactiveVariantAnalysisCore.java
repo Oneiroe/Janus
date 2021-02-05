@@ -189,8 +189,10 @@ public class ReactiveVariantAnalysisCore {
             permutableTracesIndexList.add(traceToIndexMap.get(t));
         }
 
+        int step = 25;
         for (int i = 0; i < nPermutations; i++) {
-            System.out.print("\rPermutation: " + i + "/" + nPermutations);  // Status counter "current trace/total trace"
+            if (i % step == 0)
+                System.out.print("\rPermutation: " + i + "/" + nPermutations);  // Status counter "current trace/total trace"
 
             for (int c = 0; c < nConstraints; c++) {
                 int traceIndex = -1;
