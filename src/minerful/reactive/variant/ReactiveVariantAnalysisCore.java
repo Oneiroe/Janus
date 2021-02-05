@@ -25,6 +25,7 @@ public class ReactiveVariantAnalysisCore {
     private final JanusVariantCmdParameters janusVariantParams;  // input parameter of the analysis
 
     private Map<String, Map<String, Double>> lCoded; // encoded log for efficient permutations
+    private double[][] lCodedIndex; // encoded log for efficient permutations
     private Set mTot;  // total set of constraints to analyse, i.e., union of process specification 1 adn 2
     private ProcessModel processSpecificationUnion;  // total set of constraints to analyse, i.e., union of process specification 1 adn 2
     private Set mDiffs;  // initial differences of specification 1 and 2 to be checked through the analysis
@@ -33,6 +34,11 @@ public class ReactiveVariantAnalysisCore {
     private static final String MEASURE = "Confidence";  // expose measure selection to the user
     private static final int MEASURE_INDEX = 1;
     private static final double MEASURE_THRESHOLD = 0.8;
+
+    private Map<Integer, String> indexToTraceMap;
+    private Map<String, Integer> traceToIndexMap;
+    private Map<Integer, String> indexToConstraintMap;
+    private Map<String, Integer> constraintToIndexMap;
 
     private static class PermutationResult {
         double[][] result1; // permutation test results for first group
@@ -45,6 +51,11 @@ public class ReactiveVariantAnalysisCore {
             this.result2 = result2;
             this.constraints = constraints;
             this.test = new double[constraints.length];
+        }
+
+        public PermutationResult(double[][] result1, double[][] result2) {
+            this.result1 = result1;
+            this.result2 = result2;
         }
     }
 
@@ -77,6 +88,7 @@ public class ReactiveVariantAnalysisCore {
 
     /**
      * Launcher for variant analysis of two logs
+     *
      * @return
      */
     public Map<String, Double> check() {
@@ -89,20 +101,30 @@ public class ReactiveVariantAnalysisCore {
         //        3. Encode log (create efficient log structure for the permutations)
         //        4. Precompute all possible results for the Encoded Log
         encodeLogs(logParser_1, logParser_2, processSpecificationUnion);
+        encodeLogsIndex(lCoded);
         double after = System.currentTimeMillis();
         logger.info("Preprocessing time: " + (after - before));
 
 //        PERMUTATION TEST
         before = System.currentTimeMillis();
         logger.info("Permutations processing...");
-        PermutationResult pRes = permuteResults(lCoded, janusVariantParams.nPermutations, true);
+//        PermutationResult pRes = permuteResults(lCoded, janusVariantParams.nPermutations, true);
+        PermutationResult pRes = permuteResultsIndex(lCodedIndex, janusVariantParams.nPermutations, true);
         logger.info("Significance testing...");
-        Map<String, Double> results = significanceTest(pRes, pValueThreshold);
+//        Map<String, Double> results = significanceTest(pRes, pValueThreshold);
+        Map<String, Double> results = significanceTestIndex(pRes, pValueThreshold);
         after = System.currentTimeMillis();
         logger.info("Permutation test time: " + (after - before));
         return results;
     }
 
+    /**
+     * Checks the significance of the permutation test results
+     *
+     * @param pRes
+     * @param pValueThreshold
+     * @return
+     */
     private Map<String, Double> significanceTest(PermutationResult pRes, double pValueThreshold) {
         Map<String, Double> result = new HashMap<String, Double>();
         for (int cIndex = 0; cIndex < pRes.constraints.length; cIndex++) {
@@ -121,6 +143,86 @@ public class ReactiveVariantAnalysisCore {
         return result;
     }
 
+    /**
+     * Checks the significance of the permutation test results
+     *
+     * @param pRes
+     * @param pValueThreshold
+     * @return
+     */
+    private Map<String, Double> significanceTestIndex(PermutationResult pRes, double pValueThreshold) {
+        Map<String, Double> result = new HashMap<String, Double>();
+        int nConstraints = processSpecificationUnion.howManyConstraints();
+        pRes.test = new double[nConstraints];
+        for (int cIndex = 0; cIndex < nConstraints; cIndex++) {
+            double initialreference = pRes.result1[0][cIndex] - pRes.result2[0][cIndex];
+            for (int permutation = 1; permutation < pRes.result1.length; permutation++) {
+//                TODO consider absolute values
+                if (pRes.result1[permutation][cIndex] - pRes.result2[permutation][cIndex] >= initialreference) {
+                    pRes.test[cIndex] += 1.0;
+                }
+            }
+            pRes.test[cIndex] = pRes.test[cIndex] / pRes.test.length;
+//            if (pRes.test[cIndex]<=pValueThreshold) System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
+//            System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
+            result.put(indexToConstraintMap.get(cIndex), pRes.test[cIndex]);
+        }
+        return result;
+    }
+
+    private PermutationResult permuteResultsIndex(double[][] lCodedIndex, int nPermutations, boolean nanCheck) {
+        int nConstraints = processSpecificationUnion.howManyConstraints();
+        double[][] result1 = new double[nPermutations][nConstraints];
+        double[][] result2 = new double[nPermutations][nConstraints];
+
+        int log1Size = logParser_1.length();
+        int log2Size = logParser_2.length();
+        List<String> permutableTracesList = new LinkedList<>();
+        for (Iterator<LogTraceParser> it = logParser_1.traceIterator(); it.hasNext(); ) {
+            permutableTracesList.add(it.next().printStringTrace());
+        }
+        for (Iterator<LogTraceParser> it = logParser_2.traceIterator(); it.hasNext(); ) {
+            permutableTracesList.add(it.next().printStringTrace());
+        }
+        List<Integer> permutableTracesIndexList = new LinkedList<>();
+        for (String t : permutableTracesList) {
+            permutableTracesIndexList.add(traceToIndexMap.get(t));
+        }
+
+        for (int i = 0; i < nPermutations; i++) {
+            System.out.print("\rPermutation: " + i + "/" + nPermutations);  // Status counter "current trace/total trace"
+
+            for (int c = 0; c < nConstraints; c++) {
+                int traceIndex = -1;
+                for (int t : permutableTracesIndexList) {
+                    traceIndex++;
+                    if (nanCheck & Double.isNaN(lCodedIndex[t][c])) {
+                        continue; // TODO expose in input
+                    }
+                    if (traceIndex < log1Size) {
+                        result1[i][c] += lCodedIndex[t][c];
+                    } else {
+                        result2[i][c] += lCodedIndex[t][c];
+                    }
+                }
+                result1[i][c] = result1[i][c] / log1Size;
+                result2[i][c] = result2[i][c] / log2Size;
+            }
+//            permutation "0" are the original logs
+            Collections.shuffle(permutableTracesIndexList);
+        }
+
+        return new PermutationResult(result1, result2);
+    }
+
+    /**
+     * Permutation test in which is taken the encoded results.
+     *
+     * @param lCoded
+     * @param nPermutations
+     * @param nanCheck
+     * @return
+     */
     private PermutationResult permuteResults(Map<String, Map<String, Double>> lCoded, int nPermutations, boolean nanCheck) {
         int nConstraints = processSpecificationUnion.howManyConstraints();
         double[][] result1 = new double[nPermutations][nConstraints];
@@ -130,8 +232,7 @@ public class ReactiveVariantAnalysisCore {
         int constraintIndex = 0;
         for (String c : lCoded.values().iterator().next().keySet()) {
 //        for (Constraint c : processSpecificationUnion.getAllConstraints()) {
-//            constraints[constraintIndex] = c.toString();  // TODO model string encoding of constraints is different form automata runner one
-            if (c == "TraceFrequency") continue;
+//            constraints[constraintIndex] = c.toString();  // TODO beware: model string encoding of constraints is different from automata runner one
             constraints[constraintIndex] = c;
             constraintIndex++;
         }
@@ -150,15 +251,15 @@ public class ReactiveVariantAnalysisCore {
             System.out.print("\rPermutation: " + i + "/" + nPermutations);  // Status counter "current trace/total trace"
             int cIndex = 0;
             for (String c : constraints) {
-                int traceIndex = 0;
+                int traceIndex = -1;
                 for (String t : permutableTracesList) {
+                    traceIndex++;
                     if (nanCheck & lCoded.get(t).get(c).isNaN()) continue; // TODO expose in input
                     if (traceIndex < log1Size) {
                         result1[i][cIndex] += lCoded.get(t).get(c);
                     } else {
                         result2[i][cIndex] += lCoded.get(t).get(c);
                     }
-                    traceIndex++;
                 }
                 result1[i][cIndex] = result1[i][cIndex] / log1Size;
                 result2[i][cIndex] = result2[i][cIndex] / log2Size;
@@ -167,11 +268,54 @@ public class ReactiveVariantAnalysisCore {
 //            permutation "0" are the original logs
             Collections.shuffle(permutableTracesList);
         }
-        // TODO output these partial result for debugging
+        // TODO output these partial results for debugging
         return new PermutationResult(result1, result2, constraints);
     }
 
 
+    /**
+     * Transform the encoded map into a matrix where traces and constraints are referred by indices.
+     * compute the encoding and return the reference mappings
+     *
+     * @param lCoded
+     */
+    private void encodeLogsIndex(Map<String, Map<String, Double>> lCoded) {
+        indexToTraceMap = new HashMap<>();
+        traceToIndexMap = new HashMap<>();
+        indexToConstraintMap = new HashMap<>();
+        constraintToIndexMap = new HashMap<>();
+
+        lCodedIndex = new double[lCoded.size()][processSpecificationUnion.howManyConstraints()]; // lCodedIndex[trace index][constraint index]
+
+        int cIndex = 0;
+        for (String c : lCoded.values().iterator().next().keySet()) {
+            indexToConstraintMap.put(cIndex, c);
+            constraintToIndexMap.put(c, cIndex);
+            cIndex++;
+        }
+        int traceIndex = 0;
+        for (String t : lCoded.keySet()) {
+            indexToTraceMap.put(traceIndex, t);
+            traceToIndexMap.put(t, traceIndex);
+            traceIndex++;
+        }
+
+        for (int t = 0; t < lCodedIndex.length; t++) {
+            for (int c = 0; c < lCodedIndex[0].length; c++) {
+                lCodedIndex[t][c] = lCoded.get(indexToTraceMap.get(t)).get(indexToConstraintMap.get(c));
+            }
+        }
+
+    }
+
+
+    /**
+     * Precompute the evaluation and encode a map where each distinct trace is linked to all the constraints measumentents
+     *
+     * @param logParser
+     * @param model
+     * @return
+     */
     private Map<String, Map<String, Double>> encodeLog(LogParser logParser, ProcessModel model) {
         Map<String, Map<String, Double>> result = new HashMap();
         JanusCheckingCmdParameters janusCheckingParams = new JanusCheckingCmdParameters(false, 0, true, true);
@@ -190,11 +334,8 @@ public class ReactiveVariantAnalysisCore {
         for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
             LogTraceParser tr = it.next();
             String stringTrace = tr.printStringTrace();
-            if (result.containsKey(stringTrace)) {
-                result.get(stringTrace).put("TraceFrequency", result.get(stringTrace).get("TraceFrequency") + 1);
-            } else {
+            if (!result.containsKey(stringTrace)) {
                 result.put(stringTrace, new HashMap<String, Double>());
-                result.get(stringTrace).put("TraceFrequency", 1.0);
                 int cIndex = 0;
                 for (SeparatedAutomatonOfflineRunner c : measures.getAutomata()) {
                     result.get(stringTrace).put(
