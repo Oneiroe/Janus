@@ -18,7 +18,7 @@ import minerful.reactive.checking.MegaMatrixMonster;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 
 import java.io.*;
 import java.util.Arrays;
@@ -44,6 +44,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
     public void manageCheckOutput(MegaMatrixMonster matrix, NavigableMap<Constraint, String> additionalCnsIndexedInfo, OutputModelParameters outParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, TaskCharArchive alphabet) {
         File outputFile = null;
         File outputAggregatedMeasuresFile = null;
+        System.gc();
 
         // ************* CSV
         if (outParams.fileToSaveConstraintsAsCSV != null) {
@@ -442,7 +443,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
      */
     public void exportAggregatedMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile, TaskCharArchive alphabet) {
         logger.debug("CSV aggregated measures...");
-        DescriptiveStatistics[][] constraintsLogMeasure = megaMatrix.getConstraintLogMeasures();
+        SummaryStatistics[][] constraintsLogMeasure = megaMatrix.getConstraintLogMeasures();
 
         List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
@@ -457,7 +458,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                 "Variance",
                 "Population-variance",
                 "Standard-Deviation",
-                "Percentile-75th",
+//                "Percentile-75th",
                 "Max",
                 "Min"
         };
@@ -473,7 +474,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
             for (int constraint = 0; constraint < constraintsLogMeasure.length; constraint++) {
 //				String constraintName = automata.get(constraint).toString();
                 String constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
-                DescriptiveStatistics[] constraintLogMeasure = constraintsLogMeasure[constraint]; //TODO performance slowdown
+                SummaryStatistics[] constraintLogMeasure = constraintsLogMeasure[constraint]; //TODO performance slowdown
 
                 for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
 //                    System.out.print("\rConstraints: " + constraint + "/" + constraintsLogMeasure.length+" Measure: " + measureIndex + "/" +  megaMatrix.getMeasureNames().length);
@@ -486,7 +487,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                             String.valueOf(constraintLogMeasure[measureIndex].getVariance()),
                             String.valueOf(constraintLogMeasure[measureIndex].getPopulationVariance()),
                             String.valueOf(constraintLogMeasure[measureIndex].getStandardDeviation()),
-                            String.valueOf(constraintLogMeasure[measureIndex].getPercentile(75)),
+//                            String.valueOf(constraintLogMeasure[measureIndex].getPercentile(75)),
                             String.valueOf(constraintLogMeasure[measureIndex].getMax()),
                             String.valueOf(constraintLogMeasure[measureIndex].getMin())
                     };
@@ -510,7 +511,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
      */
     public void exportEncodedAggregatedMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile) {
         logger.debug("CSV encoded aggregated measures...");
-        DescriptiveStatistics[][] constraintsLogMeasure = megaMatrix.getConstraintLogMeasures();
+        SummaryStatistics[][] constraintsLogMeasure = megaMatrix.getConstraintLogMeasures();
 
         List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
@@ -525,7 +526,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                 "Variance",
                 "Population-variance",
                 "Standard-Deviation",
-                "Percentile-75th",
+//                "Percentile-75th",
                 "Max",
                 "Min"
         };
@@ -538,7 +539,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
             //		Row builder
             for (int constraint = 0; constraint < constraintsLogMeasure.length; constraint++) {
                 String constraintName = automata.get(constraint).toString();
-                DescriptiveStatistics[] constraintLogMeasure = constraintsLogMeasure[constraint];
+                SummaryStatistics[] constraintLogMeasure = constraintsLogMeasure[constraint];
 
                 for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
                     String[] row = new String[]{
@@ -550,7 +551,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                             String.valueOf(constraintLogMeasure[measureIndex].getVariance()),
                             String.valueOf(constraintLogMeasure[measureIndex].getPopulationVariance()),
                             String.valueOf(constraintLogMeasure[measureIndex].getStandardDeviation()),
-                            String.valueOf(constraintLogMeasure[measureIndex].getPercentile(75)),
+//                            String.valueOf(constraintLogMeasure[measureIndex].getPercentile(75)),
                             String.valueOf(constraintLogMeasure[measureIndex].getMax()),
                             String.valueOf(constraintLogMeasure[measureIndex].getMin())
                     };
@@ -566,7 +567,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
     /**
      * Builds the json structure for a given constraint
      */
-    private JsonElement aggregatedConstraintMeasuresJsonBuilder(MegaMatrixMonster megaMatrix, int constaintIndex, DescriptiveStatistics[] constraintLogMeasure) {
+    private JsonElement aggregatedConstraintMeasuresJsonBuilder(MegaMatrixMonster megaMatrix, int constaintIndex, SummaryStatistics[] constraintLogMeasure) {
         JsonObject constraintJson = new JsonObject();
 
         for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
@@ -579,7 +580,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
             stats.addProperty("Variance", constraintLogMeasure[measureIndex].getVariance());
             stats.addProperty("Population  variance", constraintLogMeasure[measureIndex].getPopulationVariance());
             stats.addProperty("Standard Deviation", constraintLogMeasure[measureIndex].getStandardDeviation());
-            stats.addProperty("Percentile 75th", constraintLogMeasure[measureIndex].getPercentile(75));
+//            stats.addProperty("Percentile 75th", constraintLogMeasure[measureIndex].getPercentile(75));
             stats.addProperty("Max", constraintLogMeasure[measureIndex].getMax());
             stats.addProperty("Min", constraintLogMeasure[measureIndex].getMin());
 
@@ -613,7 +614,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
             List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
 //			\/ \/ \/ LOG RESULTS
-            DescriptiveStatistics[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
+            SummaryStatistics[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
 
             for (int constraint = 0; constraint < constraintLogMeasure.length; constraint++) {
                 jsonOutput.add(
@@ -645,7 +646,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
             List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
 //			\/ \/ \/ LOG RESULTS
-            DescriptiveStatistics[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
+            SummaryStatistics[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
 
             for (int constraint = 0; constraint < constraintLogMeasure.length; constraint++) {
                 jsonOutput.add(

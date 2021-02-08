@@ -1,7 +1,7 @@
 package minerful.reactive.checking;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 
 
 /**
@@ -11,6 +11,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
  * Geng, Liqiang, and Howard J. Hamilton. ‘Interestingness Measures for Data Mining: A Survey’. ACM Computing Surveys 38, no. 3 (30 September 2006): 9-es. https://doi.org/10.1145/1132960.1132963.
  */
 public class Measures {
+    static float[] currentTraceProbability = new float[9];  // performaces optimization: creating a new temporary array for each measurement makes the GC go in overhead with big datasets
 
     //    	TODO improve this hard-code shame
     public static String[] MEASURE_NAMES = {
@@ -57,26 +58,26 @@ public class Measures {
     public static int MEASURE_NUM = MEASURE_NAMES.length;
 
 
-    public static double getTraceMeasure(byte[] reactiveConstraintEvaluation, int measureIndex, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
-        double[] traceProbabilities = getTraceProbabilities(reactiveConstraintEvaluation);
+    public static float getTraceMeasure(byte[] reactiveConstraintEvaluation, int measureIndex, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
+        float[] traceProbabilities = getTraceProbabilities(reactiveConstraintEvaluation);
 
-        double result = getTraceMeasure(traceProbabilities, measureIndex);
+        float result = getTraceMeasure(traceProbabilities, measureIndex);
 
         // according to the input setting, substitute the measure value if it is NaN
-        if (nanTraceSubstituteFlag && Double.isNaN(result))
-            return nanTraceSubstituteValue;
+        if (nanTraceSubstituteFlag && Float.isNaN(result))
+            return (float) nanTraceSubstituteValue;
 
         return result;
     }
 
-    public static double getTraceMeasure(int[] traceEvaluation, int measureIndex, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
-        double[] traceProbabilities = getTraceProbabilities(traceEvaluation);
+    public static float getTraceMeasure(int[] traceEvaluation, int measureIndex, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
+        float[] traceProbabilities = getTraceProbabilities(traceEvaluation);
 
-        double result = getTraceMeasure(traceProbabilities, measureIndex);
+        float result = getTraceMeasure(traceProbabilities, measureIndex);
 
         // according to the input setting, substitute the measure value if it is NaN
-        if (nanTraceSubstituteFlag && Double.isNaN(result))
-            return nanTraceSubstituteValue;
+        if (nanTraceSubstituteFlag && Float.isNaN(result))
+            return (float) nanTraceSubstituteValue;
 
         return result;
     }
@@ -263,9 +264,9 @@ public class Measures {
      * @param measureIndex
      * @return
      */
-    public static double getTraceMeasure(double[] traceProbabilities, int measureIndex) {
+    public static float getTraceMeasure(float[] traceProbabilities, int measureIndex) {
         //    	TODO improve this hard-code shame
-        double result = 0;
+        float result = 0;
         switch (measureIndex) {
             case 0:
 //				support
@@ -432,31 +433,32 @@ public class Measures {
      * @param reactiveConstraintEvaluation
      * @return
      */
-    public static double[] getTraceProbabilities(byte[] reactiveConstraintEvaluation) {
-        double[] result = new double[9];
-        if (reactiveConstraintEvaluation.length == 0) return result;
+    public static float[] getTraceProbabilities(byte[] reactiveConstraintEvaluation) {
+//        float[] currentTraceProbability = new float[9];
+//        if (reactiveConstraintEvaluation.length == 0) return currentTraceProbability;
+        if (reactiveConstraintEvaluation.length == 0) return new float[9];
 
         // result { 0: activation, 1: target, 2: no activation, 3: no target}
         // result {4: 00, 5: 01, , 6: 10, 7:11}
         for (byte eval : reactiveConstraintEvaluation) {
-            result[0] += eval / 2; // the activator is true if the byte is >1, i.e. 2 or 3
-            result[1] += eval % 2; // the target is true if the byte is odd, i,e, 1 or 3
-            result[eval + 4]++;
+            currentTraceProbability[0] += eval / 2; // the activator is true if the byte is >1, i.e. 2 or 3
+            currentTraceProbability[1] += eval % 2; // the target is true if the byte is odd, i,e, 1 or 3
+            currentTraceProbability[eval + 4]++;
         }
-        double l = reactiveConstraintEvaluation.length;
-        result[2] = l - result[0];
-        result[3] = l - result[1];
+        float l = reactiveConstraintEvaluation.length;
+        currentTraceProbability[2] = l - currentTraceProbability[0];
+        currentTraceProbability[3] = l - currentTraceProbability[1];
 
-        result[0] /= l;
-        result[1] /= l;
-        result[2] /= l;
-        result[3] /= l;
-        result[4] /= l;
-        result[5] /= l;
-        result[6] /= l;
-        result[7] /= l;
-        result[8] = l;
-        return result;
+        currentTraceProbability[0] /= l;
+        currentTraceProbability[1] /= l;
+        currentTraceProbability[2] /= l;
+        currentTraceProbability[3] /= l;
+        currentTraceProbability[4] /= l;
+        currentTraceProbability[5] /= l;
+        currentTraceProbability[6] /= l;
+        currentTraceProbability[7] /= l;
+        currentTraceProbability[8] = l;
+        return currentTraceProbability;
     }
 
     /**
@@ -469,11 +471,11 @@ public class Measures {
      * @param traceEvaluation
      * @return
      */
-    public static double[] getTraceProbabilities(int[] traceEvaluation) {
-        double[] result = new double[9];
+    public static float[] getTraceProbabilities(int[] traceEvaluation) {
+        float[] result = new float[9];
         if (traceEvaluation.length == 0) return result;
 
-        double l = traceEvaluation[8];
+        float l = traceEvaluation[8];
 
         result[0] = traceEvaluation[0] / l;
         result[1] = traceEvaluation[1] / l;
@@ -493,8 +495,8 @@ public class Measures {
      * @param reactiveConstraintEvaluation byte array of {0,1,2,3} encoding the bolean evaluation of both the activator and the target of a reactive constraint
      * @return
      */
-    public static double[] getReactiveProbabilities(byte[] reactiveConstraintEvaluation) {
-        double[] result = {0, 0, 0, 0};  // result { 0: activation, 1: target, 2: no activation, 3: no target}
+    public static float[] getReactiveProbabilities(byte[] reactiveConstraintEvaluation) {
+        float[] result = {0, 0, 0, 0};  // result { 0: activation, 1: target, 2: no activation, 3: no target}
         if (reactiveConstraintEvaluation.length == 0) return result;
         for (byte eval : reactiveConstraintEvaluation) {
             result[0] += eval / 2; // the activator is true if the byte is >1, i.e. 2 or 3
@@ -517,8 +519,8 @@ public class Measures {
      * @param reactiveConstraintEvaluation byte array of {0,1,2,3} encoding the bolean evaluation of both the activator and the target of a reactive constraint
      * @return
      */
-    public static double[] getReactiveIntersectionsProbabilities(byte[] reactiveConstraintEvaluation) {
-        double[] result = {0, 0, 0, 0};  // result {0: 00, 1: 01, , 2: 10, 3:11}
+    public static float[] getReactiveIntersectionsProbabilities(byte[] reactiveConstraintEvaluation) {
+        float[] result = {0, 0, 0, 0};  // result {0: 00, 1: 01, , 2: 10, 3:11}
         if (reactiveConstraintEvaluation.length == 0) return result;
         for (byte eval : reactiveConstraintEvaluation) {
             result[eval]++;
@@ -537,9 +539,9 @@ public class Measures {
      * @param formulaEvaluation Byte array (representing a bit array) of 0s and 1s
      * @return
      */
-    public static double getFormulaProbability(byte[] formulaEvaluation) {
+    public static float getFormulaProbability(byte[] formulaEvaluation) {
         if (formulaEvaluation.length == 0) return 0;
-        double result = 0;
+        float result = 0;
         for (byte eval : formulaEvaluation) {
             result += eval;
         }
@@ -554,23 +556,23 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceSupport(byte[] reactiveConstraintEvaluation) {
+    public static float getTraceSupport(byte[] reactiveConstraintEvaluation) {
         if (reactiveConstraintEvaluation.length == 0) return 0;
-        double result = 0;
+        float result = 0;
         for (byte eval : reactiveConstraintEvaluation) {
             result += eval / 3; // activator and target are both true when the byte is 3
         }
         return result / reactiveConstraintEvaluation.length;
-//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-//        double pA = p[0];
-//        double pnA = p[2];
-//        double pT = p[1];
-//        double pnT = p[3];
-//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-//        double pnAnT = pIntersection[0];
-//        double pnAT = pIntersection[1];
-//        double pAnT = pIntersection[2];
-//        double pAT = pIntersection[3];
+//        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        float pA = p[0];
+//        float pnA = p[2];
+//        float pT = p[1];
+//        float pnT = p[3];
+//        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        float pnAnT = pIntersection[0];
+//        float pnAT = pIntersection[1];
+//        float pAnT = pIntersection[2];
+//        float pAT = pIntersection[3];
 //
 //        return pAT;
     }
@@ -583,15 +585,15 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceSupport(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceSupport(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
         return pAT;
     }
@@ -604,25 +606,25 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceConfidence(byte[] reactiveConstraintEvaluation) {
+    public static float getTraceConfidence(byte[] reactiveConstraintEvaluation) {
         byte[] activatorEval = getActivatorEvaluation(reactiveConstraintEvaluation);
-        double denominator = getFormulaProbability(activatorEval);
-//        if (denominator == 0) return Double.NaN;
+        float denominator = getFormulaProbability(activatorEval);
+//        if (denominator == 0) return float.NaN;
         return getTraceSupport(reactiveConstraintEvaluation) / denominator;
-//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-//        double pA = p[0];
-//        double pnA = p[2];
-//        double pT = p[1];
-//        double pnT = p[3];
-//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-//        double pnAnT = pIntersection[0];
-//        double pnAT = pIntersection[1];
-//        double pAnT = pIntersection[2];
-//        double pAT = pIntersection[3];
+//        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        float pA = p[0];
+//        float pnA = p[2];
+//        float pT = p[1];
+//        float pnT = p[3];
+//        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        float pnAnT = pIntersection[0];
+//        float pnAT = pIntersection[1];
+//        float pAnT = pIntersection[2];
+//        float pAT = pIntersection[3];
 //
-//        double result= pAT / pA;
+//        float result= pAT / pA;
 //
-//        if (Double.isNaN(result)){
+//        if (float.isNaN(result)){
 //            return 0;
 //        }
 //        else {
@@ -638,17 +640,17 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceConfidence(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceConfidence(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
-        double result = pAT / pA;
+        float result = pAT / pA;
 
         return result;
     }
@@ -661,25 +663,25 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceRecall(byte[] reactiveConstraintEvaluation) {
+    public static float getTraceRecall(byte[] reactiveConstraintEvaluation) {
         byte[] targetEval = getTargetEvaluation(reactiveConstraintEvaluation);
-        double denominator = getFormulaProbability(targetEval);
+        float denominator = getFormulaProbability(targetEval);
 //        if (denominator == 0) return 0;
         return getTraceSupport(reactiveConstraintEvaluation) / denominator;
-//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-//        double pA = p[0];
-//        double pnA = p[2];
-//        double pT = p[1];
-//        double pnT = p[3];
-//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-//        double pnAnT = pIntersection[0];
-//        double pnAT = pIntersection[1];
-//        double pAnT = pIntersection[2];
-//        double pAT = pIntersection[3];
+//        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        float pA = p[0];
+//        float pnA = p[2];
+//        float pT = p[1];
+//        float pnT = p[3];
+//        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        float pnAnT = pIntersection[0];
+//        float pnAT = pIntersection[1];
+//        float pAnT = pIntersection[2];
+//        float pAT = pIntersection[3];
 //
-//        double result= pAT / pT;
+//        float result= pAT / pT;
 //
-//        if (Double.isNaN(result)){
+//        if (float.isNaN(result)){
 //            return 0;
 //        }
 //        else {
@@ -695,43 +697,17 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceRecall(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceRecall(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
-        double result = pAT / pT;
-
-        return result;
-    }
-
-    /**
-     * Retrieve the Lovinger's Measure of a constraint for a given trace.
-     * <p>
-     * The Lovinger's measure is defined as:
-     * Lov(A->T) = 1 − ((P(A)P(¬T))/P(A¬T)))
-     *
-     * @return
-     */
-    public static double getTraceLovinger(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
-
-        double result = 1 - ((pA * pnT) / (pAnT));
-
+        float result = pAT / pT;
 
         return result;
     }
@@ -744,17 +720,43 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceLovinger(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceLovinger(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
-        double result = 1 - ((pA * pnT) / (pAnT));
+        float result = 1 - ((pA * pnT) / (pAnT));
+
+
+        return result;
+    }
+
+    /**
+     * Retrieve the Lovinger's Measure of a constraint for a given trace.
+     * <p>
+     * The Lovinger's measure is defined as:
+     * Lov(A->T) = 1 − ((P(A)P(¬T))/P(A¬T)))
+     *
+     * @return
+     */
+    public static float getTraceLovinger(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+
+        float result = 1 - ((pA * pnT) / (pAnT));
 
 
         return result;
@@ -768,23 +770,23 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceSpecificity(byte[] reactiveConstraintEvaluation) {
+    public static float getTraceSpecificity(byte[] reactiveConstraintEvaluation) {
         return getTraceConfidence(getNegativeReactiveConstraintEvaluation(reactiveConstraintEvaluation));
 //        TODO test the validity of this function with experiment del:e-Response(e,f)
-//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-//        double pA = p[0];
-//        double pnA = p[2];
-//        double pT = p[1];
-//        double pnT = p[3];
-//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-//        double pnAnT = pIntersection[0];
-//        double pnAT = pIntersection[1];
-//        double pAnT = pIntersection[2];
-//        double pAT = pIntersection[3];
+//        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        float pA = p[0];
+//        float pnA = p[2];
+//        float pT = p[1];
+//        float pnT = p[3];
+//        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        float pnAnT = pIntersection[0];
+//        float pnAT = pIntersection[1];
+//        float pAnT = pIntersection[2];
+//        float pAT = pIntersection[3];
 //
-//        double result= pnAnT / pnA;
+//        float result= pnAnT / pnA;
 //
-//        if (Double.isNaN(result)){
+//        if (float.isNaN(result)){
 //            return 0;
 //        }
 //        else {
@@ -800,17 +802,17 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceSpecificity(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceSpecificity(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
-        double result = pnAnT / pnA;
+        float result = pnAnT / pnA;
 
         return result;
     }
@@ -823,18 +825,18 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceAccuracy(byte[] reactiveConstraintEvaluation) {
+    public static float getTraceAccuracy(byte[] reactiveConstraintEvaluation) {
         return getTraceSupport(reactiveConstraintEvaluation) + getTraceSupport(getNegativeReactiveConstraintEvaluation(reactiveConstraintEvaluation));
-//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-//        double pA = p[0];
-//        double pnA = p[2];
-//        double pT = p[1];
-//        double pnT = p[3];
-//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-//        double pnAnT = pIntersection[0];
-//        double pnAT = pIntersection[1];
-//        double pAnT = pIntersection[2];
-//        double pAT = pIntersection[3];
+//        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        float pA = p[0];
+//        float pnA = p[2];
+//        float pT = p[1];
+//        float pnT = p[3];
+//        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        float pnAnT = pIntersection[0];
+//        float pnAT = pIntersection[1];
+//        float pAnT = pIntersection[2];
+//        float pAT = pIntersection[3];
 //
 //        return pAT + pnAnT;
     }
@@ -847,17 +849,17 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceAccuracy(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceAccuracy(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
-        double result = pAT + pnAnT;
+        float result = pAT + pnAnT;
 
         return result;
     }
@@ -870,25 +872,25 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceLift(byte[] reactiveConstraintEvaluation) {
+    public static float getTraceLift(byte[] reactiveConstraintEvaluation) {
         byte[] targetEval = getTargetEvaluation(reactiveConstraintEvaluation);
-        double denominator = getFormulaProbability(targetEval);
+        float denominator = getFormulaProbability(targetEval);
 //        if (denominator == 0) return 0;
         return getTraceConfidence(reactiveConstraintEvaluation) / denominator;
-//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-//        double pA = p[0];
-//        double pnA = p[2];
-//        double pT = p[1];
-//        double pnT = p[3];
-//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-//        double pnAnT = pIntersection[0];
-//        double pnAT = pIntersection[1];
-//        double pAnT = pIntersection[2];
-//        double pAT = pIntersection[3];
+//        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        float pA = p[0];
+//        float pnA = p[2];
+//        float pT = p[1];
+//        float pnT = p[3];
+//        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        float pnAnT = pIntersection[0];
+//        float pnAT = pIntersection[1];
+//        float pAnT = pIntersection[2];
+//        float pAT = pIntersection[3];
 //
-//        double result= pAT / (pA * pT);
+//        float result= pAT / (pA * pT);
 //
-//        if (Double.isNaN(result)){
+//        if (float.isNaN(result)){
 //            return 0;
 //        }
 //        else {
@@ -904,17 +906,17 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceLift(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceLift(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
-        double result = pAT / (pA * pT);
+        float result = pAT / (pA * pT);
 
         return result;
     }
@@ -927,26 +929,26 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceLeverage(byte[] reactiveConstraintEvaluation) {
+    public static float getTraceLeverage(byte[] reactiveConstraintEvaluation) {
         byte[] activatorEval = getActivatorEvaluation(reactiveConstraintEvaluation);
         byte[] targetEval = getTargetEvaluation(reactiveConstraintEvaluation);
-        double pA = getFormulaProbability(activatorEval);
-        double pT = getFormulaProbability(targetEval);
+        float pA = getFormulaProbability(activatorEval);
+        float pT = getFormulaProbability(targetEval);
         return getTraceConfidence(reactiveConstraintEvaluation) - (pA * pT);
-//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-//        double pA = p[0];
-//        double pnA = p[2];
-//        double pT = p[1];
-//        double pnT = p[3];
-//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-//        double pnAnT = pIntersection[0];
-//        double pnAT = pIntersection[1];
-//        double pAnT = pIntersection[2];
-//        double pAT = pIntersection[3];
+//        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        float pA = p[0];
+//        float pnA = p[2];
+//        float pT = p[1];
+//        float pnT = p[3];
+//        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        float pnAnT = pIntersection[0];
+//        float pnAT = pIntersection[1];
+//        float pAnT = pIntersection[2];
+//        float pAT = pIntersection[3];
 //
-//        double result= (pAT / pA) - pA * pT;
+//        float result= (pAT / pA) - pA * pT;
 //
-//        if (Double.isNaN(result)){
+//        if (float.isNaN(result)){
 //            return 0;
 //        }
 //        else {
@@ -962,17 +964,17 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceLeverage(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceLeverage(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
-        double result = (pAT / pA) - pA * pT;
+        float result = (pAT / pA) - pA * pT;
 
         return result;
     }
@@ -988,25 +990,25 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceCompliance(byte[] reactiveConstraintEvaluation) {
+    public static float getTraceCompliance(byte[] reactiveConstraintEvaluation) {
         if (reactiveConstraintEvaluation.length == 0) return 0;
-        double result = 0;
+        float result = 0;
         for (byte eval : reactiveConstraintEvaluation) {
             if (eval == 2) { // activator true but target false when byte equal to 2
                 result++;
             }
         }
         return 1 - result / reactiveConstraintEvaluation.length;
-//        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-//        double pA = p[0];
-//        double pnA = p[2];
-//        double pT = p[1];
-//        double pnT = p[3];
-//        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-//        double pnAnT = pIntersection[0];
-//        double pnAT = pIntersection[1];
-//        double pAnT = pIntersection[2];
-//        double pAT = pIntersection[3];
+//        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+//        float pA = p[0];
+//        float pnA = p[2];
+//        float pT = p[1];
+//        float pnT = p[3];
+//        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+//        float pnAnT = pIntersection[0];
+//        float pnAT = pIntersection[1];
+//        float pAnT = pIntersection[2];
+//        float pAT = pIntersection[3];
 //
 //        return 1 - pAnT;
     }
@@ -1022,42 +1024,17 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceCompliance(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceCompliance(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
-        double result = 1 - pAnT;
-
-        return result;
-    }
-
-    /**
-     * Retrieve the Odds Ratio Measure of a constraint for a given trace.
-     * <p>
-     * The Odds Ratio measure is defined as:
-     * OddsRatio(A->T) = ( P(A' intersection T') P(¬A' intersection ¬T') ) / ( P(A' intersection ¬T') P(¬A' intersection T') )
-     *
-     * @return
-     */
-    public static double getTraceOddsRatio(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
-
-        double result = (pAT * pnAnT) / (pAnT * pnAT);
+        float result = 1 - pAnT;
 
         return result;
     }
@@ -1070,17 +1047,42 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceOddsRatio(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceOddsRatio(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
-        double result = (pAT * pnAnT) / (pAnT * pnAT);
+        float result = (pAT * pnAnT) / (pAnT * pnAT);
+
+        return result;
+    }
+
+    /**
+     * Retrieve the Odds Ratio Measure of a constraint for a given trace.
+     * <p>
+     * The Odds Ratio measure is defined as:
+     * OddsRatio(A->T) = ( P(A' intersection T') P(¬A' intersection ¬T') ) / ( P(A' intersection ¬T') P(¬A' intersection T') )
+     *
+     * @return
+     */
+    public static float getTraceOddsRatio(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+
+        float result = (pAT * pnAnT) / (pAnT * pnAT);
 
         return result;
     }
@@ -1093,21 +1095,21 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceGiniIndex(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceGiniIndex(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
         double result = pA * (Math.pow((pAT / pA), 2) + Math.pow(pAnT / pA, 2)) + pnA * (Math.pow(pnAT / pnA, 2) + Math.pow(pnAnT / pnA, 2)) - Math.pow(pT, 2) - Math.pow(pnT, 2);
 
-        return result;
+        return (float) result;
     }
 
     /**
@@ -1118,18 +1120,43 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceGiniIndex(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceGiniIndex(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
         double result = pA * (Math.pow((pAT / pA), 2) + Math.pow(pAnT / pA, 2)) + pnA * (Math.pow(pnAT / pnA, 2) + Math.pow(pnAnT / pnA, 2)) - Math.pow(pT, 2) - Math.pow(pnT, 2);
 
+        return (float) result;
+    }
+
+    /**
+     * Retrieve the Certainty Factor Measure of a constraint for a given trace.
+     * <p>
+     * The Certainty Factor measure is defined as:
+     * CertaintyFactor(A->T) = (P(B|A) − P(B))/(1 − P(B))
+     *
+     * @return
+     */
+    public static float getTraceCertaintyFactor(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
+
+        float result = ((pAT / pA) - pT) / (1 - pT);
+
         return result;
     }
 
@@ -1141,42 +1168,17 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceCertaintyFactor(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceCertaintyFactor(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
-        double result = ((pAT / pA) - pT) / (1 - pT);
-
-        return result;
-    }
-
-    /**
-     * Retrieve the Certainty Factor Measure of a constraint for a given trace.
-     * <p>
-     * The Certainty Factor measure is defined as:
-     * CertaintyFactor(A->T) = (P(B|A) − P(B))/(1 − P(B))
-     *
-     * @return
-     */
-    public static double getTraceCertaintyFactor(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-
-        double result = ((pAT / pA) - pT) / (1 - pT);
+        float result = ((pAT / pA) - pT) / (1 - pT);
 
         return result;
     }
@@ -1189,19 +1191,19 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceCoverage(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceCoverage(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
-        double result = pA;
+        float result = pA;
 
         return result;
     }
@@ -1214,42 +1216,17 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceCoverage(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceCoverage(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
-        double result = pA;
-
-        return result;
-    }
-
-    /**
-     * Retrieve the Prevalence Measure of a constraint for a given trace.
-     * <p>
-     * The prevalence measure is defined as:
-     * Prevalence(A->T) = P(T)
-     *
-     * @return
-     */
-    public static double getTracePrevalence(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
-
-        double result = pT;
+        float result = pA;
 
         return result;
     }
@@ -1262,17 +1239,42 @@ public class Measures {
      *
      * @return
      */
-    public static double getTracePrevalence(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTracePrevalence(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
-        double result = pT;
+        float result = pT;
+
+        return result;
+    }
+
+    /**
+     * Retrieve the Prevalence Measure of a constraint for a given trace.
+     * <p>
+     * The prevalence measure is defined as:
+     * Prevalence(A->T) = P(T)
+     *
+     * @return
+     */
+    public static float getTracePrevalence(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+
+        float result = pT;
 
         return result;
     }
@@ -1285,19 +1287,19 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceAddedValue(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceAddedValue(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
-        double result = pAT / pA - pT;
+        float result = pAT / pA - pT;
 
         return result;
     }
@@ -1310,42 +1312,17 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceAddedValue(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceAddedValue(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
-        double result = pAT / pA - pT;
-
-        return result;
-    }
-
-    /**
-     * Retrieve the Relative Risk Measure of a constraint for a given trace.
-     * <p>
-     * The Relative Risk measure is defined as:
-     * RelativeRisk(A->T) = P(T|A)/P(T|¬A) = ( P(AT)/P(A) ) / ( P(¬AT)/P(¬A) )
-     *
-     * @return
-     */
-    public static double getTraceRelativeRisk(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
-
-        double result = (pAT / pA) / (pnAT / pnA);
+        float result = pAT / pA - pT;
 
         return result;
     }
@@ -1358,17 +1335,42 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceRelativeRisk(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceRelativeRisk(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
-        double result = (pAT / pA) / (pnAT / pnA);
+        float result = (pAT / pA) / (pnAT / pnA);
+
+        return result;
+    }
+
+    /**
+     * Retrieve the Relative Risk Measure of a constraint for a given trace.
+     * <p>
+     * The Relative Risk measure is defined as:
+     * RelativeRisk(A->T) = P(T|A)/P(T|¬A) = ( P(AT)/P(A) ) / ( P(¬AT)/P(¬A) )
+     *
+     * @return
+     */
+    public static float getTraceRelativeRisk(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+
+        float result = (pAT / pA) / (pnAT / pnA);
 
         return result;
     }
@@ -1381,19 +1383,19 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceJaccard(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceJaccard(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
-        double result = pAT / (pA + pT - pAT);
+        float result = pAT / (pA + pT - pAT);
 
         return result;
     }
@@ -1406,42 +1408,17 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceJaccard(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceJaccard(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
-        double result = pAT / (pA + pT - pAT);
-
-        return result;
-    }
-
-    /**
-     * Retrieve the Ylue Q Measure of a constraint for a given trace.
-     * <p>
-     * The Ylue Q measure is defined as:
-     * YlueQ(A->T) = ( P(AT) P(¬A¬T) - P(A¬T)P(¬AT) ) / ( P(AT) P(¬A¬T) + P(A¬T)P(¬AT) )
-     *
-     * @return
-     */
-    public static double getTraceYlueQ(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
-
-        double result = (pAT * pnAnT - pAnT * pnAT) / (pAT * pnAnT + pAnT * pnAT);
+        float result = pAT / (pA + pT - pAT);
 
         return result;
     }
@@ -1454,17 +1431,42 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceYlueQ(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceYlueQ(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
-        double result = (pAT * pnAnT - pAnT * pnAT) / (pAT * pnAnT + pAnT * pnAT);
+        float result = (pAT * pnAnT - pAnT * pnAT) / (pAT * pnAnT + pAnT * pnAT);
+
+        return result;
+    }
+
+    /**
+     * Retrieve the Ylue Q Measure of a constraint for a given trace.
+     * <p>
+     * The Ylue Q measure is defined as:
+     * YlueQ(A->T) = ( P(AT) P(¬A¬T) - P(A¬T)P(¬AT) ) / ( P(AT) P(¬A¬T) + P(A¬T)P(¬AT) )
+     *
+     * @return
+     */
+    public static float getTraceYlueQ(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+
+        float result = (pAT * pnAnT - pAnT * pnAT) / (pAT * pnAnT + pAnT * pnAT);
 
         return result;
     }
@@ -1477,21 +1479,21 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceYlueY(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceYlueY(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
         double result = (Math.sqrt(pAT * pnAnT) - Math.sqrt(pAnT * pnAT)) / (Math.sqrt(pAT * pnAnT) + Math.sqrt(pAnT * pnAT));
 
-        return result;
+        return (float) result;
     }
 
     /**
@@ -1502,19 +1504,19 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceYlueY(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceYlueY(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
         double result = (Math.sqrt(pAT * pnAnT) - Math.sqrt(pAnT * pnAT)) / (Math.sqrt(pAT * pnAnT) + Math.sqrt(pAnT * pnAT));
 
-        return result;
+        return (float) result;
     }
 
     /**
@@ -1525,21 +1527,21 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceKlosgen(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceKlosgen(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
         double result = Math.sqrt(pAT) * Math.max(pAT / pA - pT, pAT / pT - pA);
 
-        return result;
+        return (float) result;
     }
 
     /**
@@ -1550,17 +1552,42 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceKlosgen(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceKlosgen(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
         double result = Math.sqrt(pAT) * Math.max(pAT / pA - pT, pAT / pT - pA);
+
+        return (float) result;
+    }
+
+    /**
+     * Retrieve the Conviction Measure of a constraint for a given trace.
+     * <p>
+     * The Conviction measure is defined as:
+     * Conviction(A->T) = ( P(A) P(¬T)) / P(A¬T)
+     *
+     * @return
+     */
+    public static float getTraceConviction(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
+
+        float result = (pA * pnT) / pAnT;
 
         return result;
     }
@@ -1573,42 +1600,17 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceConviction(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceConviction(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
-        double result = (pA * pnT) / pAnT;
-
-        return result;
-    }
-
-    /**
-     * Retrieve the Conviction Measure of a constraint for a given trace.
-     * <p>
-     * The Conviction measure is defined as:
-     * Conviction(A->T) = ( P(A) P(¬T)) / P(A¬T)
-     *
-     * @return
-     */
-    public static double getTraceConviction(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-
-        double result = (pA * pnT) / pAnT;
+        float result = (pA * pnT) / pAnT;
 
         return result;
     }
@@ -1622,24 +1624,24 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceInterestingnessWeightingDependency(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceInterestingnessWeightingDependency(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
         int m = 2;
         int k = 2;
 
         double result = (Math.pow(pAT / (pA * pT), k) - 1) * Math.pow(pAT, m);
 
-        return result;
+        return (float) result;
     }
 
     /**
@@ -1651,21 +1653,47 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceInterestingnessWeightingDependency(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
+    public static float getTraceInterestingnessWeightingDependency(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
         int m = 2;
         int k = 2;
 
         double result = (Math.pow(pAT / (pA * pT), k) - 1) * Math.pow(pAT, m);
 
+        return (float) result;
+    }
+
+    /**
+     * Retrieve the Collective Strength Measure of a constraint for a given trace.
+     * <p>
+     * The Collective Strength measure is defined as:
+     * CollectiveStrength(A->T) = ( P(AT)+P(¬T|¬A) )/( P(A)P(T)+P(¬A)P(¬B) ) * ( 1-P(A)P(T)-P(¬A)P(¬T) )/( 1-P(AT)-P(¬T|¬A) ) =
+     * = ( P(AT)+P(¬T¬A)/P(¬A) )/( P(A)P(T)+P(¬A)P(¬B) ) * ( 1-P(A)P(T)-P(¬A)P(¬T) )/( 1-P(AT)-P(¬T¬A)/P(¬A) )
+     *
+     * @return
+     */
+    public static float getTraceCollectiveStrength(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
+
+        float result = (pAT + (pnAnT / pnA)) / (pA * pT + pnA * pnT) * (1 - pA * pT - pnA * pnT) / (1 - pAT - (pnAnT / pnA));
+
         return result;
     }
 
@@ -1678,43 +1706,17 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceCollectiveStrength(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceCollectiveStrength(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
 
-        double result = (pAT + (pnAnT / pnA)) / (pA * pT + pnA * pnT) * (1 - pA * pT - pnA * pnT) / (1 - pAT - (pnAnT / pnA));
-
-        return result;
-    }
-
-    /**
-     * Retrieve the Collective Strength Measure of a constraint for a given trace.
-     * <p>
-     * The Collective Strength measure is defined as:
-     * CollectiveStrength(A->T) = ( P(AT)+P(¬T|¬A) )/( P(A)P(T)+P(¬A)P(¬B) ) * ( 1-P(A)P(T)-P(¬A)P(¬T) )/( 1-P(AT)-P(¬T|¬A) ) =
-     * = ( P(AT)+P(¬T¬A)/P(¬A) )/( P(A)P(T)+P(¬A)P(¬B) ) * ( 1-P(A)P(T)-P(¬A)P(¬T) )/( 1-P(AT)-P(¬T¬A)/P(¬A) )
-     *
-     * @return
-     */
-    public static double getTraceCollectiveStrength(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-
-        double result = (pAT + (pnAnT / pnA)) / (pA * pT + pnA * pnT) * (1 - pA * pT - pnA * pnT) / (1 - pAT - (pnAnT / pnA));
+        float result = (pAT + (pnAnT / pnA)) / (pA * pT + pnA * pnT) * (1 - pA * pT - pnA * pnT) / (1 - pAT - (pnAnT / pnA));
 
         return result;
     }
@@ -1729,21 +1731,21 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceLaplaceCorrection(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceLaplaceCorrection(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
         int n = reactiveConstraintEvaluation.length;
 
-        double result = (n * pAT + 1) / (n * pA + 2);
+        float result = (n * pAT + 1) / (n * pA + 2);
 
         return result;
     }
@@ -1758,20 +1760,20 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceLaplaceCorrection(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
+    public static float getTraceLaplaceCorrection(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
 //        int n = reactiveConstraintEvaluation.length;
 
-        double result = (n * pAT + 1) / (n * pA + 2);
+        float result = (n * pAT + 1) / (n * pA + 2);
 
         return result;
     }
@@ -1784,22 +1786,23 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceJMeasure(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceJMeasure(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
         double result = pAT * Math.log((pAT / pA) / pT) + pAnT * Math.log((pAnT / pA) / pnT);
 
-        return result;
+        return (float) result;
     }
+
     /**
      * Retrieve the J-Measure Measure of a constraint for a given trace.
      * <p>
@@ -1808,20 +1811,20 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceJMeasure(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
+    public static float getTraceJMeasure(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
         double result = pAT * Math.log((pAT / pA) / pT) + pAnT * Math.log((pAnT / pA) / pnT);
 
-        return result;
+        return (float) result;
     }
 
     /**
@@ -1832,22 +1835,23 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceOneWaySupport(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceOneWaySupport(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
         double result = pAT / pA * log2(pAT / (pA * pT));
 
-        return result;
+        return (float) result;
     }
+
     /**
      * Retrieve the One-way Support Measure of a constraint for a given trace.
      * <p>
@@ -1856,20 +1860,20 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceOneWaySupport(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
+    public static float getTraceOneWaySupport(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
         double result = pAT / pA * log2(pAT / (pA * pT));
 
-        return result;
+        return (float) result;
     }
 
     /**
@@ -1880,22 +1884,23 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceTwoWaySupport(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceTwoWaySupport(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
         double result = pAT * log2(pAT / (pA * pT));
 
-        return result;
+        return (float) result;
     }
+
     /**
      * Retrieve the Two-way Support Measure of a constraint for a given trace.
      * <p>
@@ -1904,20 +1909,20 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceTwoWaySupport(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
+    public static float getTraceTwoWaySupport(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
         double result = pAT * log2(pAT / (pA * pT));
 
-        return result;
+        return (float) result;
     }
 
 
@@ -1930,25 +1935,26 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceTwoWaySupportVariation(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceTwoWaySupportVariation(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
         double result = pAT * log2(pAT / (pA * pT)) +
                 pAnT * log2(pAnT / (pA * pnT)) +
                 pnAT * log2(pnAT / (pnA * pT)) +
                 pnAnT * log2(pnAnT / (pnA * pnT));
 
-        return result;
+        return (float) result;
     }
+
     /**
      * Retrieve the Two-way Support Variation Measure of a constraint for a given trace.
      * <p>
@@ -1958,23 +1964,23 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceTwoWaySupportVariation(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
+    public static float getTraceTwoWaySupportVariation(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
         double result = pAT * log2(pAT / (pA * pT)) +
                 pAnT * log2(pAnT / (pA * pnT)) +
                 pnAT * log2(pnAT / (pnA * pT)) +
                 pnAnT * log2(pnAnT / (pnA * pnT));
 
-        return result;
+        return (float) result;
     }
 
     /**
@@ -1985,22 +1991,23 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceLinearCorrelationCoefficient(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceLinearCorrelationCoefficient(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
         double result = (pAT - pA * pT) / Math.sqrt(pA * pT * pnA * pnT);
 
-        return result;
+        return (float) result;
     }
+
     /**
      * Retrieve the Linear Correlation Coefficient Measure of a constraint for a given trace.
      * <p>
@@ -2009,18 +2016,43 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceLinearCorrelationCoefficient(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
+    public static float getTraceLinearCorrelationCoefficient(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
         double result = (pAT - pA * pT) / Math.sqrt(pA * pT * pnA * pnT);
+
+        return (float) result;
+    }
+
+    /**
+     * Retrieve the Piatetsky-Shapiro Measure of a constraint for a given trace.
+     * <p>
+     * The Piatetsky-Shapiro measure is defined as:
+     * PiatetskyShapiro(A->T) = P(AT)-P(A)P(T)
+     *
+     * @return
+     */
+    public static float getTracePiatetskyShapiro(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
+
+        float result = pAT - pA * pT;
 
         return result;
     }
@@ -2033,42 +2065,18 @@ public class Measures {
      *
      * @return
      */
-    public static double getTracePiatetskyShapiro(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTracePiatetskyShapiro(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
-        double result = pAT - pA * pT;
-
-        return result;
-    }
-    /**
-     * Retrieve the Piatetsky-Shapiro Measure of a constraint for a given trace.
-     * <p>
-     * The Piatetsky-Shapiro measure is defined as:
-     * PiatetskyShapiro(A->T) = P(AT)-P(A)P(T)
-     *
-     * @return
-     */
-    public static double getTracePiatetskyShapiro(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
-
-        double result = pAT - pA * pT;
+        float result = pAT - pA * pT;
 
         return result;
     }
@@ -2081,22 +2089,23 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceCosine(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceCosine(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
         double result = pAT / Math.sqrt(pA * pT);
 
-        return result;
+        return (float) result;
     }
+
     /**
      * Retrieve the Cosine Measure of a constraint for a given trace.
      * <p>
@@ -2105,20 +2114,20 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceCosine(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
+    public static float getTraceCosine(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
         double result = pAT / Math.sqrt(pA * pT);
 
-        return result;
+        return (float) result;
     }
 
     /**
@@ -2129,22 +2138,23 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceInformationGain(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceInformationGain(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
         double result = Math.log(pAT / (pA * pT));
 
-        return result;
+        return (float) result;
     }
+
     /**
      * Retrieve the Information Gain Measure of a constraint for a given trace.
      * <p>
@@ -2153,18 +2163,43 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceInformationGain(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
+    public static float getTraceInformationGain(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
         double result = Math.log(pAT / (pA * pT));
+
+        return (float) result;
+    }
+
+    /**
+     * Retrieve the Sebag-Schoenauer Measure of a constraint for a given trace.
+     * <p>
+     * The Sebag-Schoenauer measure is defined as:
+     * SebagSchoenauer(A->T) = P(AT)/P(A¬T)
+     *
+     * @return
+     */
+    public static float getTraceSebagSchoenauer(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
+
+        float result = pAT / pAnT;
 
         return result;
     }
@@ -2177,42 +2212,18 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceSebagSchoenauer(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceSebagSchoenauer(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
-        double result = pAT / pAnT;
-
-        return result;
-    }
-    /**
-     * Retrieve the Sebag-Schoenauer Measure of a constraint for a given trace.
-     * <p>
-     * The Sebag-Schoenauer measure is defined as:
-     * SebagSchoenauer(A->T) = P(AT)/P(A¬T)
-     *
-     * @return
-     */
-    public static double getTraceSebagSchoenauer(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
-
-        double result = pAT / pAnT;
+        float result = pAT / pAnT;
 
         return result;
     }
@@ -2225,22 +2236,23 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceLeastContradiction(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceLeastContradiction(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
-        double result = (pAT - pAnT) / pT;
+        float result = (pAT - pAnT) / pT;
 
         return result;
     }
+
     /**
      * Retrieve the Least Contradiction Measure of a constraint for a given trace.
      * <p>
@@ -2249,18 +2261,18 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceLeastContradiction(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
+    public static float getTraceLeastContradiction(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
-        double result = (pAT - pAnT) / pT;
+        float result = (pAT - pAnT) / pT;
 
         return result;
     }
@@ -2273,22 +2285,23 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceOddMultiplier(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceOddMultiplier(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
-        double result = (pAT * pnT) / (pT * pAnT);
+        float result = (pAT * pnT) / (pT * pAnT);
 
         return result;
     }
+
     /**
      * Retrieve the Odd Multiplier Measure of a constraint for a given trace.
      * <p>
@@ -2297,18 +2310,18 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceOddMultiplier(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
+    public static float getTraceOddMultiplier(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
-        double result = (pAT * pnT) / (pT * pAnT);
+        float result = (pAT * pnT) / (pT * pAnT);
 
         return result;
     }
@@ -2321,22 +2334,23 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceExampleCounterexampleRate(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceExampleCounterexampleRate(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
-        double result = 1 - pAnT / pAT;
+        float result = 1 - pAnT / pAT;
 
         return result;
     }
+
     /**
      * Retrieve the Example and Counterexample Rate Measure of a constraint for a given trace.
      * <p>
@@ -2345,18 +2359,18 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceExampleCounterexampleRate(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
+    public static float getTraceExampleCounterexampleRate(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
-        double result = 1 - pAnT / pAT;
+        float result = 1 - pAnT / pAT;
 
         return result;
     }
@@ -2369,22 +2383,23 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceZhang(byte[] reactiveConstraintEvaluation) {
-        double[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
-        double pnAnT = pIntersection[0];
-        double pnAT = pIntersection[1];
-        double pAnT = pIntersection[2];
-        double pAT = pIntersection[3];
+    public static float getTraceZhang(byte[] reactiveConstraintEvaluation) {
+        float[] p = getReactiveProbabilities(reactiveConstraintEvaluation);// result { 0: activation, 1: target, 2: no activation, 3: no target}
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float[] pIntersection = getReactiveIntersectionsProbabilities(reactiveConstraintEvaluation);// result {0: 00, 1: 01, , 2: 10, 3:11}
+        float pnAnT = pIntersection[0];
+        float pnAT = pIntersection[1];
+        float pAnT = pIntersection[2];
+        float pAT = pIntersection[3];
 
-        double result = (pAT - pA * pT) / Math.max(pAT * pnT, pT * pAnT);
+        float result = (pAT - pA * pT) / Math.max(pAT * pnT, pT * pAnT);
 
         return result;
     }
+
     /**
      * Retrieve the Zhang Measure of a constraint for a given trace.
      * <p>
@@ -2393,18 +2408,18 @@ public class Measures {
      *
      * @return
      */
-    public static double getTraceZhang(double[] p) {
-        double pA = p[0];
-        double pnA = p[2];
-        double pT = p[1];
-        double pnT = p[3];
-        double pnAnT = p[4];
-        double pnAT = p[5];
-        double pAnT = p[6];
-        double pAT = p[7];
-        double n = p[8];
+    public static float getTraceZhang(float[] p) {
+        float pA = p[0];
+        float pnA = p[2];
+        float pT = p[1];
+        float pnT = p[3];
+        float pnAnT = p[4];
+        float pnAT = p[5];
+        float pAnT = p[6];
+        float pAT = p[7];
+        float n = p[8];
 
-        double result = (pAT - pA * pT) / Math.max(pAT * pnT, pT * pAnT);
+        float result = (pAT - pA * pT) / Math.max(pAT * pnT, pT * pAnT);
 
         return result;
     }
@@ -2415,7 +2430,7 @@ public class Measures {
      * @return
      */
 //	@Deprecated
-    public static double getLogSupport(int constraintIndex, MegaMatrixMonster matrix) {
+    public static float getLogSupport(int constraintIndex, MegaMatrixMonster matrix) {
         return getMeasureAverage(constraintIndex, 0, matrix.getMeasures());
 //		return getLogDuckTapeMeasures(constraintIndex, 0, matrix.getMatrix());
     }
@@ -2458,9 +2473,9 @@ public class Measures {
      * @return
      */
 //	@Deprecated
-    public static double getMeasureAverage(int constraintIndex, int measureIndex, double[][][] traceMeasuresMatrix) {
-        double result = 0;
-        for (double[][] traceEval : traceMeasuresMatrix) {
+    public static float getMeasureAverage(int constraintIndex, int measureIndex, float[][][] traceMeasuresMatrix) {
+        float result = 0;
+        for (float[][] traceEval : traceMeasuresMatrix) {
             result += traceEval[constraintIndex][measureIndex];
         }
 
@@ -2478,7 +2493,7 @@ public class Measures {
      * @return array with the distribution values
      */
     public static double[] getMeasureDistribution(double[] traceMeasures, boolean nanLogSkipFlag) {
-        DescriptiveStatistics measureDistribution = new DescriptiveStatistics();
+        SummaryStatistics measureDistribution = new SummaryStatistics();
         for (double measure : traceMeasures) {
             if (nanLogSkipFlag && Double.isNaN(measure)) continue;
             measureDistribution.addValue(measure);
@@ -2489,7 +2504,6 @@ public class Measures {
                 measureDistribution.getVariance(),
                 measureDistribution.getPopulationVariance(),
                 measureDistribution.getStandardDeviation(),
-                measureDistribution.getPercentile(75),
                 measureDistribution.getMax(),
                 measureDistribution.getMin()
         };
@@ -2506,11 +2520,10 @@ public class Measures {
      * @param nanLogSkipFlag
      * @return
      */
-    public static DescriptiveStatistics getMeasureDistributionObject(int constraintIndex, int measureIndex, double[][][] traceMeasuresMatrix, boolean nanLogSkipFlag) {
-        DescriptiveStatistics measureDistribution = new DescriptiveStatistics();
-
-        for (double[][] traceEval : traceMeasuresMatrix) {
-            if (nanLogSkipFlag && Double.isNaN(traceEval[constraintIndex][measureIndex]))
+    public static SummaryStatistics getMeasureDistributionObject(int constraintIndex, int measureIndex, float[][][] traceMeasuresMatrix, boolean nanLogSkipFlag) {
+        SummaryStatistics measureDistribution = new SummaryStatistics();
+        for (float[][] traceEval : traceMeasuresMatrix) {
+            if (nanLogSkipFlag && Float.isNaN(traceEval[constraintIndex][measureIndex]))
                 continue;
             measureDistribution.addValue(traceEval[constraintIndex][measureIndex]);
         }
@@ -2585,7 +2598,7 @@ public class Measures {
      * @param number
      * @return
      */
-    private static double log2(double number) {
+    private static double log2(float number) {
 //        return (Math.log(number) / Math.log(2) + 1e-10);
         return Math.log(number) / Math.log(2);
     }
