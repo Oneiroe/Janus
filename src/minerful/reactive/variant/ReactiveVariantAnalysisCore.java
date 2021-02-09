@@ -24,8 +24,8 @@ public class ReactiveVariantAnalysisCore {
     private ProcessModel processSpecification2;  // original set of constraints mined from log2
     private final JanusVariantCmdParameters janusVariantParams;  // input parameter of the analysis
 
-    private Map<String, Map<String, Double>> lCoded; // encoded log for efficient permutations
-    private double[][] lCodedIndex; // encoded log for efficient permutations
+    private Map<String, Map<String, Float>> lCoded; // encoded log for efficient permutations
+    private float[][] lCodedIndex; // encoded log for efficient permutations
     private Set mTot;  // total set of constraints to analyse, i.e., union of process specification 1 adn 2
     private ProcessModel processSpecificationUnion;  // total set of constraints to analyse, i.e., union of process specification 1 adn 2
     private Set mDiffs;  // initial differences of specification 1 and 2 to be checked through the analysis
@@ -41,19 +41,19 @@ public class ReactiveVariantAnalysisCore {
     private Map<String, Integer> constraintToIndexMap;
 
     private static class PermutationResult {
-        double[][] result1; // permutation test results for first group
-        double[][] result2; // permutation test results for second group
+        float[][] result1; // permutation test results for first group
+        float[][] result2; // permutation test results for second group
         String[] constraints;  // list of constraint names
-        double[] test;  // test statistics for the difference of the groups, mind that constraints and permutations indices as swapped wrt the permutation results
+        float[] test;  // test statistics for the difference of the groups, mind that constraints and permutations indices as swapped wrt the permutation results
 
-        public PermutationResult(double[][] result1, double[][] result2, String[] constraints) {
+        public PermutationResult(float[][] result1, float[][] result2, String[] constraints) {
             this.result1 = result1;
             this.result2 = result2;
             this.constraints = constraints;
-            this.test = new double[constraints.length];
+            this.test = new float[constraints.length];
         }
 
-        public PermutationResult(double[][] result1, double[][] result2) {
+        public PermutationResult(float[][] result1, float[][] result2) {
             this.result1 = result1;
             this.result2 = result2;
         }
@@ -91,7 +91,8 @@ public class ReactiveVariantAnalysisCore {
      *
      * @return
      */
-    public Map<String, Double> check() {
+    public Map<String, Float> check() {
+        logger.info("Variant Analysis start");
 //        PREPROCESSING
         double before = System.currentTimeMillis();
         //        1. Models differences
@@ -112,7 +113,7 @@ public class ReactiveVariantAnalysisCore {
         PermutationResult pRes = permuteResultsIndex(lCodedIndex, janusVariantParams.nPermutations, true);
         logger.info("Significance testing...");
 //        Map<String, Double> results = significanceTest(pRes, pValueThreshold);
-        Map<String, Double> results = significanceTestIndex(pRes, pValueThreshold);
+        Map<String, Float> results = significanceTestIndex(pRes, pValueThreshold);
         after = System.currentTimeMillis();
         logger.info("Permutation test time: " + (after - before));
         return results;
@@ -125,17 +126,17 @@ public class ReactiveVariantAnalysisCore {
      * @param pValueThreshold
      * @return
      */
-    private Map<String, Double> significanceTest(PermutationResult pRes, double pValueThreshold) {
-        Map<String, Double> result = new HashMap<String, Double>();
+    private Map<String, Float> significanceTest(PermutationResult pRes, double pValueThreshold) {
+        Map<String, Float> result = new HashMap<String, Float>();
         for (int cIndex = 0; cIndex < pRes.constraints.length; cIndex++) {
-            double initialreference = pRes.result1[0][cIndex] - pRes.result2[0][cIndex];
+            float initialreference = pRes.result1[0][cIndex] - pRes.result2[0][cIndex];
             for (int permutation = 1; permutation < pRes.result1.length; permutation++) {
 //                TODO consider absolute values
                 if (pRes.result1[permutation][cIndex] - pRes.result2[permutation][cIndex] >= initialreference) {
                     pRes.test[cIndex] += 1.0;
                 }
             }
-            pRes.test[cIndex] = pRes.test[cIndex] / pRes.test.length;
+            pRes.test[cIndex] = pRes.test[cIndex] / pRes.result1.length;
 //            if (pRes.test[cIndex]<=pValueThreshold) System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
 //            System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
             result.put(pRes.constraints[cIndex], pRes.test[cIndex]);
@@ -150,19 +151,35 @@ public class ReactiveVariantAnalysisCore {
      * @param pValueThreshold
      * @return
      */
-    private Map<String, Double> significanceTestIndex(PermutationResult pRes, double pValueThreshold) {
-        Map<String, Double> result = new HashMap<String, Double>();
+    private Map<String, Float> significanceTestIndex(PermutationResult pRes, double pValueThreshold) {
+        Map<String, Float> result = new HashMap<String, Float>();
         int nConstraints = processSpecificationUnion.howManyConstraints();
-        pRes.test = new double[nConstraints];
+        int nPermutations = pRes.result1.length;
+        pRes.test = new float[nConstraints];
         for (int cIndex = 0; cIndex < nConstraints; cIndex++) {
-            double initialreference = pRes.result1[0][cIndex] - pRes.result2[0][cIndex];
-            for (int permutation = 1; permutation < pRes.result1.length; permutation++) {
-//                TODO consider absolute values
-                if (pRes.result1[permutation][cIndex] - pRes.result2[permutation][cIndex] >= initialreference) {
+//            double initialreference = pRes.result1[0][cIndex] - pRes.result2[0][cIndex];  // for NEGATIVE/POSITIVE DISTANCE
+            double initialreference = Math.abs(pRes.result1[0][cIndex] - pRes.result2[0][cIndex]); // for ABSOLUTE DISTANCE
+            boolean negRef = initialreference < 0;
+            pRes.test[cIndex] += 1.0;
+            for (int permutation = 1; permutation < nPermutations; permutation++) {
+//                NEGATIVE/POSITIVE DISTINCTION:
+//                consider the difference in the permutation only if it is extreme in the same sign of the reference difference
+//                if (negRef) {
+//                    if (pRes.result1[permutation][cIndex] - pRes.result2[permutation][cIndex] <= initialreference) {
+//                        pRes.test[cIndex] += 1.0;
+//                    }
+//                } else {
+//                    if (pRes.result1[permutation][cIndex] - pRes.result2[permutation][cIndex] >= initialreference) {
+//                        pRes.test[cIndex] += 1.0;
+//                    }
+//                }
+//                ABSOLUTE DISTANCE:
+//                consider the absolute difference, regardless of the direction
+                if (Math.abs(pRes.result1[permutation][cIndex] - pRes.result2[permutation][cIndex]) >= initialreference) {
                     pRes.test[cIndex] += 1.0;
                 }
             }
-            pRes.test[cIndex] = pRes.test[cIndex] / pRes.test.length;
+            pRes.test[cIndex] = pRes.test[cIndex] / nPermutations;
 //            if (pRes.test[cIndex]<=pValueThreshold) System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
 //            System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
             result.put(indexToConstraintMap.get(cIndex), pRes.test[cIndex]);
@@ -170,10 +187,10 @@ public class ReactiveVariantAnalysisCore {
         return result;
     }
 
-    private PermutationResult permuteResultsIndex(double[][] lCodedIndex, int nPermutations, boolean nanCheck) {
+    private PermutationResult permuteResultsIndex(float[][] lCodedIndex, int nPermutations, boolean nanCheck) {
         int nConstraints = processSpecificationUnion.howManyConstraints();
-        double[][] result1 = new double[nPermutations][nConstraints];
-        double[][] result2 = new double[nPermutations][nConstraints];
+        float[][] result1 = new float[nPermutations][nConstraints];
+        float[][] result2 = new float[nPermutations][nConstraints];
 
         int log1Size = logParser_1.length();
         int log2Size = logParser_2.length();
@@ -198,7 +215,7 @@ public class ReactiveVariantAnalysisCore {
                 int traceIndex = -1;
                 for (int t : permutableTracesIndexList) {
                     traceIndex++;
-                    if (nanCheck & Double.isNaN(lCodedIndex[t][c])) {
+                    if (nanCheck & Float.isNaN(lCodedIndex[t][c])) {
                         continue; // TODO expose in input
                     }
                     if (traceIndex < log1Size) {
@@ -213,6 +230,8 @@ public class ReactiveVariantAnalysisCore {
 //            permutation "0" are the original logs
             Collections.shuffle(permutableTracesIndexList);
         }
+        System.out.print("\rPermutation: " + nPermutations + "/" + nPermutations);
+        System.out.println();
 
         return new PermutationResult(result1, result2);
     }
@@ -225,10 +244,10 @@ public class ReactiveVariantAnalysisCore {
      * @param nanCheck
      * @return
      */
-    private PermutationResult permuteResults(Map<String, Map<String, Double>> lCoded, int nPermutations, boolean nanCheck) {
+    private PermutationResult permuteResults(Map<String, Map<String, Float>> lCoded, int nPermutations, boolean nanCheck) {
         int nConstraints = processSpecificationUnion.howManyConstraints();
-        double[][] result1 = new double[nPermutations][nConstraints];
-        double[][] result2 = new double[nPermutations][nConstraints];
+        float[][] result1 = new float[nPermutations][nConstraints];
+        float[][] result2 = new float[nPermutations][nConstraints];
 
         String[] constraints = new String[nConstraints];
         int constraintIndex = 0;
@@ -281,13 +300,13 @@ public class ReactiveVariantAnalysisCore {
      *
      * @param lCoded
      */
-    private void encodeLogsIndex(Map<String, Map<String, Double>> lCoded) {
+    private void encodeLogsIndex(Map<String, Map<String, Float>> lCoded) {
         indexToTraceMap = new HashMap<>();
         traceToIndexMap = new HashMap<>();
         indexToConstraintMap = new HashMap<>();
         constraintToIndexMap = new HashMap<>();
 
-        lCodedIndex = new double[lCoded.size()][processSpecificationUnion.howManyConstraints()]; // lCodedIndex[trace index][constraint index]
+        lCodedIndex = new float[lCoded.size()][processSpecificationUnion.howManyConstraints()]; // lCodedIndex[trace index][constraint index]
 
         int cIndex = 0;
         for (String c : lCoded.values().iterator().next().keySet()) {
@@ -318,9 +337,9 @@ public class ReactiveVariantAnalysisCore {
      * @param model
      * @return
      */
-    private Map<String, Map<String, Double>> encodeLog(LogParser logParser, ProcessModel model) {
-        Map<String, Map<String, Double>> result = new HashMap();
-        JanusCheckingCmdParameters janusCheckingParams = new JanusCheckingCmdParameters(false, 0, true, true);
+    private Map<String, Map<String, Float>> encodeLog(LogParser logParser, ProcessModel model) {
+        Map<String, Map<String, Float>> result = new HashMap();
+        JanusCheckingCmdParameters janusCheckingParams = new JanusCheckingCmdParameters(false, 0, true, false);
         ReactiveCheckingOfflineQueryingCore reactiveCheckingOfflineQueryingCore = new ReactiveCheckingOfflineQueryingCore(
                 0, logParser, janusCheckingParams, null, logParser.getTaskCharArchive(), null, model.bag);
         double before = System.currentTimeMillis();
@@ -329,20 +348,21 @@ public class ReactiveVariantAnalysisCore {
 
         logger.info("Total KB checking time: " + (after - before));
 
-//      TODO maybe compute only the desired measure
-        measures.computeMeasures(janusCheckingParams.nanTraceSubstituteFlag, janusCheckingParams.nanTraceSubstituteValue, janusCheckingParams.nanLogSkipFlag);
+//      compute only the desired measure
+        float[][] tracesMeasure = measures.computeTracesSingleMeasure(MEASURE, janusCheckingParams.nanTraceSubstituteFlag, janusCheckingParams.nanTraceSubstituteValue);
 
         int currentTrace = 0;
         for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
             LogTraceParser tr = it.next();
             String stringTrace = tr.printStringTrace();
             if (!result.containsKey(stringTrace)) {
-                result.put(stringTrace, new HashMap<String, Double>());
+                result.put(stringTrace, new HashMap<String, Float>());
                 int cIndex = 0;
                 for (SeparatedAutomatonOfflineRunner c : measures.getAutomata()) {
                     result.get(stringTrace).put(
                             c.toString(),
-                            measures.getSpecificMeasure(currentTrace, cIndex, MEASURE_INDEX)
+                            tracesMeasure[currentTrace][cIndex]
+//                            measures.getSpecificMeasure(currentTrace, cIndex, MEASURE_INDEX)
                     );
                     cIndex++;
                 }
@@ -363,8 +383,8 @@ public class ReactiveVariantAnalysisCore {
      * @param model
      * @return
      */
-    private Map<String, Map<String, Double>> encodeLogs(LogParser logParser_1, LogParser logParser_2, ProcessModel model) {
-        lCoded = new HashMap<String, Map<String, Double>>();
+    private Map<String, Map<String, Float>> encodeLogs(LogParser logParser_1, LogParser logParser_2, ProcessModel model) {
+        lCoded = new HashMap<String, Map<String, Float>>();
         lCoded.putAll(encodeLog(logParser_1, model));
         lCoded.putAll(encodeLog(logParser_2, model));
         return lCoded;

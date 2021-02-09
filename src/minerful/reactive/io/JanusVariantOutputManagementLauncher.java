@@ -34,7 +34,7 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
      * @param systemParams
      * @param alphabet
      */
-    public void manageVariantOutput(Map<String, Double> variantResults, NavigableMap<Constraint, String> additionalCnsIndexedInfo, JanusVariantCmdParameters varParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, TaskCharArchive alphabet) {
+    public void manageVariantOutput(Map<String, Float> variantResults, NavigableMap<Constraint, String> additionalCnsIndexedInfo, JanusVariantCmdParameters varParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, TaskCharArchive alphabet) {
         File outputFile = null;
 
         // ************* CSV
@@ -69,7 +69,7 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
 
     }
 
-    private void printVariantResultsToScreen(Map<String, Double> variantResults, JanusVariantCmdParameters varParams, TaskCharArchive alphabet) {
+    private void printVariantResultsToScreen(Map<String, Float> variantResults, JanusVariantCmdParameters varParams, TaskCharArchive alphabet) {
         //		header row
         System.out.println("--------------------");
         System.out.println("relevant constraints differences");
@@ -83,7 +83,7 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
         }
     }
 
-    private void exportVariantResultsToCSV(Map<String, Double> variantResults, File outputFile, JanusVariantCmdParameters varParams, TaskCharArchive alphabet) {
+    private void exportVariantResultsToCSV(Map<String, Float> variantResults, File outputFile, JanusVariantCmdParameters varParams, TaskCharArchive alphabet) {
         //		header row
         String[] header = {"Constraint", "p_value"};
         try {
@@ -127,7 +127,7 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
         return resultBuilder.toString();
     }
 
-    public void manageVariantOutput(Map<String, Double> variantResults,
+    public void manageVariantOutput(Map<String, Float> variantResults,
                                     ViewCmdParameters viewParams, JanusVariantCmdParameters varParams, SystemCmdParameters systemParams, TaskCharArchive alphabet) {
         this.manageVariantOutput(variantResults, null, varParams, viewParams, systemParams, alphabet);
     }

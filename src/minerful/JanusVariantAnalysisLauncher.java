@@ -125,14 +125,15 @@ public class JanusVariantAnalysisLauncher {
      * analyse the DECLARE rules differences of the two input log with statistical guarantees
      * @return
      */
-    public Map<String, Double> checkVariants() {
+    public Map<String, Float> checkVariants() {
 //        1. Rules discovery for each log
         if (processSpecification1 == null || processSpecification2 == null) {
+            logger.info("Models discovery for input variants");
             double before = System.currentTimeMillis();
             // Variant 1 discovery
             TaskCharArchive taskCharArchive1 = eventLog1.getTaskCharArchive();
             JanusOfflineMinerStarter minerMinaStarter = new JanusOfflineMinerStarter();
-            processSpecification1 = minerMinaStarter.mine(eventLog1, taskCharArchive1, 0.1, 0.8);
+            processSpecification1 = minerMinaStarter.mine(eventLog1, taskCharArchive1, 0.1, 0.8); // todo expose discovery parameters in input
             // variant 2 discovery
             TaskCharArchive taskCharArchive2 = eventLog2.getTaskCharArchive();
             minerMinaStarter = new JanusOfflineMinerStarter();

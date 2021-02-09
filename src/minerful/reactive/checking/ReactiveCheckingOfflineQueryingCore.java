@@ -175,6 +175,7 @@ public class ReactiveCheckingOfflineQueryingCore implements Callable<MegaMatrixM
             }
             System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
         }
+        System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);
         System.out.println();
 
         this.megaMonster = new MegaMatrixMonster(finalResults, this.logParser, this.bag.getSeparatedAutomataOfflineRunners());
@@ -229,6 +230,7 @@ public class ReactiveCheckingOfflineQueryingCore implements Callable<MegaMatrixM
             }
             System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
         }
+        System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);
         System.out.println();
 
         this.megaMonster = new MegaMatrixMonster(finalResults, this.logParser, this.bag.getSeparatedAutomataOfflineRunners());

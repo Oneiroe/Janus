@@ -84,7 +84,7 @@ public class JanusModelCheckLauncher {
         logger.info("Total KB checking time: " + (after - before));
 
         before = System.currentTimeMillis();
-        result.computeMeasures(janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue, janusParams.nanLogSkipFlag);
+        result.computeAllMeasures(janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue, janusParams.nanLogSkipFlag);
         after = System.currentTimeMillis();
 
         logger.info("Total measurement retrieval time: " + (after - before));

@@ -64,7 +64,7 @@ public class MegaMatrixMonster {
         this(log, automata);
         this.matrix = matrix;
         System.gc();
-        measures = new float[matrix.length][automata.size()][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
+//        measures = new float[matrix.length][automata.size()][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
         constraintLogMeasures = new SummaryStatistics[automata.size()][Measures.MEASURE_NUM];
     }
 
@@ -72,7 +72,7 @@ public class MegaMatrixMonster {
         this(log, automata);
         this.matrixLite = matrixLite;
         System.gc();
-        measures = new float[matrixLite.length][automata.size()][Measures.MEASURE_NUM];
+//        measures = new float[matrixLite.length][automata.size()][Measures.MEASURE_NUM];
         constraintLogMeasures = new SummaryStatistics[automata.size()][Measures.MEASURE_NUM];
     }
 
@@ -123,8 +123,11 @@ public class MegaMatrixMonster {
      * @param nanTraceSubstituteValue
      * @param nanLogSkipFlag
      */
-    public void computeMeasures(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
-    //		TRACE MEASURES
+    public void computeAllMeasures(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
+        logger.info("Initializing measures matrix...");
+        measures = new float[matrix.length][automata.size()][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
+
+        //		TRACE MEASURES
         logger.info("Retrieving Trace Measures...");
         if (matrixLite == null) {
             computeTraceMeasuresMonster(nanTraceSubstituteFlag, nanTraceSubstituteValue, nanLogSkipFlag);
@@ -134,8 +137,8 @@ public class MegaMatrixMonster {
 
         System.gc();
         logger.info("Retrieving Log Measures...");
-    //		LOG MEASURES
-        int constraintsNum=automata.size();
+        //		LOG MEASURES
+        int constraintsNum = automata.size();
         for (int constraint = 0; constraint < automata.size(); constraint++) {
             System.out.print("\rConstraint: " + constraint + "/" + constraintsNum);  // Status counter "current trace/total trace"
             for (int measure = 0; measure < Measures.MEASURE_NUM; measure++) {
@@ -146,6 +149,79 @@ public class MegaMatrixMonster {
         }
         System.out.println();
     }
+
+    /**
+     * Calculate a specific measure at the traces level for all the constraints, given its name.
+     * The measurements are returned in output and not stored into the object.
+     *
+     * @param nanTraceSubstituteFlag
+     * @param nanTraceSubstituteValue
+     * @param measureName
+     */
+    public float[][] computeTracesSingleMeasure(String measureName, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
+        return computeTracesSingleMeasure(Measures.getMeasureIndex(measureName), nanTraceSubstituteFlag, nanTraceSubstituteValue);
+    }
+
+    /**
+     * Calculate a specific measure at the traces level for all the constraints, given its index.
+     * The measurements are returned in output and not stored into the object.
+     *
+     * @param nanTraceSubstituteFlag
+     * @param nanTraceSubstituteValue
+     * @param measureIndex
+     */
+    public float[][] computeTracesSingleMeasure(int measureIndex, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
+        logger.info("Initializing traces measure matrix...");
+        float[][] measureResult = new float[matrix.length][automata.size()];  //the space problem is here, not in the byte matrix
+
+        logger.info("Retrieving Trace Measures...");
+        if (matrixLite == null) {
+            //        for the entire log
+            for (int trace = 0; trace < matrix.length; trace++) {
+                System.out.print("\rTraces: " + trace + "/" + matrix.length);  // Status counter "current trace/total trace"
+//              for each trace
+                for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
+                    measureResult[trace][constraint] = Measures.getTraceMeasure(matrix[trace][constraint], measureIndex, nanTraceSubstituteFlag, nanTraceSubstituteValue);
+                }
+            }
+            System.out.print("\rTraces: " + matrix.length + "/" + matrix.length);  // Status counter "current trace/total trace"
+            System.out.println();
+        } else {
+            //        for the entire log
+            for (int trace = 0; trace < matrixLite.length; trace++) {
+                System.out.print("\rTraces: " + trace + "/" + matrix.length);  // Status counter "current trace/total trace"
+//              for each trace
+                for (int constraint = 0; constraint < matrixLite[trace].length; constraint++) {
+//                  for each constraint
+                    measureResult[trace][constraint] = Measures.getTraceMeasure(matrixLite[trace][constraint], measureIndex, nanTraceSubstituteFlag, nanTraceSubstituteValue);
+                }
+            }
+            System.out.print("\rTraces: " + matrix.length + "/" + matrix.length);  // Status counter "current trace/total trace"
+            System.out.println();
+        }
+        return measureResult;
+    }
+
+    /**
+     * Calculate a specific measure at the log level for all the constraints, given its specific trace measurements.
+     * The measurements are returned in output and not stored into the object.
+     *
+     * @param nanLogSkipFlag
+     */
+    public SummaryStatistics[] computeSingleMeasureLog(float[][] traceMeasures, boolean nanLogSkipFlag) {
+        logger.info("Initializing log measure matrix...");
+        int constraintsNum = automata.size();
+        SummaryStatistics[] logMeasuresresult = new SummaryStatistics[constraintsNum];
+
+        logger.info("Retrieving Log Measures...");
+        for (int constraint = 0; constraint < constraintsNum; constraint++) {
+            System.out.print("\rConstraint: " + constraint + "/" + constraintsNum);  // Status counter "current trace/total trace"
+            logMeasuresresult[constraint] = Measures.getMeasureDistributionObject(constraint, traceMeasures, nanLogSkipFlag);
+        }
+        System.out.println();
+        return logMeasuresresult;
+    }
+
 
     /**
      * retrieve the measurements for the current matrix

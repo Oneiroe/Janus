@@ -57,6 +57,27 @@ public class Measures {
     //    	TODO improve this hard-code shame
     public static int MEASURE_NUM = MEASURE_NAMES.length;
 
+    /**
+     * Retrieves the name of a measure given its index
+     *
+     * @param measureIndex
+     * @return
+     */
+    public static String getMeasureName(int measureIndex) {
+        return MEASURE_NAMES[measureIndex];
+    }
+
+    /**
+     * Retrieve the index of a measure given its name.
+     * WARNING case-sensitive
+     *
+     * @param measureName
+     * @return
+     */
+    public static int getMeasureIndex(String measureName){
+//        TODO make a stronger search not case-sensitive, ignoring spaces and symbols like bars
+        return ArrayUtils.indexOf(MEASURE_NAMES, measureName);
+    }
 
     public static float getTraceMeasure(byte[] reactiveConstraintEvaluation, int measureIndex, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
         float[] traceProbabilities = getTraceProbabilities(reactiveConstraintEvaluation);
@@ -2512,7 +2533,7 @@ public class Measures {
     }
 
     /**
-     * Returns an object containing the statistic of the measure distribution
+     * Returns an object containing the statistic of the measure distribution for a given measure and constraint over the MegaMatrixMonster
      *
      * @param constraintIndex
      * @param measureIndex
@@ -2526,6 +2547,25 @@ public class Measures {
             if (nanLogSkipFlag && Float.isNaN(traceEval[constraintIndex][measureIndex]))
                 continue;
             measureDistribution.addValue(traceEval[constraintIndex][measureIndex]);
+        }
+
+        return measureDistribution;
+    }
+
+    /**
+     * Returns an object containing the statistic of the measure distribution for a given constraint given the matrix result of only one measure over the log
+     *
+     * @param constraintIndex
+     * @param traceMeasureMatrix
+     * @param nanLogSkipFlag
+     * @return
+     */
+    public static SummaryStatistics getMeasureDistributionObject(int constraintIndex, float[][] traceMeasureMatrix, boolean nanLogSkipFlag) {
+        SummaryStatistics measureDistribution = new SummaryStatistics();
+        for (float[] traceEval : traceMeasureMatrix) {
+            if (nanLogSkipFlag && Float.isNaN(traceEval[constraintIndex]))
+                continue;
+            measureDistribution.addValue(traceEval[constraintIndex]);
         }
 
         return measureDistribution;
