@@ -141,9 +141,9 @@ public class ReactiveMinerOfflineQueryingCore implements Callable<ConstraintsBag
             int[][] partialResult = runTrace(tr, automata);
             currentTraceNumber++;
 
-            if (currentTraceNumber % samplingInterval == 0) {
-                System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
-            }
+//            if (currentTraceNumber % samplingInterval == 0) {
+            System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
+//            }
             for (int i = 0; i < finalResults.length; i++) {
                 if (partialResult[i][1] > 0) {
                     finalResults[i] += partialResult[i][0] / partialResult[i][1];

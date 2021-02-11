@@ -28,7 +28,7 @@ public class JanusVariantAnalysisStarter extends MinerFulMinerStarter {
 
         Options systemOptions = SystemCmdParameters.parseableOptions(),
 //                outputOptions = OutputModelParameters.parseableOptions(),
-//                postPrOptions = PostProcessingCmdParameters.parseableOptions(),
+                postPrOptions = PostProcessingCmdParameters.parseableOptions(),
 //                viewOptions = ViewCmdParameters.parseableOptions(),
 //                chkOptions = CheckingCmdParameters.parseableOptions(),
 //                inputLogOptions = InputLogCmdParameters.parseableOptions(),
@@ -41,9 +41,9 @@ public class JanusVariantAnalysisStarter extends MinerFulMinerStarter {
 //        for (Object opt : outputOptions.getOptions()) {
 //            cmdLineOptions.addOption((Option) opt);
 //        }
-//        for (Object opt : postPrOptions.getOptions()) {
-//            cmdLineOptions.addOption((Option) opt);
-//        }
+        for (Object opt : postPrOptions.getOptions()) {
+            cmdLineOptions.addOption((Option) opt);
+        }
 //        for (Object opt : viewOptions.getOptions()) {
 //            cmdLineOptions.addOption((Option) opt);
 //        }
@@ -75,10 +75,10 @@ public class JanusVariantAnalysisStarter extends MinerFulMinerStarter {
 //                new OutputModelParameters(
 //                        cmdLineOptions,
 //                        args);
-//        PostProcessingCmdParameters preProcParams =
-//                new PostProcessingCmdParameters(
-//                        cmdLineOptions,
-//                        args);
+        PostProcessingCmdParameters preProcParams =
+                new PostProcessingCmdParameters(
+                        cmdLineOptions,
+                        args);
 //        CheckingCmdParameters chkParams =
 //                new CheckingCmdParameters(
 //                        cmdLineOptions,
@@ -107,7 +107,7 @@ public class JanusVariantAnalysisStarter extends MinerFulMinerStarter {
             System.exit(0);
         }
 
-        JanusVariantAnalysisLauncher variantAnalysis = new JanusVariantAnalysisLauncher(janusParams, systemParams);
+        JanusVariantAnalysisLauncher variantAnalysis = new JanusVariantAnalysisLauncher(janusParams, systemParams, preProcParams);
         Map<String, Float> result = variantAnalysis.checkVariants();
 
         TaskCharArchive alphabet = variantAnalysis.getAlphabetDecoder();

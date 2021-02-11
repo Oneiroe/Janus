@@ -7,6 +7,7 @@ import minerful.logparser.LogParser;
 import minerful.logparser.StringLogParser;
 import minerful.logparser.XesLogParser;
 import minerful.params.SystemCmdParameters;
+import minerful.postprocessing.params.PostProcessingCmdParameters;
 import minerful.reactive.params.JanusVariantCmdParameters;
 import minerful.reactive.variant.ReactiveVariantAnalysisCore;
 import minerful.utils.MessagePrinter;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class JanusVariantAnalysisLauncher {
     public static MessagePrinter logger = MessagePrinter.getInstance(JanusModelCheckLauncher.class);
 
+    private PostProcessingCmdParameters discoveryParams;
     private JanusVariantCmdParameters janusParams;
     private SystemCmdParameters systemParams;
 
@@ -36,6 +38,9 @@ public class JanusVariantAnalysisLauncher {
         this.eventLog2 = deriveLogParserFromLogFile(janusParams.inputLanguage2, janusParams.inputLogFile2, janusParams.eventClassification, eventLog1.getTaskCharArchive());
 //        this is a bit redundant, but to make sure that both have the same alphabet we recompute the first parser with the alphabet of the second, which now has both alphabets
         this.eventLog1 = deriveLogParserFromLogFile(janusParams.inputLanguage1, janusParams.inputLogFile1, janusParams.eventClassification, eventLog2.getTaskCharArchive());
+        this.discoveryParams = new PostProcessingCmdParameters();
+        this.discoveryParams.confidenceThreshold=0.8;
+        this.discoveryParams.supportThreshold=0.1;
     }
 
     public JanusVariantAnalysisLauncher(JanusVariantCmdParameters janusParams, SystemCmdParameters systemParams, ProcessModel processSpecification1, ProcessModel processSpecification2) {
@@ -43,6 +48,11 @@ public class JanusVariantAnalysisLauncher {
 
         this.processSpecification1 = processSpecification1;
         this.processSpecification2 = processSpecification2;
+    }
+
+    public JanusVariantAnalysisLauncher(JanusVariantCmdParameters janusParams, SystemCmdParameters systemParams, PostProcessingCmdParameters discoveryParams) {
+        this(janusParams, systemParams);
+        this.discoveryParams = discoveryParams;
     }
 
     /**
@@ -117,12 +127,13 @@ public class JanusVariantAnalysisLauncher {
         this.processSpecification2 = processSpecification2;
     }
 
-    public TaskCharArchive getAlphabetDecoder(){
+    public TaskCharArchive getAlphabetDecoder() {
         return eventLog2.getTaskCharArchive();
     }
 
     /**
      * analyse the DECLARE rules differences of the two input log with statistical guarantees
+     *
      * @return
      */
     public Map<String, Float> checkVariants() {
@@ -133,11 +144,11 @@ public class JanusVariantAnalysisLauncher {
             // Variant 1 discovery
             TaskCharArchive taskCharArchive1 = eventLog1.getTaskCharArchive();
             JanusOfflineMinerStarter minerMinaStarter = new JanusOfflineMinerStarter();
-            processSpecification1 = minerMinaStarter.mine(eventLog1, taskCharArchive1, 0.1, 0.8); // todo expose discovery parameters in input
+            processSpecification1 = minerMinaStarter.mine(eventLog1, taskCharArchive1, discoveryParams.supportThreshold, discoveryParams.confidenceThreshold);
             // variant 2 discovery
             TaskCharArchive taskCharArchive2 = eventLog2.getTaskCharArchive();
             minerMinaStarter = new JanusOfflineMinerStarter();
-            processSpecification2 = minerMinaStarter.mine(eventLog2, taskCharArchive2, 0.1, 0.8);
+            processSpecification2 = minerMinaStarter.mine(eventLog2, taskCharArchive2, discoveryParams.supportThreshold, discoveryParams.confidenceThreshold);
             double after = System.currentTimeMillis();
             logger.info("Variants constraints discovery time: " + (after - before));
         }
