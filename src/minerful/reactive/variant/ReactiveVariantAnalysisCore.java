@@ -1,6 +1,7 @@
 package minerful.reactive.variant;
 
 import minerful.concept.ProcessModel;
+import minerful.concept.TaskChar;
 import minerful.logparser.LogParser;
 import minerful.logparser.LogTraceParser;
 import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
@@ -424,6 +425,61 @@ public class ReactiveVariantAnalysisCore {
 
         processSpecificationDifference = ProcessModel.difference(processSpecification1, processSpecification2);
         return mDiffs;
+    }
+
+    private Map<String, Float> getMeasurementsOfOneVariant(boolean nanCheck, LogParser logParser) {
+        Map<String, Float> result = new HashMap<>(); // constraint->measurement
+        int log1Size = logParser.length();
+        List<String> permutableTracesList = new LinkedList<>();
+        for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
+            permutableTracesList.add(it.next().printStringTrace());
+        }
+        List<Integer> permutableTracesIndexList = new LinkedList<>();
+        for (String t : permutableTracesList) {
+            permutableTracesIndexList.add(traceToIndexMap.get(t));
+        }
+        int nConstraints = processSpecificationUnion.howManyConstraints();
+        float[] result1 = new float[nConstraints];
+        for (int c = 0; c < nConstraints; c++) {
+            for (int t : permutableTracesIndexList) {
+                if (nanCheck & Float.isNaN(lCodedIndex[t][c])) {
+                    continue; // TODO expose in input
+                }
+                result1[c] += lCodedIndex[t][c];
+
+            }
+            result1[c] = result1[c] / log1Size;
+        }
+
+        for (int c = 0; c < nConstraints; c++) {
+            result.put(indexToConstraintMap.get(c), result1[c]);
+        }
+        return result;
+    }
+
+    public Map<String, Float> getMeasurementsVar1(boolean nanCheck) {
+        return getMeasurementsOfOneVariant(nanCheck, logParser_1);
+    }
+
+    public Map<String, Float> getMeasurementsVar2(boolean nanCheck) {
+        return getMeasurementsOfOneVariant(nanCheck, logParser_2);
+    }
+
+    private String decodeConstraint(String encodedConstraint, Map<Character, TaskChar> translationMap) {
+        StringBuilder resultBuilder = new StringBuilder();
+        String constraint = encodedConstraint.substring(0, encodedConstraint.indexOf("("));
+        resultBuilder.append(constraint);
+        String[] encodedVariables = encodedConstraint.substring(encodedConstraint.indexOf("(")).replace("(", "").replace(")", "").split(",");
+        resultBuilder.append("(");
+        String decodedActivator = translationMap.get(encodedVariables[0].charAt(0)).toString();
+        resultBuilder.append(decodedActivator);
+        if (encodedVariables.length > 1) { //constraints with 2 variables
+            resultBuilder.append(",");
+            String decodedTarget = translationMap.get(encodedVariables[1].charAt(0)).toString();
+            resultBuilder.append(decodedTarget);
+        }
+        resultBuilder.append(")");
+        return resultBuilder.toString();
     }
 
 

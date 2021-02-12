@@ -26,15 +26,16 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
 
     /**
      * reads the terminal input parameters and launch the proper output functions
-     *
-     * @param variantResults
+     *  @param variantResults
      * @param additionalCnsIndexedInfo
      * @param varParams
      * @param viewParams
      * @param systemParams
      * @param alphabet
+     * @param measurementsSpecification1
+     * @param measurementsSpecification2
      */
-    public void manageVariantOutput(Map<String, Float> variantResults, NavigableMap<Constraint, String> additionalCnsIndexedInfo, JanusVariantCmdParameters varParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, TaskCharArchive alphabet) {
+    public void manageVariantOutput(Map<String, Float> variantResults, NavigableMap<Constraint, String> additionalCnsIndexedInfo, JanusVariantCmdParameters varParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, TaskCharArchive alphabet, Map<String, Float> measurementsSpecification1, Map<String, Float> measurementsSpecification2) {
         File outputFile = null;
 
         // ************* CSV
@@ -43,14 +44,14 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
             logger.info("Saving variant analysis result as CSV in " + outputFile + "...");
             double before = System.currentTimeMillis();
 
-            exportVariantResultsToCSV(variantResults, outputFile, varParams, alphabet);
+            exportVariantResultsToCSV(variantResults, outputFile, varParams, alphabet, measurementsSpecification1, measurementsSpecification2);
 
             double after = System.currentTimeMillis();
             logger.info("Total CSV serialization time: " + (after - before));
         }
 
         if (viewParams != null && !viewParams.suppressScreenPrintOut) {
-            printVariantResultsToScreen(variantResults, varParams, alphabet);
+            printVariantResultsToScreen(variantResults, varParams, alphabet, measurementsSpecification1, measurementsSpecification2);
         }
 
         // ************* JSON
@@ -69,7 +70,7 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
 
     }
 
-    private void printVariantResultsToScreen(Map<String, Float> variantResults, JanusVariantCmdParameters varParams, TaskCharArchive alphabet) {
+    private void printVariantResultsToScreen(Map<String, Float> variantResults, JanusVariantCmdParameters varParams, TaskCharArchive alphabet, Map<String, Float> measurementsSpecification1, Map<String, Float> measurementsSpecification2) {
         //		header row
         System.out.println("--------------------");
         System.out.println("relevant constraints differences");
@@ -78,14 +79,14 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
         Map<Character, TaskChar> translationMap = alphabet.getTranslationMapById();
         for (String constraint : variantResults.keySet()) {
             if (variantResults.get(constraint) <= varParams.pValue) {
-                System.out.println(decodeConstraint(constraint, translationMap) + " : " + variantResults.get(constraint).toString());
+                System.out.println(decodeConstraint(constraint, translationMap) + " : " + variantResults.get(constraint).toString()+" [Var1: "+measurementsSpecification1.get(constraint).toString()+" | Var2: "+measurementsSpecification2.get(constraint).toString()+"]");
             }
         }
     }
 
-    private void exportVariantResultsToCSV(Map<String, Float> variantResults, File outputFile, JanusVariantCmdParameters varParams, TaskCharArchive alphabet) {
+    private void exportVariantResultsToCSV(Map<String, Float> variantResults, File outputFile, JanusVariantCmdParameters varParams, TaskCharArchive alphabet, Map<String, Float> measurementsSpecification1, Map<String, Float> measurementsSpecification2) {
         //		header row
-        String[] header = {"Constraint", "p_value"};
+        String[] header = {"Constraint", "p_value", "Measure_VAR1", "Measure_VAR2"};
         try {
             FileWriter fw = new FileWriter(outputFile);
             CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
@@ -95,12 +96,8 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
 //                decode constraint
                 String decodedConstraint = decodeConstraint(constraint, translationMap);
 //                Row builder
-                if (varParams.oKeep) {
-                    printer.printRecord(new String[]{decodedConstraint, variantResults.get(constraint).toString()});
-                } else {
-                    if (variantResults.get(constraint) <= varParams.pValue) {
-                        printer.printRecord(new String[]{decodedConstraint, variantResults.get(constraint).toString()});
-                    }
+                if (varParams.oKeep || variantResults.get(constraint) <= varParams.pValue) {
+                    printer.printRecord(new String[]{decodedConstraint, variantResults.get(constraint).toString(), measurementsSpecification1.get(constraint).toString(), measurementsSpecification2.get(constraint).toString()});
                 }
             }
 
@@ -128,8 +125,8 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
     }
 
     public void manageVariantOutput(Map<String, Float> variantResults,
-                                    ViewCmdParameters viewParams, JanusVariantCmdParameters varParams, SystemCmdParameters systemParams, TaskCharArchive alphabet) {
-        this.manageVariantOutput(variantResults, null, varParams, viewParams, systemParams, alphabet);
+                                    ViewCmdParameters viewParams, JanusVariantCmdParameters varParams, SystemCmdParameters systemParams, TaskCharArchive alphabet, Map<String, Float> measurementsSpecification1, Map<String, Float> measurementsSpecification2) {
+        this.manageVariantOutput(variantResults, null, varParams, viewParams, systemParams, alphabet, measurementsSpecification1, measurementsSpecification2);
     }
 
 

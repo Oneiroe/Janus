@@ -27,8 +27,12 @@ public class JanusVariantAnalysisLauncher {
 
     private LogParser eventLog1;
     private ProcessModel processSpecification1;
+    private Map<String, Float> measurementsSpecification1;
     private LogParser eventLog2;
     private ProcessModel processSpecification2;
+    private Map<String, Float> measurementsSpecification2;
+
+
 
     public JanusVariantAnalysisLauncher(JanusVariantCmdParameters janusParams, SystemCmdParameters systemParams) {
         this.janusParams = janusParams;
@@ -157,7 +161,28 @@ public class JanusVariantAnalysisLauncher {
                 eventLog1, processSpecification1, eventLog2, processSpecification2, janusParams
         );
 
-        return variantAnalysisCore.check();
+        Map<String, Float> result = variantAnalysisCore.check();
+
+        storeOriginalVariantsResults(variantAnalysisCore);
+        
+        return result;
     }
 
+    /**
+     * Stores the measurement of the original variants for external access via respective get functions
+     *
+     * @param variantAnalysisCore
+     */
+    private void storeOriginalVariantsResults(ReactiveVariantAnalysisCore variantAnalysisCore) {
+        measurementsSpecification1=variantAnalysisCore.getMeasurementsVar1(true);
+        measurementsSpecification2=variantAnalysisCore.getMeasurementsVar2(true);
+    }
+
+    public Map<String, Float> getMeasurementsSpecification1() {
+        return measurementsSpecification1;
+    }
+
+    public Map<String, Float> getMeasurementsSpecification2() {
+        return measurementsSpecification2;
+    }
 }

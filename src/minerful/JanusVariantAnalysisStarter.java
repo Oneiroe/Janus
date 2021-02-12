@@ -111,7 +111,7 @@ public class JanusVariantAnalysisStarter extends MinerFulMinerStarter {
         Map<String, Float> result = variantAnalysis.checkVariants();
 
         TaskCharArchive alphabet = variantAnalysis.getAlphabetDecoder();
-        new JanusVariantOutputManagementLauncher().manageVariantOutput(result, viewParams, janusParams, systemParams, alphabet);
+        new JanusVariantOutputManagementLauncher().manageVariantOutput(result, viewParams, janusParams, systemParams, alphabet, variantAnalysis.getMeasurementsSpecification1(), variantAnalysis.getMeasurementsSpecification2());
     }
 
 }
