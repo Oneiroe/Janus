@@ -27,6 +27,11 @@ public class JanusVariantCmdParameters extends ParamsManager {
     public static final String OUTPUT_FILE_CSV_PARAM_NAME = "oCSV";
     public static final String OUTPUT_FILE_JSON_PARAM_NAME = "oJSON";
     public static final String OUTPUT_KEEP_FLAG_NAME = "oKeep";
+    public static final String SAVE_MODEL_1_AS_CSV_PARAM_NAME = "oModel1CSV";
+    public static final String SAVE_MODEL_2_AS_CSV_PARAM_NAME = "oModel2CSV";
+    public static final String SAVE_MODEL_1_AS_JSON_PARAM_NAME = "oModel1JSON";
+    public static final String SAVE_MODEL_2_AS_JSON_PARAM_NAME = "oModel2JSON";
+    public static final String ENCODE_OUTPUT_TASKS_FLAG = "encodeTasksFlag";
 
     public enum InputEncoding {
         /**
@@ -95,6 +100,26 @@ public class JanusVariantCmdParameters extends ParamsManager {
      * keep the irrelevant results in output
      */
     public boolean oKeep;
+    /**
+     * File in which discovered constraints for variant 1 are printed in CSV format. Keep it equal to <code>null</code> for avoiding such print-out.
+     */
+    public File fileToSaveModel1AsCSV;
+    /**
+     * File in which discovered constraints for variant 2 are printed in CSV format. Keep it equal to <code>null</code> for avoiding such print-out.
+     */
+    public File fileToSaveModel2AsCSV;
+    /**
+     * File in which the discovered process model for variant 1 is saved as a JSON file. Keep it equal to <code>null</code> for avoiding such print-out.
+     */
+    public File fileToSaveModel1AsJSON;
+    /**
+     * File in which the discovered process model for variant 2 is saved as a JSON file. Keep it equal to <code>null</code> for avoiding such print-out.
+     */
+    public File fileToSaveModel2AsJSON;
+    /**
+     * Flag if the output tasks/events should be encoded (e.g., A B C D E...) or not (original names as in log)
+     **/
+    public boolean encodeOutputTasks;
 
     public JanusVariantCmdParameters() {
         super();
@@ -109,7 +134,12 @@ public class JanusVariantCmdParameters extends ParamsManager {
         this.nPermutations = 1000;
         this.outputCvsFile = null;
         this.outputJsonFile = null;
-        this.oKeep= false;
+        this.oKeep = false;
+        this.fileToSaveModel1AsCSV = null;
+        this.fileToSaveModel2AsCSV = null;
+        this.fileToSaveModel1AsJSON = null;
+        this.fileToSaveModel2AsJSON = null;
+        this.encodeOutputTasks = false;
     }
 
     public JanusVariantCmdParameters(Options options, String[] args) {
@@ -176,7 +206,15 @@ public class JanusVariantCmdParameters extends ParamsManager {
         );
         this.outputCvsFile = openOutputFile(line, OUTPUT_FILE_CSV_PARAM_NAME);
         this.outputJsonFile = openOutputFile(line, OUTPUT_FILE_JSON_PARAM_NAME);
-        this.oKeep= line.hasOption(OUTPUT_KEEP_FLAG_NAME);
+        this.oKeep = line.hasOption(OUTPUT_KEEP_FLAG_NAME);
+        this.inputLogFile1 = openInputFile(line, INPUT_LOGFILE_1_PATH_PARAM_NAME);
+        this.inputLogFile2 = openInputFile(line, INPUT_LOGFILE_2_PATH_PARAM_NAME);
+
+        this.fileToSaveModel1AsCSV = openOutputFile(line, SAVE_MODEL_1_AS_CSV_PARAM_NAME);
+        this.fileToSaveModel2AsCSV = openOutputFile(line, SAVE_MODEL_2_AS_CSV_PARAM_NAME);
+        this.fileToSaveModel1AsJSON = openOutputFile(line, SAVE_MODEL_1_AS_JSON_PARAM_NAME);
+        this.fileToSaveModel2AsJSON = openOutputFile(line, SAVE_MODEL_2_AS_JSON_PARAM_NAME);
+        this.encodeOutputTasks = line.hasOption(OUTPUT_KEEP_FLAG_NAME);
     }
 
     @Override
@@ -295,6 +333,46 @@ public class JanusVariantCmdParameters extends ParamsManager {
 //                .isRequired(true) // Causing more problems than not
                         .longOpt("output-keep")
                         .desc("keep irrelevant results in output")
+                        .type(Boolean.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(SAVE_MODEL_1_AS_CSV_PARAM_NAME)
+                        .hasArg().argName("path")
+                        .longOpt("save-model-1-as-csv")
+                        .desc("print discovered model 1 in CSV format into the specified file")
+                        .type(String.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(SAVE_MODEL_2_AS_CSV_PARAM_NAME)
+                        .hasArg().argName("path")
+                        .longOpt("save-model-2-as-csv")
+                        .desc("print discovered model 2 in CSV format into the specified file")
+                        .type(String.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(SAVE_MODEL_1_AS_JSON_PARAM_NAME)
+                        .hasArg().argName("path")
+                        .longOpt("save-model-1-as-json")
+                        .desc("print discovered model 1 in JSON format into the specified file")
+                        .type(String.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(SAVE_MODEL_2_AS_JSON_PARAM_NAME)
+                        .hasArg().argName("path")
+                        .longOpt("save-model-2-as-json")
+                        .desc("print discovered model 2 in JSON format into the specified file")
+                        .type(String.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(ENCODE_OUTPUT_TASKS_FLAG)
+//                .isRequired(true) // Causing more problems than not
+                        .longOpt("flag-encoding-tasks")
+                        .desc("Flag if the output tasks/events should be encoded")
                         .type(Boolean.class)
                         .build()
         );

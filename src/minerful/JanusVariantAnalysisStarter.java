@@ -29,7 +29,7 @@ public class JanusVariantAnalysisStarter extends MinerFulMinerStarter {
         Options systemOptions = SystemCmdParameters.parseableOptions(),
 //                outputOptions = OutputModelParameters.parseableOptions(),
                 postPrOptions = PostProcessingCmdParameters.parseableOptions(),
-//                viewOptions = ViewCmdParameters.parseableOptions(),
+                viewOptions = ViewCmdParameters.parseableOptions(),
 //                chkOptions = CheckingCmdParameters.parseableOptions(),
 //                inputLogOptions = InputLogCmdParameters.parseableOptions(),
 //                inpuModlOptions = InputModelParameters.parseableOptions(),
@@ -44,9 +44,9 @@ public class JanusVariantAnalysisStarter extends MinerFulMinerStarter {
         for (Object opt : postPrOptions.getOptions()) {
             cmdLineOptions.addOption((Option) opt);
         }
-//        for (Object opt : viewOptions.getOptions()) {
-//            cmdLineOptions.addOption((Option) opt);
-//        }
+        for (Object opt : viewOptions.getOptions()) {
+            cmdLineOptions.addOption((Option) opt);
+        }
 //        for (Object opt : chkOptions.getOptions()) {
 //            cmdLineOptions.addOption((Option) opt);
 //        }
@@ -107,7 +107,7 @@ public class JanusVariantAnalysisStarter extends MinerFulMinerStarter {
             System.exit(0);
         }
 
-        JanusVariantAnalysisLauncher variantAnalysis = new JanusVariantAnalysisLauncher(janusParams, systemParams, preProcParams);
+        JanusVariantAnalysisLauncher variantAnalysis = new JanusVariantAnalysisLauncher(janusParams, viewParams, systemParams, preProcParams);
         Map<String, Float> result = variantAnalysis.checkVariants();
 
         TaskCharArchive alphabet = variantAnalysis.getAlphabetDecoder();
