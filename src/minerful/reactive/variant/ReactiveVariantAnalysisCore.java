@@ -127,31 +127,6 @@ public class ReactiveVariantAnalysisCore {
      * @param pValueThreshold
      * @return
      */
-    private Map<String, Float> significanceTest(PermutationResult pRes, double pValueThreshold) {
-        Map<String, Float> result = new HashMap<String, Float>();
-        for (int cIndex = 0; cIndex < pRes.constraints.length; cIndex++) {
-            float initialreference = pRes.result1[0][cIndex] - pRes.result2[0][cIndex];
-            for (int permutation = 1; permutation < pRes.result1.length; permutation++) {
-//                TODO consider absolute values
-                if (pRes.result1[permutation][cIndex] - pRes.result2[permutation][cIndex] >= initialreference) {
-                    pRes.test[cIndex] += 1.0;
-                }
-            }
-            pRes.test[cIndex] = pRes.test[cIndex] / pRes.result1.length;
-//            if (pRes.test[cIndex]<=pValueThreshold) System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
-//            System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
-            result.put(pRes.constraints[cIndex], pRes.test[cIndex]);
-        }
-        return result;
-    }
-
-    /**
-     * Checks the significance of the permutation test results
-     *
-     * @param pRes
-     * @param pValueThreshold
-     * @return
-     */
     private Map<String, Float> significanceTestIndex(PermutationResult pRes, double pValueThreshold) {
         Map<String, Float> result = new HashMap<String, Float>();
         int nConstraints = processSpecificationUnion.howManyConstraints();
@@ -188,6 +163,14 @@ public class ReactiveVariantAnalysisCore {
         return result;
     }
 
+    /**
+     * Permutation test in which is taken the encoded results.
+     *
+     * @param lCodedIndex
+     * @param nPermutations
+     * @param nanCheck
+     * @return
+     */
     private PermutationResult permuteResultsIndex(float[][] lCodedIndex, int nPermutations, boolean nanCheck) {
         int nConstraints = processSpecificationUnion.howManyConstraints();
         float[][] result1 = new float[nPermutations][nConstraints];
@@ -214,21 +197,26 @@ public class ReactiveVariantAnalysisCore {
 
             for (int c = 0; c < nConstraints; c++) {
                 int traceIndex = -1;
-                int nanTraces = 0;
+                int nanTraces1 = 0;
+                int nanTraces2 = 0;
                 for (int t : permutableTracesIndexList) {
                     traceIndex++;
-                    if (nanCheck & Float.isNaN(lCodedIndex[t][c])) {
-                        nanTraces++;
-                        continue; // TODO expose in input
-                    }
                     if (traceIndex < log1Size) {
+                        if (nanCheck & Float.isNaN(lCodedIndex[t][c])) {
+                            nanTraces1++;
+                            continue; // TODO expose in input
+                        }
                         result1[i][c] += lCodedIndex[t][c];
                     } else {
+                        if (nanCheck & Float.isNaN(lCodedIndex[t][c])) {
+                            nanTraces2++;
+                            continue; // TODO expose in input
+                        }
                         result2[i][c] += lCodedIndex[t][c];
                     }
                 }
-                result1[i][c] = result1[i][c] / (log1Size - nanTraces);
-                result2[i][c] = result2[i][c] / (log2Size - nanTraces);
+                result1[i][c] = result1[i][c] / (log1Size - nanTraces1);
+                result2[i][c] = result2[i][c] / (log2Size - nanTraces2);
             }
 //            permutation "0" are the original logs
             Collections.shuffle(permutableTracesIndexList);
@@ -238,68 +226,6 @@ public class ReactiveVariantAnalysisCore {
 
         return new PermutationResult(result1, result2);
     }
-
-    /**
-     * Permutation test in which is taken the encoded results.
-     *
-     * @param lCoded
-     * @param nPermutations
-     * @param nanCheck
-     * @return
-     */
-    private PermutationResult permuteResults(Map<String, Map<String, Float>> lCoded, int nPermutations, boolean nanCheck) {
-        int nConstraints = processSpecificationUnion.howManyConstraints();
-        float[][] result1 = new float[nPermutations][nConstraints];
-        float[][] result2 = new float[nPermutations][nConstraints];
-
-        String[] constraints = new String[nConstraints];
-        int constraintIndex = 0;
-        for (String c : lCoded.values().iterator().next().keySet()) {
-//        for (Constraint c : processSpecificationUnion.getAllConstraints()) {
-//            constraints[constraintIndex] = c.toString();  // TODO beware: model string encoding of constraints is different from automata runner one
-            constraints[constraintIndex] = c;
-            constraintIndex++;
-        }
-
-        int log1Size = logParser_1.length();
-        int log2Size = logParser_2.length();
-        List<String> permutableTracesList = new LinkedList<>();
-        for (Iterator<LogTraceParser> it = logParser_1.traceIterator(); it.hasNext(); ) {
-            permutableTracesList.add(it.next().printStringTrace());
-        }
-        for (Iterator<LogTraceParser> it = logParser_2.traceIterator(); it.hasNext(); ) {
-            permutableTracesList.add(it.next().printStringTrace());
-        }
-
-        for (int i = 0; i < nPermutations; i++) {
-            System.out.print("\rPermutation: " + i + "/" + nPermutations);  // Status counter "current trace/total trace"
-            int cIndex = 0;
-            for (String c : constraints) {
-                int traceIndex = -1;
-                int nanTraces = 0;
-                for (String t : permutableTracesList) {
-                    traceIndex++;
-                    if (nanCheck & lCoded.get(t).get(c).isNaN()) {
-                        nanTraces++;
-                        continue; // TODO expose in input
-                    }
-                    if (traceIndex < log1Size) {
-                        result1[i][cIndex] += lCoded.get(t).get(c);
-                    } else {
-                        result2[i][cIndex] += lCoded.get(t).get(c);
-                    }
-                }
-                result1[i][cIndex] = result1[i][cIndex] / (log1Size-nanTraces);
-                result2[i][cIndex] = result2[i][cIndex] / (log2Size-nanTraces);
-                cIndex++;
-            }
-//            permutation "0" are the original logs
-            Collections.shuffle(permutableTracesList);
-        }
-        // TODO output these partial results for debugging
-        return new PermutationResult(result1, result2, constraints);
-    }
-
 
     /**
      * Transform the encoded map into a matrix where traces and constraints are referred by indices.
@@ -447,7 +373,7 @@ public class ReactiveVariantAnalysisCore {
         int nConstraints = processSpecificationUnion.howManyConstraints();
         float[] result1 = new float[nConstraints];
         for (int c = 0; c < nConstraints; c++) {
-            int nanTraces=0;
+            int nanTraces = 0;
             for (int t : permutableTracesIndexList) {
                 if (nanCheck & Float.isNaN(lCodedIndex[t][c])) {
                     nanTraces++;
@@ -456,7 +382,7 @@ public class ReactiveVariantAnalysisCore {
                 result1[c] += lCodedIndex[t][c];
 
             }
-            result1[c] = result1[c] / (logSize-nanTraces);
+            result1[c] = result1[c] / (logSize - nanTraces);
         }
 
         for (int c = 0; c < nConstraints; c++) {
