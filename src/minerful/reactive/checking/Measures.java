@@ -459,6 +459,8 @@ public class Measures {
 //        if (reactiveConstraintEvaluation.length == 0) return currentTraceProbability;
         if (reactiveConstraintEvaluation.length == 0) return new float[9];
 
+        currentTraceProbability = new float[9];
+
         // result { 0: activation, 1: target, 2: no activation, 3: no target}
         // result {4: 00, 5: 01, , 6: 10, 7:11}
         for (byte eval : reactiveConstraintEvaluation) {

@@ -214,9 +214,11 @@ public class ReactiveVariantAnalysisCore {
 
             for (int c = 0; c < nConstraints; c++) {
                 int traceIndex = -1;
+                int nanTraces = 0;
                 for (int t : permutableTracesIndexList) {
                     traceIndex++;
                     if (nanCheck & Float.isNaN(lCodedIndex[t][c])) {
+                        nanTraces++;
                         continue; // TODO expose in input
                     }
                     if (traceIndex < log1Size) {
@@ -225,8 +227,8 @@ public class ReactiveVariantAnalysisCore {
                         result2[i][c] += lCodedIndex[t][c];
                     }
                 }
-                result1[i][c] = result1[i][c] / log1Size;
-                result2[i][c] = result2[i][c] / log2Size;
+                result1[i][c] = result1[i][c] / (log1Size - nanTraces);
+                result2[i][c] = result2[i][c] / (log2Size - nanTraces);
             }
 //            permutation "0" are the original logs
             Collections.shuffle(permutableTracesIndexList);
@@ -274,17 +276,21 @@ public class ReactiveVariantAnalysisCore {
             int cIndex = 0;
             for (String c : constraints) {
                 int traceIndex = -1;
+                int nanTraces = 0;
                 for (String t : permutableTracesList) {
                     traceIndex++;
-                    if (nanCheck & lCoded.get(t).get(c).isNaN()) continue; // TODO expose in input
+                    if (nanCheck & lCoded.get(t).get(c).isNaN()) {
+                        nanTraces++;
+                        continue; // TODO expose in input
+                    }
                     if (traceIndex < log1Size) {
                         result1[i][cIndex] += lCoded.get(t).get(c);
                     } else {
                         result2[i][cIndex] += lCoded.get(t).get(c);
                     }
                 }
-                result1[i][cIndex] = result1[i][cIndex] / log1Size;
-                result2[i][cIndex] = result2[i][cIndex] / log2Size;
+                result1[i][cIndex] = result1[i][cIndex] / (log1Size-nanTraces);
+                result2[i][cIndex] = result2[i][cIndex] / (log2Size-nanTraces);
                 cIndex++;
             }
 //            permutation "0" are the original logs
@@ -429,7 +435,7 @@ public class ReactiveVariantAnalysisCore {
 
     private Map<String, Float> getMeasurementsOfOneVariant(boolean nanCheck, LogParser logParser) {
         Map<String, Float> result = new HashMap<>(); // constraint->measurement
-        int log1Size = logParser.length();
+        int logSize = logParser.length();
         List<String> permutableTracesList = new LinkedList<>();
         for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
             permutableTracesList.add(it.next().printStringTrace());
@@ -441,14 +447,16 @@ public class ReactiveVariantAnalysisCore {
         int nConstraints = processSpecificationUnion.howManyConstraints();
         float[] result1 = new float[nConstraints];
         for (int c = 0; c < nConstraints; c++) {
+            int nanTraces=0;
             for (int t : permutableTracesIndexList) {
                 if (nanCheck & Float.isNaN(lCodedIndex[t][c])) {
+                    nanTraces++;
                     continue; // TODO expose in input
                 }
                 result1[c] += lCodedIndex[t][c];
 
             }
-            result1[c] = result1[c] / log1Size;
+            result1[c] = result1[c] / (logSize-nanTraces);
         }
 
         for (int c = 0; c < nConstraints; c++) {

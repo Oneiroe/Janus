@@ -106,12 +106,16 @@ public class JanusVariantAnalysisStarter extends MinerFulMinerStarter {
             systemParams.printHelp(cmdLineOptions);
             System.exit(0);
         }
+        double execTimeStart= System.currentTimeMillis();
 
         JanusVariantAnalysisLauncher variantAnalysis = new JanusVariantAnalysisLauncher(janusParams, viewParams, systemParams, preProcParams);
         Map<String, Float> result = variantAnalysis.checkVariants();
 
         TaskCharArchive alphabet = variantAnalysis.getAlphabetDecoder();
         new JanusVariantOutputManagementLauncher().manageVariantOutput(result, viewParams, janusParams, systemParams, alphabet, variantAnalysis.getMeasurementsSpecification1(), variantAnalysis.getMeasurementsSpecification2());
+
+        double execTimeEnd=System.currentTimeMillis();
+        logger.info("Total execution time: " + (execTimeEnd - execTimeStart));
     }
 
 }
