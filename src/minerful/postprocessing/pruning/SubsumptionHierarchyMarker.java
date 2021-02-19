@@ -11,104 +11,111 @@ import minerful.concept.constraint.relation.NegativeRelationConstraint;
 import minerful.utils.MessagePrinter;
 
 public class SubsumptionHierarchyMarker {
-	private static final String HIERARCHY_CODE = "'SH-check'";
-	private static MessagePrinter logger = MessagePrinter.getInstance(SubsumptionHierarchyMarker.class.getCanonicalName());
+    private static final String HIERARCHY_CODE = "'SH-check'";
+    private static MessagePrinter logger = MessagePrinter.getInstance(SubsumptionHierarchyMarker.class.getCanonicalName());
 
-	private int numberOfMarkedConstraints = 0;
-	private boolean checking = false;
-	
-	private ConstraintsBag constraintsBag = null;
-	private SubsumptionHierarchyMarkingPolicy policy = null;
+    private int numberOfMarkedConstraints = 0;
+    private boolean checking = false;
 
-	public SubsumptionHierarchyMarker() {
-		this.policy = SubsumptionHierarchyMarkingPolicy.EAGER_ON_SUPPORT_OVER_HIERARCHY;
-	}
+    private ConstraintsBag constraintsBag = null;
+    private SubsumptionHierarchyMarkingPolicy policy = null;
 
-	public SubsumptionHierarchyMarker(ConstraintsBag constraintsBag) {
-		this();
-		this.setConstraintsBag(constraintsBag);
-	}
+    private ConstraintsBag fixpointConstraintsBag = null;
 
-	public void setConstraintsBag(ConstraintsBag constraintsBag) {
-		this.constraintsBag = constraintsBag;
-	}
+    public SubsumptionHierarchyMarker() {
+        this.policy = SubsumptionHierarchyMarkingPolicy.EAGER_ON_SUPPORT_OVER_HIERARCHY;
+    }
 
-	public ConstraintsBag getConstraintsBag() {
-		return this.constraintsBag;
-	}
+    public SubsumptionHierarchyMarker(ConstraintsBag constraintsBag) {
+        this();
+        this.setConstraintsBag(constraintsBag);
+    }
 
-	public int getNumberOfMarkedConstraints() {
-		return numberOfMarkedConstraints;
-	}
+    public SubsumptionHierarchyMarker(ConstraintsBag constraintsBag, ConstraintsBag fixpointBag) {
+        this.setConstraintsBag(constraintsBag);
+        this.setFixpointConstraintsBag(fixpointBag);
+        this.policy = SubsumptionHierarchyMarkingPolicy.EAGER_ON_HIERARCHY_OVER_SUPPORT;
+    }
 
-	public boolean isChecking() {
-		return checking;
-	}
+    public void setConstraintsBag(ConstraintsBag constraintsBag) {
+        this.constraintsBag = constraintsBag;
+    }
 
-	public ConstraintsBag markSubsumptionRedundantConstraints() {
-		return this.markSubsumptionRedundantConstraints(constraintsBag.getTaskChars());
-	}
+    public ConstraintsBag getConstraintsBag() {
+        return this.constraintsBag;
+    }
 
-	public ConstraintsBag markSubsumptionRedundantConstraints(Collection<TaskChar> targetTaskChars) {
-		if (this.constraintsBag == null)
-			throw new IllegalStateException("Constraints bag not initialized");
-		
-		this.numberOfMarkedConstraints = 0;
-		this.checking = true;
-		
+    public int getNumberOfMarkedConstraints() {
+        return numberOfMarkedConstraints;
+    }
+
+    public boolean isChecking() {
+        return checking;
+    }
+
+    public ConstraintsBag markSubsumptionRedundantConstraints() {
+        return this.markSubsumptionRedundantConstraints(constraintsBag.getTaskChars());
+    }
+
+    public ConstraintsBag markSubsumptionRedundantConstraints(Collection<TaskChar> targetTaskChars) {
+        if (this.constraintsBag == null)
+            throw new IllegalStateException("Constraints bag not initialized");
+
+        this.numberOfMarkedConstraints = 0;
+        this.checking = true;
+
         // exploit the ordering
         MutualRelationConstraint coExiCon = null;
         NegativeRelationConstraint noRelCon = null;
 
         for (TaskChar key : targetTaskChars) {
             for (Constraint currCon : constraintsBag.getConstraintsOf(key)) {
-            	if (!currCon.isRedundant()) {
-            		// If the policy is to be eager wrt the hierarchy subsumptions, no matter the support, this is the way to go
-            		if (this.policy.equals(SubsumptionHierarchyMarkingPolicy.EAGER_ON_HIERARCHY_OVER_SUPPORT)) {
-            			markGenealogyAsRedundant(currCon.getConstraintWhichThisIsBasedUpon(), currCon, key, constraintsBag);
-            		} else {
-            			// Otherwise, eliminate those constraints that are in the hierarchy behind the current one, if...
-		                if (currCon.hasConstraintToBaseUpon()) {
-		                	// ... if the current one has the same support of all others
-		                    if (currCon.isMoreInformativeThanGeneric()) {
-		                    	logger.trace(
-		                    			"Removing the genealogy of {1}, starting with {0}, because {1} is subsumed by {0} and more informative than the whole genalogy", 
-		                    			currCon.getConstraintWhichThisIsBasedUpon(),
-		                    			currCon
-		                    	);
-		                        markGenealogyAsRedundant(currCon.getConstraintWhichThisIsBasedUpon(), currCon, key, constraintsBag);
-		                    } else {
-		                    	// If we want to be "conservative" (namely, a higher support justifies the removal of more strict constraints, this is the way to go
-		                    	if (this.policy.equals(SubsumptionHierarchyMarkingPolicy.EAGER_ON_SUPPORT_OVER_HIERARCHY)) {
-		                    		logger.trace(
-			                    			"Removing {0} because {1} has a higher support and {0} is subsumed by it",
-			                    			currCon,
-			                    			currCon.getConstraintWhichThisIsBasedUpon());
-//		                        	constraintsBag.remove(key, currCon);
-		                    		this.markAsRedundant(currCon);
-		                    	}
-		                    }
-		                }
-            		}
-	                if (currCon.getSubFamily() == RelationConstraintSubFamily.COUPLING) {
-	                	if (this.policy.equals(SubsumptionHierarchyMarkingPolicy.EAGER_ON_HIERARCHY_OVER_SUPPORT)) {
-	                		this.markAsRedundant(coExiCon.getForwardConstraint());
-	                		this.markAsRedundant(coExiCon.getBackwardConstraint());
-	            		} else {
-		                    coExiCon = (MutualRelationConstraint) currCon;
-		                    if (coExiCon.hasImplyingConstraints()) {
-		                        if (coExiCon.isAsInformativeAsTheImplyingConstraints()) {
-		                        	logger.trace("Removing {0}" +
-		                        			", which is the forward, and {1}" +
-		                        			", which is the backward, because {2}" +
-		                        			" is the Mutual Relation referring to them and more informative",
-		                        			coExiCon.getForwardConstraint(),
-		                        			coExiCon.getBackwardConstraint(),
-		                        			coExiCon);
-	                        	// constraintsBag.remove(key, coExiCon.getForwardConstraint());
-		                        	this.markAsRedundant(coExiCon.getForwardConstraint());
-	                        	// constraintsBag.remove(key, coExiCon.getBackwardConstraint());
-		                        	this.markAsRedundant(coExiCon.getBackwardConstraint());
+                if (!currCon.isRedundant()) {
+                    // If the policy is to be eager wrt the hierarchy subsumptions, no matter the support, this is the way to go
+                    if (this.policy.equals(SubsumptionHierarchyMarkingPolicy.EAGER_ON_HIERARCHY_OVER_SUPPORT)) {
+                        markGenealogyAsRedundant(currCon.getConstraintWhichThisIsBasedUpon(), currCon, key, constraintsBag);
+                    } else {
+                        // Otherwise, eliminate those constraints that are in the hierarchy behind the current one, if...
+                        if (currCon.hasConstraintToBaseUpon()) {
+                            // ... if the current one has the same support of all others
+                            if (currCon.isMoreInformativeThanGeneric()) {
+                                logger.trace(
+                                        "Removing the genealogy of {1}, starting with {0}, because {1} is subsumed by {0} and more informative than the whole genalogy",
+                                        currCon.getConstraintWhichThisIsBasedUpon(),
+                                        currCon
+                                );
+                                markGenealogyAsRedundant(currCon.getConstraintWhichThisIsBasedUpon(), currCon, key, constraintsBag);
+                            } else {
+                                // If we want to be "conservative" (namely, a higher support justifies the removal of more strict constraints, this is the way to go
+                                if (this.policy.equals(SubsumptionHierarchyMarkingPolicy.EAGER_ON_SUPPORT_OVER_HIERARCHY)) {
+                                    logger.trace(
+                                            "Removing {0} because {1} has a higher support and {0} is subsumed by it",
+                                            currCon,
+                                            currCon.getConstraintWhichThisIsBasedUpon());
+//                                    this.markAsRedundant(currCon);
+                                }
+                            }
+                        }
+                    }
+                    if (currCon.getSubFamily() == RelationConstraintSubFamily.COUPLING) {
+                        if (this.policy.equals(SubsumptionHierarchyMarkingPolicy.EAGER_ON_HIERARCHY_OVER_SUPPORT)) {
+                            this.markAsRedundant(coExiCon.getForwardConstraint());
+                            this.markAsRedundant(coExiCon.getBackwardConstraint());
+                        } else {
+                            coExiCon = (MutualRelationConstraint) currCon;
+                            if (coExiCon.hasImplyingConstraints()) {
+                                if (coExiCon.isAsInformativeAsTheImplyingConstraints()) {
+                                    logger.trace("Removing {0}" +
+                                                    ", which is the forward, and {1}" +
+                                                    ", which is the backward, because {2}" +
+                                                    " is the Mutual Relation referring to them and more informative",
+                                            coExiCon.getForwardConstraint(),
+                                            coExiCon.getBackwardConstraint(),
+                                            coExiCon);
+                                    // constraintsBag.remove(key, coExiCon.getForwardConstraint());
+                                    this.markAsRedundant(coExiCon.getForwardConstraint());
+                                    // constraintsBag.remove(key, coExiCon.getBackwardConstraint());
+                                    this.markAsRedundant(coExiCon.getBackwardConstraint());
 //	                        } else if (coExiCon.isMoreReliableThanAnyOfImplyingConstraints()){
 //	                        	// Remove the weaker, if any
 //	                        	if (coExiCon.isMoreReliableThanForwardConstraint()) {
@@ -116,102 +123,238 @@ public class SubsumptionHierarchyMarker {
 //	                        	} else {
 //	                        		nuBag.remove(key, coExiCon.getBackwardConstraint());
 //	                        	}
-		                        } else {
-		                        	if (this.policy.equals(SubsumptionHierarchyMarkingPolicy.EAGER_ON_SUPPORT_OVER_HIERARCHY)) {
+                                } else {
+                                    if (this.policy.equals(SubsumptionHierarchyMarkingPolicy.EAGER_ON_SUPPORT_OVER_HIERARCHY)) {
 //	                        	constraintsBag.remove(key, coExiCon);
-		                        		this.markAsRedundant(coExiCon);
-		                        	}
-		                        }
-		                    }
-	                    }
-	                }
-	                if (currCon.getSubFamily() == RelationConstraintSubFamily.NEGATIVE) {
-	                    noRelCon = (NegativeRelationConstraint) currCon;
-	                    if (noRelCon.hasOpponent()) {
-	                        if (noRelCon.isMoreReliableThanTheOpponent()) {
-	                        	logger.trace("Removing {0}" +
-	                        			" because {1} is the opponent of {0}" +
-	                        			" but less supported",
-	                        			noRelCon.getOpponent(),
-	                        			noRelCon);
+                                        this.markAsRedundant(coExiCon);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (currCon.getSubFamily() == RelationConstraintSubFamily.NEGATIVE) {
+                        noRelCon = (NegativeRelationConstraint) currCon;
+                        if (noRelCon.hasOpponent()) {
+                            if (noRelCon.isMoreReliableThanTheOpponent()) {
+                                logger.trace("Removing {0}" +
+                                                " because {1} is the opponent of {0}" +
+                                                " but less supported",
+                                        noRelCon.getOpponent(),
+                                        noRelCon);
 //	                            constraintsBag.remove(key, noRelCon.getOpponent());
-	                        	this.markAsRedundant(noRelCon.getOpponent());
-	                        } else {
-	                        	logger.trace("Removing {0}" +
-	                        			" because {0} is the opponent of {1}" +
-	                        			" but less supported",
-	                        			noRelCon,
-	                        			noRelCon.getOpponent());
+                                this.markAsRedundant(noRelCon.getOpponent());
+                            } else {
+                                logger.trace("Removing {0}" +
+                                                " because {0} is the opponent of {1}" +
+                                                " but less supported",
+                                        noRelCon,
+                                        noRelCon.getOpponent());
 //	                            constraintsBag.remove(key, noRelCon);
-	                        	this.markAsRedundant(noRelCon);
-	                        }
-	                    }
-	                }
-            	}
+                                this.markAsRedundant(noRelCon);
+                            }
+                        }
+                    }
+                }
             }
         }
         this.checking = false;
 
         return constraintsBag;
     }
-	
-	private ConstraintsBag markGenealogyAsRedundant(
+
+    public ConstraintsBag markSubsumptionRedundantConstraintsFromSeed() {
+        return this.markSubsumptionRedundantConstraintsFromSeed(constraintsBag.getTaskChars());
+    }
+
+    /**
+     * The hierarchila search for redundancies starts from a seed process Model (fixpoint model)
+     * <p>
+     * In other words, the aim is to find all the constraints derived from the seed model.
+     *
+     * @param targetTaskChars
+     * @return
+     */
+    public ConstraintsBag markSubsumptionRedundantConstraintsFromSeed(Collection<TaskChar> targetTaskChars) {
+        if (this.constraintsBag == null)
+            throw new IllegalStateException("Constraints bag not initialized");
+
+        this.numberOfMarkedConstraints = 0;
+        this.checking = true;
+
+        // exploit the ordering
+        MutualRelationConstraint coExiCon = null;
+        NegativeRelationConstraint noRelCon = null;
+
+        for (TaskChar key : targetTaskChars) {
+            for (Constraint currCon : fixpointConstraintsBag.getConstraintsOf(key)) {
+//        for (Constraint currCon : fixpointConstraintsBag.getAllConstraints()) {
+//                if (!currCon.isRedundant()) {
+                // If the policy is to be eager wrt the hierarchy subsumptions, no matter the support, this is the way to go
+                if (this.policy.equals(SubsumptionHierarchyMarkingPolicy.EAGER_ON_HIERARCHY_OVER_SUPPORT)) {
+                    if (currCon.getConstraintWhichThisIsBasedUpon() == null) {
+                        markGenealogyAsRedundant(currCon.suggestConstraintWhichThisShouldBeBasedUpon(), currCon, null, constraintsBag);
+                    } else {
+                        markGenealogyAsRedundant(currCon.getConstraintWhichThisIsBasedUpon(), currCon, null, constraintsBag);
+                    }
+                } else {
+                    // Otherwise, eliminate those constraints that are in the hierarchy behind the current one, if...
+                    if (currCon.hasConstraintToBaseUpon()) {
+                        // ... if the current one has the same support of all others
+                        if (currCon.isMoreInformativeThanGeneric()) {
+                            logger.trace(
+                                    "Removing the genealogy of {1}, starting with {0}, because {1} is subsumed by {0} and more informative than the whole genalogy",
+                                    currCon.getConstraintWhichThisIsBasedUpon(),
+                                    currCon
+                            );
+                            markGenealogyAsRedundant(currCon.getConstraintWhichThisIsBasedUpon(), currCon, null, constraintsBag);
+                        } else {
+                            // If we want to be "conservative" (namely, a higher support justifies the removal of more strict constraints, this is the way to go
+                            if (this.policy.equals(SubsumptionHierarchyMarkingPolicy.EAGER_ON_SUPPORT_OVER_HIERARCHY)) {
+                                logger.trace(
+                                        "Removing {0} because {1} has a higher support and {0} is subsumed by it",
+                                        currCon,
+                                        currCon.getConstraintWhichThisIsBasedUpon());
+//                                    this.markAsRedundant(currCon);
+                            }
+                        }
+                    }
+                }
+                if (currCon.getSubFamily() == RelationConstraintSubFamily.COUPLING) {
+                    coExiCon = (MutualRelationConstraint) currCon;
+                    if (this.policy.equals(SubsumptionHierarchyMarkingPolicy.EAGER_ON_HIERARCHY_OVER_SUPPORT)) {
+                        try {
+                            this.markAsRedundant(coExiCon.getForwardConstraint());
+                        } catch (NullPointerException e) {
+                            this.markAsRedundant(coExiCon.getPossibleForwardConstraint());
+                        }
+                        try {
+                            this.markAsRedundant(coExiCon.getBackwardConstraint());
+                        } catch (NullPointerException e) {
+                            this.markAsRedundant(coExiCon.getPossibleBackwardConstraint());
+                        }
+                    } else {
+                        if (coExiCon.hasImplyingConstraints()) {
+                            if (coExiCon.isAsInformativeAsTheImplyingConstraints()) {
+                                logger.trace("Removing {0}" +
+                                                ", which is the forward, and {1}" +
+                                                ", which is the backward, because {2}" +
+                                                " is the Mutual Relation referring to them and more informative",
+                                        coExiCon.getForwardConstraint(),
+                                        coExiCon.getBackwardConstraint(),
+                                        coExiCon);
+                                // constraintsBag.remove(key, coExiCon.getForwardConstraint());
+                                this.markAsRedundant(coExiCon.getForwardConstraint());
+                                // constraintsBag.remove(key, coExiCon.getBackwardConstraint());
+                                this.markAsRedundant(coExiCon.getBackwardConstraint());
+//	                        } else if (coExiCon.isMoreReliableThanAnyOfImplyingConstraints()){
+//	                        	// Remove the weaker, if any
+//	                        	if (coExiCon.isMoreReliableThanForwardConstraint()) {
+//	                        		nuBag.remove(key, coExiCon.getForwardConstraint());
+//	                        	} else {
+//	                        		nuBag.remove(key, coExiCon.getBackwardConstraint());
+//	                        	}
+                            } else {
+                                if (this.policy.equals(SubsumptionHierarchyMarkingPolicy.EAGER_ON_SUPPORT_OVER_HIERARCHY)) {
+//	                        	constraintsBag.remove(key, coExiCon);
+                                    this.markAsRedundant(coExiCon);
+                                }
+                            }
+                        }
+                    }
+                }
+                if (currCon.getSubFamily() == RelationConstraintSubFamily.NEGATIVE) {
+                    noRelCon = (NegativeRelationConstraint) currCon;
+                    if (noRelCon.hasOpponent()) {
+                        if (noRelCon.isMoreReliableThanTheOpponent()) {
+                            logger.trace("Removing {0}" +
+                                            " because {1} is the opponent of {0}" +
+                                            " but less supported",
+                                    noRelCon.getOpponent(),
+                                    noRelCon);
+//	                            constraintsBag.remove(key, noRelCon.getOpponent());
+                            this.markAsRedundant(noRelCon.getOpponent());
+                        } else {
+                            logger.trace("Removing {0}" +
+                                            " because {0} is the opponent of {1}" +
+                                            " but less supported",
+                                    noRelCon,
+                                    noRelCon.getOpponent());
+//	                            constraintsBag.remove(key, noRelCon);
+                            this.markAsRedundant(noRelCon);
+                        }
+                    }
+                }
+            }
+        }
+//        }
+        this.checking = false;
+
+        return constraintsBag;
+    }
+
+    private ConstraintsBag markGenealogyAsRedundant(
             Constraint lastSon,
             Constraint lastSurvivor,
             TaskChar key,
             ConstraintsBag genealogyTree) {
+//        TODO check if the EDITS produce any conflicts with the normal simplifier
         Constraint genealogyDestroyer = lastSon;
 //      ConstraintImplicationVerse destructionGeneratorsFamily = lastSurvivor.getSubFamily();
         while (genealogyDestroyer != null) {
-    		key = genealogyDestroyer.getBase().getFirstTaskChar();
-    		this.markAsRedundant(genealogyDestroyer);
-            genealogyDestroyer = genealogyDestroyer.getConstraintWhichThisIsBasedUpon();
+            key = genealogyDestroyer.getBase().getFirstTaskChar();
+            this.markAsRedundant(genealogyDestroyer);
+            genealogyTree.replace(key, genealogyDestroyer);
+            if (genealogyDestroyer.getConstraintWhichThisIsBasedUpon() == null) {
+                genealogyDestroyer = genealogyDestroyer.suggestConstraintWhichThisShouldBeBasedUpon();
+            } else {
+                genealogyDestroyer = genealogyDestroyer.getConstraintWhichThisIsBasedUpon();
+            }
         }
 
         return genealogyTree;
     }
 
-	private void markAsRedundant(Constraint constraint) {
-    	if (!constraint.isRedundant()) {
-			constraint.setRedundant(true);
-			this.numberOfMarkedConstraints++;
-    	}
-	}
+    private void markAsRedundant(Constraint constraint) {
+        if (!constraint.isRedundant()) {
+            constraint.setRedundant(true);
+            this.numberOfMarkedConstraints++;
+        }
+    }
 
 
-	public SubsumptionHierarchyMarkingPolicy getPolicy() {
-		return policy;
-	}
+    public SubsumptionHierarchyMarkingPolicy getPolicy() {
+        return policy;
+    }
 
-	public void setPolicy(SubsumptionHierarchyMarkingPolicy policy) {
-		this.policy = policy;
-	}
+    public void setPolicy(SubsumptionHierarchyMarkingPolicy policy) {
+        this.policy = policy;
+    }
 
-	public void printComputationStats(long before, long after) {
-		if (this.isChecking()) {
-			throw new IllegalStateException("Subsumption-hierarchy-based check in progress");
-		}
-		
+    public void printComputationStats(long before, long after) {
+        if (this.isChecking()) {
+            throw new IllegalStateException("Subsumption-hierarchy-based check in progress");
+        }
+
         StringBuffer
-    	csvSummaryBuffer = new StringBuffer(),
-    	csvSummaryLegendBuffer = new StringBuffer(),
-    	csvSummaryComprehensiveBuffer = new StringBuffer();
+                csvSummaryBuffer = new StringBuffer(),
+                csvSummaryLegendBuffer = new StringBuffer(),
+                csvSummaryComprehensiveBuffer = new StringBuffer();
 
         csvSummaryBuffer.append(SubsumptionHierarchyMarker.HIERARCHY_CODE);
         csvSummaryLegendBuffer.append("'Operation code'");
         csvSummaryBuffer.append(";");
         csvSummaryLegendBuffer.append(";");
-     // --------------------------------
+        // --------------------------------
         csvSummaryBuffer.append(this.constraintsBag.howManyConstraints());
         csvSummaryLegendBuffer.append("'Input constraints'");
         csvSummaryBuffer.append(";");
         csvSummaryLegendBuffer.append(";");
-     // --------------------------------
+        // --------------------------------
         csvSummaryBuffer.append(this.getNumberOfMarkedConstraints());
         csvSummaryLegendBuffer.append("'Marked constraints'");
         csvSummaryBuffer.append(";");
         csvSummaryLegendBuffer.append(";");
-     // --------------------------------
+        // --------------------------------
         csvSummaryBuffer.append(after - before);
         csvSummaryLegendBuffer.append("'Time'");
 //        csvSummaryBuffer.append(";");
@@ -223,5 +366,15 @@ public class SubsumptionHierarchyMarker {
         csvSummaryComprehensiveBuffer.append(csvSummaryBuffer.toString());
 
         logger.info(csvSummaryComprehensiveBuffer.toString());
-	}
+    }
+
+    public ConstraintsBag getFixpointConstraintsBag() {
+        return fixpointConstraintsBag;
+    }
+
+    public void setFixpointConstraintsBag(ConstraintsBag fixpointConstraintsBag) {
+        this.fixpointConstraintsBag = fixpointConstraintsBag;
+    }
+
+
 }

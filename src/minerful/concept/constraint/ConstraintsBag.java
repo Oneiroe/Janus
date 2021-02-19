@@ -99,7 +99,7 @@ public class ConstraintsBag extends Observable implements Cloneable, Observer {
 		this.automataOfflineRunnersBag = new ArrayList<>();
 		this.runnersConstraintsMatching = new HashMap<>();
 		this.offlineRunnersConstraintsMatching = new HashMap<>();
-		for (Constraint constr : getAllConstraints()) {
+		for (Constraint constr : getAllConstraints()) { // TODO memory issue here
 			SeparatedAutomaton parametricAut = constr.buildParametricSeparatedAutomaton();
 			SeparatedAutomaton parametricOfflineAut = constr.buildParametricSeparatedAutomaton();
 			if (parametricAut == null) continue;
