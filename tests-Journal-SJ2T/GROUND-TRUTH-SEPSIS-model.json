@@ -1,22 +1,22 @@
 {
   "name": "Model",
   "tasks": [
+    "Admission NC",
+    "Release D",
+    "ER Registration",
+    "Release A",
+    "ER Triage",
     "Release B",
     "CRP",
-    "Release D",
-    "ER Triage",
-    "Admission NC",
-    "IV Liquid",
-    "ER Sepsis Triage",
-    "Release E",
-    "IV Antibiotics",
-    "Return ER",
-    "Release A",
-    "Admission IC",
-    "Leucocytes",
     "LacticAcid",
+    "ER Sepsis Triage",
+    "Admission IC",
     "Release C",
-    "ER Registration"
+    "Return ER",
+    "Release E",
+    "Leucocytes",
+    "IV Liquid",
+    "IV Antibiotics"
   ],
   "constraints": [
     {
@@ -64,7 +64,7 @@
       "interestFactor": 0.997
     },
     {
-      "template": "AlternateSuccession",
+      "template": "Succession",
       "parameters": [
         [
           "ER Registration"
@@ -78,7 +78,7 @@
       "interestFactor": 0.991
     },
     {
-      "template": "AlternateSuccession",
+      "template": "Succession",
       "parameters": [
         [
           "ER Triage"
@@ -156,7 +156,7 @@
       "interestFactor": 1.0
     },
     {
-      "template": "AlternatePrecedence",
+      "template": "Precedence",
       "parameters": [
         [
           "IV Liquid"
@@ -282,7 +282,7 @@
       "interestFactor": 0.967
     },
     {
-      "template": "AlternatePrecedence",
+      "template": "Precedence",
       "parameters": [
         [
           "Return ER"
@@ -294,20 +294,6 @@
       "support": 0.279,
       "confidence": 0.997,
       "interestFactor": 0.997
-    },
-    {
-      "template": "AlternatePrecedence",
-      "parameters": [
-        [
-          "Release A"
-        ],
-        [
-          "ER Sepsis Triage"
-        ]
-      ],
-      "support": 0.638,
-      "confidence": 0.999,
-      "interestFactor": 0.999
     },
     {
       "template": "AtMostOne",
