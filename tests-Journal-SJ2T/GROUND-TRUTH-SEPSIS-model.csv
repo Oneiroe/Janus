@@ -10,7 +10,7 @@
 'Precedence(ER Registration, LacticAcid)';'Precedence';'LacticAcid';'ER Registration';0.816;0.997;0.997
 'AtMostOne(IV Liquid)';'AtMostOne';'IV Liquid';;0.717;1;1
 'AtMostOne(IV Antibiotics)';'AtMostOne';'IV Antibiotics';;0.784;1;1
-'Precedence(ER Sepsis Triage, IV Liquid)';'Precedence';'IV Liquid';'ER Triage';0.677;0.944;0.944
+'Precedence(ER Sepsis Triage, IV Liquid)';'Precedence';'IV Liquid';'ER Sepsis Triage';0.677;0.944;0.944
 'Precedence(ER Sepsis Triage, IV Antibiotics)';'Precedence';'IV Antibiotics';'ER Sepsis Triage';0.784;1;1
 'CoExistence(IV Liquid, IV Antibiotics)';'RespondedExistence';'IV Liquid';'IV Antibiotics';0.717;1;1
 'Precedence(ER Sepsis Triage, Admission NC)';'Precedence';'Admission NC';'ER Sepsis Triage';0.756;0.993;0.993
@@ -43,22 +43,22 @@
 'NotCoExistence(Release A, Release C)';'NotCoExistence';'Release A';'Release C';0.663;1;1
 'NotCoExistence(Release A, Release D)';'NotCoExistence';'Release A';'Release D';0.662;1;1
 'NotCoExistence(Release A, Release E)';'NotCoExistence';'Release A';'Release E';0.645;1;1
-'NotCoExistence(Release B, Release A)';'NotCoExistence';'Release B';'Release B';0.692;1;1
+'NotCoExistence(Release B, Release A)';'NotCoExistence';'Release B';'Release A';0.692;1;1
 'NotCoExistence(Release B, Release C)';'NotCoExistence';'Release B';'Release C';0.663;1;1
 'NotCoExistence(Release B, Release D)';'NotCoExistence';'Release B';'Release D';0.662;1;1
 'NotCoExistence(Release B, Release E)';'NotCoExistence';'Release B';'Release E';0.645;1;1
-'NotCoExistence(Release C, Release B)';'NotCoExistence';'Release A';'Release B';0.692;1;1
-'NotCoExistence(Release C, Release A)';'NotCoExistence';'Release A';'Release C';0.663;1;1
-'NotCoExistence(Release C, Release D)';'NotCoExistence';'Release A';'Release D';0.662;1;1
-'NotCoExistence(Release C, Release E)';'NotCoExistence';'Release A';'Release E';0.645;1;1
-'NotCoExistence(Release D, Release A)';'NotCoExistence';'Release B';'Release B';0.692;1;1
-'NotCoExistence(Release D, Release C)';'NotCoExistence';'Release B';'Release C';0.663;1;1
-'NotCoExistence(Release D, Release B)';'NotCoExistence';'Release B';'Release D';0.662;1;1
-'NotCoExistence(Release D, Release E)';'NotCoExistence';'Release B';'Release E';0.645;1;1
-'NotCoExistence(Release E, Release B)';'NotCoExistence';'Release A';'Release B';0.692;1;1
-'NotCoExistence(Release E, Release C)';'NotCoExistence';'Release A';'Release C';0.663;1;1
-'NotCoExistence(Release E, Release D)';'NotCoExistence';'Release A';'Release D';0.662;1;1
-'NotCoExistence(Release E, Release A)';'NotCoExistence';'Release A';'Release E';0.645;1;1
+'NotCoExistence(Release C, Release B)';'NotCoExistence';'Release C';'Release B';0.692;1;1
+'NotCoExistence(Release C, Release A)';'NotCoExistence';'Release C';'Release A';0.663;1;1
+'NotCoExistence(Release C, Release D)';'NotCoExistence';'Release C';'Release D';0.662;1;1
+'NotCoExistence(Release C, Release E)';'NotCoExistence';'Release C';'Release E';0.645;1;1
+'NotCoExistence(Release D, Release A)';'NotCoExistence';'Release D';'Release A';0.692;1;1
+'NotCoExistence(Release D, Release C)';'NotCoExistence';'Release D';'Release C';0.663;1;1
+'NotCoExistence(Release D, Release B)';'NotCoExistence';'Release D';'Release B';0.662;1;1
+'NotCoExistence(Release D, Release E)';'NotCoExistence';'Release D';'Release E';0.645;1;1
+'NotCoExistence(Release E, Release B)';'NotCoExistence';'Release E';'Release B';0.692;1;1
+'NotCoExistence(Release E, Release C)';'NotCoExistence';'Release E';'Release C';0.663;1;1
+'NotCoExistence(Release E, Release D)';'NotCoExistence';'Release E';'Release D';0.662;1;1
+'NotCoExistence(Release E, Release A)';'NotCoExistence';'Release E';'Release A';0.645;1;1
 'NotSuccession(Release A, Admission IC)';'NotSuccession';'Release A';'Admission IC';0.662;1;1
 'NotSuccession(Release A, Admission NC)';'NotSuccession';'Release A';'Admission NC';0.763;1;1
 'NotSuccession(Release A, CRP)';'NotSuccession';'Release A';'CRP';0.961;0.996;0.996
