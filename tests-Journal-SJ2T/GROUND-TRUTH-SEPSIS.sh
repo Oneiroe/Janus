@@ -44,6 +44,7 @@ OUTPUT_CHECK_JSON=${TEST_FOLDER}/${TEST_BASE_NAME}"-output"${NaN_LOG}".json"
 #-nanLogSkip Flag to skip or not NaN values when computing log measures
 #-nanTraceSubstitute Flag to substitute or not the NaN values when computing trace measures
 #-nanTraceValue <number> Value to be substituted to NaN values in trace measures
+DETAILS_LEVEL="aggregated"
 
 ## Discovery settings
 SUPPORT=0.05
@@ -55,8 +56,8 @@ SIMPLE_MODEL_CSV=${TEST_FOLDER}/${TEST_BASE_NAME}"-model-SIMPLIFIED[s_${SUPPORT}
 
 # Test variables
 ITERATIONS=10
-BEST_N=100
-MEASURES_RANKING_CSV=${TEST_FOLDER}/${TEST_BASE_NAME}"-measures-ranking[top"${BEST_N}${NaN_LOG}"].csv"
+#BEST_N=100
+#MEASURES_RANKING_CSV=${TEST_FOLDER}/${TEST_BASE_NAME}"-measures-ranking[top"${BEST_N}${NaN_LOG}"].csv"
 MEMORY_MAX="2048m"
 
 ##################################################################
@@ -90,7 +91,7 @@ fi
 
 # check measures of C with janus
 echo "########### SJ2T Check"
-java -cp Janus.jar $JANUS_CHECK_MAINCLASS -iLF $LOG_FILE -iLE $LOG_ENCODING -iMF $SIMPLE_MODEL_JSON -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON $NaN_LOG
+java -cp Janus.jar $JANUS_CHECK_MAINCLASS -iLF $LOG_FILE -iLE $LOG_ENCODING -iMF $SIMPLE_MODEL_JSON -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON $NaN_LOG -detailsLevel $DETAILS_LEVEL
 # generate MEAN-only CSV of aggregated measures
 echo "########### Post Processing"
 python pySupport/singleAggregationPerspectiveFocusCSV.py $OUTPUT_CHECK_JSON"AggregatedMeasures.json" $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN].csv"
@@ -100,5 +101,8 @@ echo "MEAN-only aggregated CSV saved in "$OUTPUT_CHECK_JSON"AggregatedMeasures[M
 #   3.1 rank constraints of C
 #   3.2 count how many constraint of M are in the first N constraints of the rank
 # 4 rank measure according to 3.2
-python pySupport/measuresRanking.py ${ORIGINAL_MODEL} $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN].csv" ${BEST_N} ${MEASURES_RANKING_CSV}
+for BEST_N in 1 5 10 25 50 100 200; do
+    MEASURES_RANKING_CSV=${TEST_FOLDER}/${TEST_BASE_NAME}"-measures-ranking[top"${BEST_N}${NaN_LOG}"].csv"
+    python3 pySupport/measuresRanking.py ${ORIGINAL_MODEL} $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN].csv" ${BEST_N} ${MEASURES_RANKING_CSV}
+  done
 # 5 (in paper) compare results with Le&Lo considering that they where only looking at Resp/Prec constraints
