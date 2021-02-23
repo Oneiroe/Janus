@@ -127,14 +127,14 @@ for ITERATION in $(seq 1 ${ITERATIONS}); do
   #   3.2 count how many constraint of M are in the first N constraints of the rank
   # 4 rank measure according to 3.2
 
-  for BEST_N in 1 5 10 25 50 100 200; do
+  for BEST_N in 1 5 10 25 50 100 200 500 1000 1500; do
     MEASURES_RANKING_CSV=${TEST_FOLDER}/${TEST_BASE_NAME}"-measures-ranking[top"${BEST_N}${NaN_LOG}"].csv"
     python3 pySupport/measuresRanking.py ${ORIGINAL_MODEL} $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN].csv" ${BEST_N} ${MEASURES_RANKING_CSV}
   done
 done
 
 # 5 average results of singles iterations
-for BEST_N in 1 5 10 25 50 100 200; do
+for BEST_N in 1 5 10 25 50 100 200 500 1000 1500; do
   MEASURES_AVERAGE_RANKING_CSV=${TEST_BASE_FOLDER}/${TEST_BASE_NAME}"-measures-average-ranking[top"${BEST_N}${NaN_LOG}"].csv"
   python3 pySupport/measuresRanking.py ${TEST_BASE_FOLDER} ${BEST_N} ${MEASURES_AVERAGE_RANKING_CSV}
 done
