@@ -997,7 +997,7 @@ public class Measures {
         float pAnT = p[6];
         float pAT = p[7];
 
-        float result = (pAT / pA) - pA * pT;
+        float result = (pAT / pA) - (pA * pT);
 
         return result;
     }
@@ -1345,7 +1345,7 @@ public class Measures {
         float pAnT = p[6];
         float pAT = p[7];
 
-        float result = pAT / pA - pT;
+        float result = (pAT / pA) - pT;
 
         return result;
     }
@@ -1489,7 +1489,7 @@ public class Measures {
         float pAnT = p[6];
         float pAT = p[7];
 
-        float result = (pAT * pnAnT - pAnT * pnAT) / (pAT * pnAnT + pAnT * pnAT);
+        float result = ((pAT * pnAnT) - (pAnT * pnAT)) / ((pAT * pnAnT) + (pAnT * pnAT));
 
         return result;
     }
@@ -1585,7 +1585,7 @@ public class Measures {
         float pAnT = p[6];
         float pAT = p[7];
 
-        double result = Math.sqrt(pAT) * Math.max(pAT / pA - pT, pAT / pT - pA);
+        double result = Math.sqrt(pAT) * Math.max(((pAT / pA) - pT), ((pAT / pT) - pA));
 
         return (float) result;
     }
@@ -1739,7 +1739,7 @@ public class Measures {
         float pAnT = p[6];
         float pAT = p[7];
 
-        float result = (pAT + (pnAnT / pnA)) / (pA * pT + pnA * pnT) * (1 - pA * pT - pnA * pnT) / (1 - pAT - (pnAnT / pnA));
+        float result = ((pAT + (pnAnT / pnA)) / ((pA * pT) + (pnA * pnT))) * ((1 - (pA * pT) - (pnA * pnT)) / (1 - pAT - (pnAnT / pnA)));
 
         return result;
     }
@@ -1845,7 +1845,7 @@ public class Measures {
         float pAT = p[7];
         float n = p[8];
 
-        double result = pAT * Math.log((pAT / pA) / pT) + pAnT * Math.log((pAnT / pA) / pnT);
+        double result = (pAT * Math.log((pAT / pA) / pT)) + (pAnT * Math.log((pAnT / pA) / pnT));
 
         return (float) result;
     }
@@ -1894,7 +1894,7 @@ public class Measures {
         float pAT = p[7];
         float n = p[8];
 
-        double result = pAT / pA * log2(pAT / (pA * pT));
+        double result = (pAT / pA) * log2(pAT / (pA * pT));
 
         return (float) result;
     }
@@ -2099,7 +2099,7 @@ public class Measures {
         float pAT = p[7];
         float n = p[8];
 
-        float result = pAT - pA * pT;
+        float result = pAT - (pA * pT);
 
         return result;
     }
@@ -2393,7 +2393,7 @@ public class Measures {
         float pAT = p[7];
         float n = p[8];
 
-        float result = 1 - pAnT / pAT;
+        float result = 1 - (pAnT / pAT);
 
         return result;
     }
@@ -2442,7 +2442,7 @@ public class Measures {
         float pAT = p[7];
         float n = p[8];
 
-        float result = (pAT - pA * pT) / Math.max(pAT * pnT, pT * pAnT);
+        float result = (pAT - (pA * pT)) / Math.max((pAT * pnT), (pT * pAnT));
 
         return result;
     }
