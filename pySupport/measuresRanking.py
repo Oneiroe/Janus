@@ -152,6 +152,7 @@ def rank_tot():
 
     ranks.sort()
 
+    print("Saving total measure ranking in... " + output_path)
     with open(output_path, 'w') as output_file:
         header = ["Measure"] + ["Rank-" + str(i) for i in ranks]
         csv_writer = csv.DictWriter(output_file, fieldnames=header, delimiter=';')
