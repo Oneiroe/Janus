@@ -17,6 +17,7 @@ public class JanusVariantCmdParameters extends ParamsManager {
     public static final String DEFAULT_MEASURE = "Confidence";  // measure to use for the comparison, default: "confidence"
     public static final String MEASURE_THRESHOLD_NAME = "measureThreshold";  // threshold for the measure to consider it relevant, default: "0.8"
     public static final Double DEFAULT_MEASURE_THRESHOLD = 0.8;  // threshold for the measure to consider it relevant, default: "0.8"
+    public static final String SIMPLIFICATION_FLAG = "simplify";  // flag to simplify the result rules list according to their hierarchy
     //      Log managing fom MINERful
     public static final EventClassification DEFAULT_EVENT_CLASSIFICATION = EventClassification.name;
     public static final InputEncoding DEFAULT_INPUT_ENCODING = InputEncoding.xes;
@@ -32,6 +33,7 @@ public class JanusVariantCmdParameters extends ParamsManager {
     public static final String SAVE_MODEL_1_AS_JSON_PARAM_NAME = "oModel1JSON";
     public static final String SAVE_MODEL_2_AS_JSON_PARAM_NAME = "oModel2JSON";
     public static final String ENCODE_OUTPUT_TASKS_FLAG = "encodeTasksFlag";
+
 
     public enum InputEncoding {
         /**
@@ -120,6 +122,10 @@ public class JanusVariantCmdParameters extends ParamsManager {
      * Flag if the output tasks/events should be encoded (e.g., A B C D E...) or not (original names as in log)
      **/
     public boolean encodeOutputTasks;
+    /**
+     * Flag if the rules set returned from the permutation test should be simplified according to the rules hierarchy. Default=false
+     **/
+    public boolean simplify;
 
     public JanusVariantCmdParameters() {
         super();
@@ -140,6 +146,7 @@ public class JanusVariantCmdParameters extends ParamsManager {
         this.fileToSaveModel1AsJSON = null;
         this.fileToSaveModel2AsJSON = null;
         this.encodeOutputTasks = false;
+        this.simplify=false;
     }
 
     public JanusVariantCmdParameters(Options options, String[] args) {
@@ -215,6 +222,7 @@ public class JanusVariantCmdParameters extends ParamsManager {
         this.fileToSaveModel1AsJSON = openOutputFile(line, SAVE_MODEL_1_AS_JSON_PARAM_NAME);
         this.fileToSaveModel2AsJSON = openOutputFile(line, SAVE_MODEL_2_AS_JSON_PARAM_NAME);
         this.encodeOutputTasks = line.hasOption(OUTPUT_KEEP_FLAG_NAME);
+        this.simplify = line.hasOption(SIMPLIFICATION_FLAG);
     }
 
     @Override
@@ -373,6 +381,14 @@ public class JanusVariantCmdParameters extends ParamsManager {
 //                .isRequired(true) // Causing more problems than not
                         .longOpt("flag-encoding-tasks")
                         .desc("Flag if the output tasks/events should be encoded")
+                        .type(Boolean.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(SIMPLIFICATION_FLAG)
+//                .isRequired(true) // Causing more problems than not
+                        .longOpt("simplification-flag")
+                        .desc("Flag if the output rules set shoul dbe simplified according to rules hierarchy. Default: false")
                         .type(Boolean.class)
                         .build()
         );

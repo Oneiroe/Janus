@@ -105,7 +105,7 @@ public class ReactiveVariantAnalysisCore {
         encodeLogs(logParser_1, logParser_2, processSpecificationUnion);
         encodeLogsIndex(lCoded);
         double after = System.currentTimeMillis();
-        logger.info("Preprocessing time: " + (after - before));
+        logger.info("Pre-processing time: " + (after - before));
 
 //        PERMUTATION TEST
         before = System.currentTimeMillis();
@@ -117,6 +117,70 @@ public class ReactiveVariantAnalysisCore {
         Map<String, Float> results = significanceTestIndex(pRes, pValueThreshold);
         after = System.currentTimeMillis();
         logger.info("Permutation test time: " + (after - before));
+
+
+//        POST-PROCESSING
+        if (janusVariantParams.simplify) {
+            before = System.currentTimeMillis();
+            logger.info("Rules simplification...");
+            results = simplifyConstraintSetHierarchical(results);
+            after = System.currentTimeMillis();
+            logger.info("Post-processing time: " + (after - before));
+        }
+        return results;
+    }
+
+    /**
+     * Simplify the resulting rules set from the permutation test according to the rules hierarchy.
+     * <p>
+     * Specifically we try to keep the most generic rules if the most specific ones have the same measurements
+     *
+     * @param results
+     * @return
+     */
+    private Map<String, Float> simplifyConstraintSetHierarchical(Map<String, Float> results) {
+        Set<String> constraintsView = results.keySet();
+        Set<String> constraintsList = new HashSet<>(results.keySet());
+        int constrNum = constraintsView.size();
+//        String[] constraintsList= new String[constrNum];
+//        constraintsView.toArray(constraintsList);
+
+        Map<String, Float> spec1 = getMeasurementsVar1(true);
+        Map<String, Float> spec2 = getMeasurementsVar2(true);
+//        TODO only positive constraints hierarchy for now, implement also the negative
+        Map<String, String[]> hierarchy = new HashMap<String, String[]>() {{
+            put("RespondedExistence", new String[]{});
+            put("CoExistence", new String[]{"RespondedExistence($1,$2)", "RespondedExistence($2,$1)"});
+            put("Succession", new String[]{"Response($1,$2)", "Precedence($1,$2)", "CoExistence($1,$2)"});
+            put("Precedence", new String[]{"RespondedExistence($2,$1)"});
+            put("Response", new String[]{"RespondedExistence($1,$2)"});
+            put("AlternateSuccession", new String[]{"AlternateResponse($1,$2)", "AlternatePrecedence($1,$2)", "Succession($1,$2)"});
+            put("AlternatePrecedence", new String[]{"Precedence($1,$2)"});
+            put("AlternateResponse", new String[]{"Response($1,$2)"});
+            put("ChainSuccession", new String[]{"ChainResponse($1,$2)", "ChainPrecedence($1,$2)", "AlternateSuccession($1,$2)"});
+            put("ChainPrecedence", new String[]{"AlternatePrecedence($1,$2)"});
+            put("ChainResponse", new String[]{"AlternateResponse($1,$2)"});
+            put("NotCoExistence", new String[]{});
+            put("NotSuccession", new String[]{"NotCoExistence($1,$2)"});
+            put("NotChainSuccession", new String[]{"NotSuccession($1,$2)"});
+        }};
+        for (String c : constraintsList) {
+            String template = c.split("\\(")[0];
+            // skip constraints with only one variable from simplification
+            if (c.contains(",") == false || hierarchy.get(template)==null) continue;
+            String cVar1 = c.split("\\(")[1].replace(")", "").split(",")[0];
+            String cVar2 = c.split("\\(")[1].replace(")", "").split(",")[1];
+            for (String d : hierarchy.get(template)) {
+                String derived = d.replace("$1", cVar1).replace("$2", cVar2);
+                if (constraintsList.contains(derived)) {
+                    if (spec1.get(derived) - spec1.get(c) == 0 || spec2.get(derived) - spec2.get(c) == 0) {
+                        results.remove(c);
+                    }
+                }
+            }
+        }
+        int newConstrNum = results.size();
+        logger.info("Number of simplified constraints: " + (constrNum - newConstrNum));
         return results;
     }
 
