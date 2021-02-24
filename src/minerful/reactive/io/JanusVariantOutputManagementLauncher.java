@@ -26,7 +26,8 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
 
     /**
      * reads the terminal input parameters and launch the proper output functions
-     *  @param variantResults
+     *
+     * @param variantResults
      * @param additionalCnsIndexedInfo
      * @param varParams
      * @param viewParams
@@ -79,14 +80,14 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
         Map<Character, TaskChar> translationMap = alphabet.getTranslationMapById();
         for (String constraint : variantResults.keySet()) {
             if (variantResults.get(constraint) <= varParams.pValue) {
-                System.out.println(decodeConstraint(constraint, translationMap) + " : " + variantResults.get(constraint).toString()+" [Var1: "+measurementsSpecification1.get(constraint).toString()+" | Var2: "+measurementsSpecification2.get(constraint).toString()+"]");
+                System.out.println(decodeConstraint(constraint, translationMap) + " : " + variantResults.get(constraint).toString() + " [Var1: " + measurementsSpecification1.get(constraint).toString() + " | Var2: " + measurementsSpecification2.get(constraint).toString() + "]");
             }
         }
     }
 
     private void exportVariantResultsToCSV(Map<String, Float> variantResults, File outputFile, JanusVariantCmdParameters varParams, TaskCharArchive alphabet, Map<String, Float> measurementsSpecification1, Map<String, Float> measurementsSpecification2) {
         //		header row
-        String[] header = {"Constraint", "p_value", "Measure_VAR1", "Measure_VAR2"};
+        String[] header = {"Constraint", "p_value", "Measure_VAR1", "Measure_VAR2", "ABS-Difference"};
         try {
             FileWriter fw = new FileWriter(outputFile);
             CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
@@ -96,8 +97,9 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
 //                decode constraint
                 String decodedConstraint = decodeConstraint(constraint, translationMap);
 //                Row builder
-                if (varParams.oKeep || variantResults.get(constraint) <= varParams.pValue) {
-                    printer.printRecord(new String[]{decodedConstraint, variantResults.get(constraint).toString(), measurementsSpecification1.get(constraint).toString(), measurementsSpecification2.get(constraint).toString()});
+                double difference = Math.abs(measurementsSpecification1.get(constraint) - measurementsSpecification2.get(constraint));
+                if (varParams.oKeep || (variantResults.get(constraint) <= varParams.pValue && (Double.isNaN(difference) || difference>= varParams.differenceThreshold))) {
+                    printer.printRecord(new String[]{decodedConstraint, variantResults.get(constraint).toString(), measurementsSpecification1.get(constraint).toString(), measurementsSpecification2.get(constraint).toString(), String.valueOf(difference)});
                 }
             }
 

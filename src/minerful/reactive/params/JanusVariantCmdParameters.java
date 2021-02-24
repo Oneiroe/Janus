@@ -17,6 +17,8 @@ public class JanusVariantCmdParameters extends ParamsManager {
     public static final String DEFAULT_MEASURE = "Confidence";  // measure to use for the comparison, default: "confidence"
     public static final String MEASURE_THRESHOLD_NAME = "measureThreshold";  // threshold for the measure to consider it relevant, default: "0.8"
     public static final Double DEFAULT_MEASURE_THRESHOLD = 0.8;  // threshold for the measure to consider it relevant, default: "0.8"
+    public static final String DIFFERENCE_THRESHOLD_NAME = "differenceThreshold";  // threshold for the difference of the variants constraints measurement to be considered relevant. default= 0.01
+    public static final Double DEFAULT_DIFFERENCE_THRESHOLD = 0.01;  // threshold for the measure to consider it relevant, default: "0.8"
     public static final String SIMPLIFICATION_FLAG = "simplify";  // flag to simplify the result rules list according to their hierarchy
     //      Log managing fom MINERful
     public static final EventClassification DEFAULT_EVENT_CLASSIFICATION = EventClassification.name;
@@ -87,6 +89,10 @@ public class JanusVariantCmdParameters extends ParamsManager {
      */
     public double measureThreshold;
     /**
+     * threshold for the difference of the variants constraints measurement to be considered relevant, default: "0.01"
+     */
+    public double differenceThreshold;
+    /**
      * number of permutations to perform, default: 1000
      */
     public int nPermutations;
@@ -146,7 +152,8 @@ public class JanusVariantCmdParameters extends ParamsManager {
         this.fileToSaveModel1AsJSON = null;
         this.fileToSaveModel2AsJSON = null;
         this.encodeOutputTasks = false;
-        this.simplify=false;
+        this.simplify = false;
+        this.differenceThreshold = DEFAULT_DIFFERENCE_THRESHOLD;
     }
 
     public JanusVariantCmdParameters(Options options, String[] args) {
@@ -202,6 +209,13 @@ public class JanusVariantCmdParameters extends ParamsManager {
                 line.getOptionValue(
                         MEASURE_THRESHOLD_NAME,
                         Double.toString(this.measureThreshold)
+                )
+        );
+
+        this.differenceThreshold = Double.parseDouble(
+                line.getOptionValue(
+                        DIFFERENCE_THRESHOLD_NAME,
+                        Double.toString(this.differenceThreshold)
                 )
         );
 
@@ -299,6 +313,14 @@ public class JanusVariantCmdParameters extends ParamsManager {
                         .hasArg().argName("number")
                         .longOpt("measure-threshold")
                         .desc("threshold to consider the measure relevant. default: 0.8")
+                        .type(Double.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(DIFFERENCE_THRESHOLD_NAME)
+                        .hasArg().argName("number")
+                        .longOpt("difference-threshold")
+                        .desc("threshold for the difference of the variants constraints measurement to be considered relevant, default: 0.01")
                         .type(Double.class)
                         .build()
         );

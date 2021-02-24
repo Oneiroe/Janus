@@ -52,7 +52,7 @@ PERMUTATIONS=1000
 #DIFFERENCE_POLICY="absolute" # {"absolute", "distinct"} decide if considering the ABSOLUTE distance between the results or keep the DISTINCT sign/orientation of the relations, i.e., to keep the sign of the difference
 DISCOVERY_SUPPORT=0.00 # support threshold used for the initial discovery of the constraints of the variances
 DISCOVERY_CONFIDENCE=0.8 # confidence threshold used for the initial discovery of the constraints of the variances
-
+DIFFERENCE_THRESHOLD=0.01
 
 ##################################################################
 java -cp Janus.jar $JANUS_VARIANT_MAINCLASS \
@@ -73,7 +73,8 @@ java -cp Janus.jar $JANUS_VARIANT_MAINCLASS \
   -oModel2CSV $MODEL_CSV_2 \
   -oModel2JSON $MODEL_JSON_2 \
   --no-screen-print-out \
-  -simplify
+  -simplify \
+  -differenceThreshold $DIFFERENCE_THRESHOLD
 
 ##################################################################
 #Change ; with ,
