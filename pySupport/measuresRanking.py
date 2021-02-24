@@ -137,7 +137,7 @@ def rank_tot():
     for iteration_result in os.listdir(experiment_base_folder):
         # TODO adjust condition chek: problem: the csv generated with this call
         if iteration_result.endswith(".csv"):
-            if "TOT" in iteration_result:
+            if "TOT" in iteration_result or "[top" not in iteration_result:
                 continue
             topN = re.findall(r'\d+', iteration_result)[-1]
             rank = "Rank-" + topN
