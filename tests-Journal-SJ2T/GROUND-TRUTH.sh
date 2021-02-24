@@ -138,5 +138,7 @@ for BEST_N in 1 5 10 25 50 100 200 500 1000 1500; do
   MEASURES_AVERAGE_RANKING_CSV=${TEST_BASE_FOLDER}/${TEST_BASE_NAME}"-measures-average-ranking[top"${BEST_N}${NaN_LOG}"].csv"
   python3 pySupport/measuresRanking.py ${TEST_BASE_FOLDER} ${BEST_N} ${MEASURES_AVERAGE_RANKING_CSV}
 done
+MEASURES_AVERAGE_RANKING_TOT_CSV=${TEST_BASE_FOLDER}/${TEST_BASE_NAME}"-measures-average-ranking[TOT"${NaN_LOG}"].csv"
+python3 pySupport/measuresRanking.py ${TEST_BASE_FOLDER} ${MEASURES_AVERAGE_RANKING_TOT_CSV}
 
 # EXTRA (in paper) compare results with Le&Lo considering that they where only looking at Resp/Prec constraints

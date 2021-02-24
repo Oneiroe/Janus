@@ -2548,7 +2548,17 @@ public class Measures {
         for (float[][] traceEval : traceMeasuresMatrix) {
             if (nanLogSkipFlag && Float.isNaN(traceEval[constraintIndex][measureIndex]))
                 continue;
-            measureDistribution.addValue(traceEval[constraintIndex][measureIndex]);
+            /*
+                infinity vales make SummaryStatistics returns NaN for the mean and other stats.
+                Either skip them or change the mean function to consider them
+            */
+            if (Float.isInfinite(traceEval[constraintIndex][measureIndex])) {
+                if (traceEval[constraintIndex][measureIndex] > 0)
+                    measureDistribution.addValue(Float.MAX_VALUE);
+                else
+                    measureDistribution.addValue(Float.MIN_VALUE);
+            } else
+                measureDistribution.addValue(traceEval[constraintIndex][measureIndex]);
         }
 
         return measureDistribution;

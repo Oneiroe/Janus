@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import csv
+import re
 
 
 def rank_single_experiment():
@@ -113,8 +114,6 @@ Given the results of the previous experiment, return the average of the leaderbo
         except NotADirectoryError:
             pass
 
-
-
     measures_ranking = []
     for m in temp_measures_ranking.keys():
         measures_ranking += [(temp_measures_ranking[m] / tot, m)]
@@ -128,10 +127,45 @@ Given the results of the previous experiment, return the average of the leaderbo
         csv_writer.writerows(measures_ranking)
 
 
+def rank_tot():
+    experiment_base_folder = sys.argv[1]
+    output_path = sys.argv[2]
+
+    ranks = []
+    result = {}
+
+    for iteration_result in os.listdir(experiment_base_folder):
+        # TODO adjust condition chek: problem: the csv generated with this call
+        if iteration_result.endswith(".csv"):
+            if "TOT" in iteration_result:
+                continue
+            topN = re.findall(r'\d+', iteration_result)[-1]
+            rank = "Rank-" + topN
+            ranks += [int(topN)]
+            with open(os.path.join(experiment_base_folder, iteration_result), 'r') as input_file:
+                csv_reader = csv.DictReader(input_file, delimiter=';')
+                keys = csv_reader.fieldnames
+                for line in csv_reader:
+                    result.setdefault(line['Measure'], {})
+                    result[line['Measure']][rank] = line[rank]
+                    result[line['Measure']]['Measure'] = line['Measure']
+
+    ranks.sort()
+
+    with open(output_path, 'w') as output_file:
+        header = ["Measure"] + ["Rank-" + str(i) for i in ranks]
+        csv_writer = csv.DictWriter(output_file, fieldnames=header, delimiter=';')
+        csv_writer.writeheader()
+        for m in result.values():
+            csv_writer.writerow(m)
+
+
 if __name__ == "__main__":
     if len(sys.argv) == 4 + 1:
         rank_single_experiment()
     elif len(sys.argv) == 3 + 1:
         rank_average()
+    elif len(sys.argv) == 2 + 1:
+        rank_tot()
     else:
         print("ERR: Input parameters number is not correct")
