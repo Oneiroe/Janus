@@ -11,8 +11,8 @@ public class JanusVariantCmdParameters extends ParamsManager {
     //      Variant specific
     public static final String INPUT_LOGFILE_1_PATH_PARAM_NAME = "iLF1";  // first log variant to analyse
     public static final String INPUT_LOGFILE_2_PATH_PARAM_NAME = "iLF2";  // second log variant to analyse
-    public static final String P_VALUE_NAME = "pValue";  // p-value treshold for statistical relevance of the results. default: 0.05
-    public static final Double DEFAULT_P_VALUE = 0.05;  // p-value treshold for statistical relevance of the results. default: 0.05
+    public static final String P_VALUE_NAME = "pValue";  // p-value treshold for statistical relevance of the results. default: 0.01
+    public static final Double DEFAULT_P_VALUE = 0.01;  // p-value treshold for statistical relevance of the results. default: 0.01
     public static final String MEASURE_NAME = "measure";  // measure to use for the comparison, default: "confidence"
     public static final String DEFAULT_MEASURE = "Confidence";  // measure to use for the comparison, default: "confidence"
     public static final String MEASURE_THRESHOLD_NAME = "measureThreshold";  // threshold for the measure to consider it relevant, default: "0.8"
@@ -75,7 +75,7 @@ public class JanusVariantCmdParameters extends ParamsManager {
      */
     public EventClassification eventClassification;
     /**
-     * p-value treshold for statistical relevance of the results. default: 0.05
+     * p-value treshold for statistical relevance of the results. default: 0.01
      */
     public double pValue;
     /**
@@ -306,7 +306,7 @@ public class JanusVariantCmdParameters extends ParamsManager {
                 Option.builder(P_VALUE_NAME)
                         .hasArg().argName("number")
                         .longOpt("p-value")
-                        .desc("p-value threshold for statistical relevance of the results. default: 0.05")
+                        .desc("p-value threshold for statistical relevance of the results. default: 0.01")
                         .type(Double.class)
                         .build()
         );
