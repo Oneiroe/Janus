@@ -97,8 +97,8 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
 //                decode constraint
                 String decodedConstraint = decodeConstraint(constraint, translationMap);
 //                Row builder
-                double difference = Math.abs(measurementsSpecification1.get(constraint) - measurementsSpecification2.get(constraint));
-                if (varParams.oKeep || (variantResults.get(constraint) <= varParams.pValue && (Double.isNaN(difference) || difference>= varParams.differenceThreshold))) {
+                float difference = Math.abs(measurementsSpecification1.get(constraint) - measurementsSpecification2.get(constraint));
+                if (varParams.oKeep || variantResults.get(constraint) <= varParams.pValue) {
                     printer.printRecord(new String[]{decodedConstraint, variantResults.get(constraint).toString(), measurementsSpecification1.get(constraint).toString(), measurementsSpecification2.get(constraint).toString(), String.valueOf(difference)});
                 }
             }
