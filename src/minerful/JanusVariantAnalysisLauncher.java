@@ -2,6 +2,7 @@ package minerful;
 
 import minerful.concept.ProcessModel;
 import minerful.concept.TaskCharArchive;
+import minerful.io.ProcessModelLoader;
 import minerful.io.params.OutputModelParameters;
 import minerful.logparser.LogEventClassifier;
 import minerful.logparser.LogParser;
@@ -40,20 +41,14 @@ public class JanusVariantAnalysisLauncher {
         this.janusParams = janusParams;
         this.systemParams = systemParams;
 
-        this.eventLog1 = deriveLogParserFromLogFile(janusParams.inputLanguage1, janusParams.inputLogFile1, janusParams.eventClassification, null);
-        this.eventLog2 = deriveLogParserFromLogFile(janusParams.inputLanguage2, janusParams.inputLogFile2, janusParams.eventClassification, eventLog1.getTaskCharArchive());
+        logger.info("Loading event logs...");
+        this.eventLog1 = deriveLogParserFromLogFile(janusParams.inputLogLanguage1, janusParams.inputLogFile1, janusParams.eventClassification, null);
+        this.eventLog2 = deriveLogParserFromLogFile(janusParams.inputLogLanguage2, janusParams.inputLogFile2, janusParams.eventClassification, eventLog1.getTaskCharArchive());
 //        this is a bit redundant, but to make sure that both have the same alphabet we recompute the first parser with the alphabet of the second, which now has both alphabets
-        this.eventLog1 = deriveLogParserFromLogFile(janusParams.inputLanguage1, janusParams.inputLogFile1, janusParams.eventClassification, eventLog2.getTaskCharArchive());
+        this.eventLog1 = deriveLogParserFromLogFile(janusParams.inputLogLanguage1, janusParams.inputLogFile1, janusParams.eventClassification, eventLog2.getTaskCharArchive());
         this.discoveryParams = new PostProcessingCmdParameters();
         this.discoveryParams.confidenceThreshold = 0.8;
         this.discoveryParams.supportThreshold = 0.1;
-    }
-
-    public JanusVariantAnalysisLauncher(JanusVariantCmdParameters janusParams, SystemCmdParameters systemParams, ProcessModel processSpecification1, ProcessModel processSpecification2) {
-        this(janusParams, systemParams);
-
-        this.processSpecification1 = processSpecification1;
-        this.processSpecification2 = processSpecification2;
     }
 
     public JanusVariantAnalysisLauncher(JanusVariantCmdParameters janusParams, SystemCmdParameters systemParams, PostProcessingCmdParameters discoveryParams) {
@@ -66,6 +61,16 @@ public class JanusVariantAnalysisLauncher {
         this(janusParams, systemParams);
         this.discoveryParams = discoveryParams;
         this.viewParams = viewParams;
+        if(janusParams.inputModelFile1!=null && janusParams.inputModelFile2!=null){
+            logger.info("Loading process models...");
+            this.processSpecification1=new ProcessModelLoader().loadProcessModel(janusParams.inputModelLanguage1, janusParams.inputModelFile1, eventLog2.getTaskCharArchive());
+            this.processSpecification1.bag.initAutomataBag();
+            this.processSpecification2=new ProcessModelLoader().loadProcessModel(janusParams.inputModelLanguage2, janusParams.inputModelFile2, this.processSpecification1.getTaskCharArchive());
+            this.processSpecification2.bag.initAutomataBag();
+            //        this is a bit redundant, but to make sure that both have the same alphabet we recompute the first parser with the alphabet of the second, which now has both alphabets
+            this.processSpecification1=new ProcessModelLoader().loadProcessModel(janusParams.inputModelLanguage1, janusParams.inputModelFile1, this.processSpecification2.getTaskCharArchive());
+            this.processSpecification1.bag.initAutomataBag();
+        }
     }
 
     /**
@@ -76,7 +81,7 @@ public class JanusVariantAnalysisLauncher {
      * @param eventClassification
      * @return LogParser of the input log
      */
-    public static LogParser deriveLogParserFromLogFile(JanusVariantCmdParameters.InputEncoding inputLanguage, File inputLogFile, JanusVariantCmdParameters.EventClassification eventClassification, TaskCharArchive taskCharArchive) {
+    public static LogParser deriveLogParserFromLogFile(JanusVariantCmdParameters.LogInputEncoding inputLanguage, File inputLogFile, JanusVariantCmdParameters.EventClassification eventClassification, TaskCharArchive taskCharArchive) {
         LogParser logParser = null;
         switch (inputLanguage) {
             case xes:

@@ -287,7 +287,7 @@ public class ReactiveVariantAnalysisCore {
 
         int log1Size = logParser_1.length();
         int log2Size = logParser_2.length();
-        logger.info( "[Tot traces:"+(log1Size+log2Size)+" Constraints:"+processSpecificationUnionSize+"]" );
+        logger.info("[Tot traces:" + (log1Size + log2Size) + " Constraints:" + processSpecificationUnionSize + "]");
         List<String> permutableTracesList = new LinkedList<>();
         for (Iterator<LogTraceParser> it = logParser_1.traceIterator(); it.hasNext(); ) {
             permutableTracesList.add(it.next().printStringTrace());

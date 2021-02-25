@@ -1,5 +1,6 @@
 package minerful.reactive.params;
 
+import minerful.io.params.InputModelParameters;
 import minerful.params.ParamsManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -22,7 +23,7 @@ public class JanusVariantCmdParameters extends ParamsManager {
     public static final String SIMPLIFICATION_FLAG = "simplify";  // flag to simplify the result rules list according to their hierarchy
     //      Log managing fom MINERful
     public static final EventClassification DEFAULT_EVENT_CLASSIFICATION = EventClassification.name;
-    public static final InputEncoding DEFAULT_INPUT_ENCODING = InputEncoding.xes;
+    public static final LogInputEncoding DEFAULT_INPUT_LOG_ENCODING = LogInputEncoding.xes;
     public static final String INPUT_LOG_1_ENCODING_PARAM_NAME = "iLE1";  // second log variant to analyse
     public static final String INPUT_LOG_2_ENCODING_PARAM_NAME = "iLE2";  // second log variant to analyse
     public static final String EVENT_CLASSIFICATION_PARAM_NAME = "iLClassif";
@@ -35,9 +36,14 @@ public class JanusVariantCmdParameters extends ParamsManager {
     public static final String SAVE_MODEL_1_AS_JSON_PARAM_NAME = "oModel1JSON";
     public static final String SAVE_MODEL_2_AS_JSON_PARAM_NAME = "oModel2JSON";
     public static final String ENCODE_OUTPUT_TASKS_FLAG = "encodeTasksFlag";
+    public static final String INPUT_MODELFILE_1_PATH_PARAM_NAME = "iMF1";
+    public static final String INPUT_MODEL_ENCODING_1_PARAM_NAME = "iME1";
+    public static final String INPUT_MODELFILE_2_PATH_PARAM_NAME = "iMF2";
+    public static final String INPUT_MODEL_ENCODING_2_PARAM_NAME = "iME2";
+    public static final InputModelParameters.InputEncoding DEFAULT_INPUT_MODEL_ENCODING = InputModelParameters.InputEncoding.JSON;
 
 
-    public enum InputEncoding {
+    public enum LogInputEncoding {
         /**
          * For XES logs (also compressed)
          */
@@ -67,11 +73,27 @@ public class JanusVariantCmdParameters extends ParamsManager {
     /**
      * Encoding language for the first input event log
      */
-    public InputEncoding inputLanguage1;
+    public LogInputEncoding inputLogLanguage1;
     /**
      * Encoding language for the second input event log
      */
-    public InputEncoding inputLanguage2;
+    public LogInputEncoding inputLogLanguage2;
+    /**
+     * file of the process model for the first log variant to analyse
+     */
+    public File inputModelFile1;
+    /**
+     * file of the process model for the second log variant to analyse
+     */
+    public File inputModelFile2;
+    /**
+     * Encoding language for the first input model
+     */
+    public InputModelParameters.InputEncoding inputModelLanguage1;
+    /**
+     * Encoding language for the second input model
+     */
+    public InputModelParameters.InputEncoding inputModelLanguage2;
     /**
      * Classification policy to relate events to event classes, that is the task names
      */
@@ -135,11 +157,15 @@ public class JanusVariantCmdParameters extends ParamsManager {
 
     public JanusVariantCmdParameters() {
         super();
-        this.inputLanguage1 = DEFAULT_INPUT_ENCODING;
-        this.inputLanguage2 = DEFAULT_INPUT_ENCODING;
+        this.inputLogLanguage1 = DEFAULT_INPUT_LOG_ENCODING;
+        this.inputLogLanguage2 = DEFAULT_INPUT_LOG_ENCODING;
+        this.inputModelLanguage1 = DEFAULT_INPUT_MODEL_ENCODING;
+        this.inputModelLanguage2 = DEFAULT_INPUT_MODEL_ENCODING;
         this.eventClassification = DEFAULT_EVENT_CLASSIFICATION;
         this.inputLogFile1 = null;
         this.inputLogFile2 = null;
+        this.inputModelFile1 = null;
+        this.inputModelFile2 = null;
         this.pValue = DEFAULT_P_VALUE;
         this.measure = DEFAULT_MEASURE;
         this.measureThreshold = DEFAULT_MEASURE_THRESHOLD;
@@ -173,16 +199,16 @@ public class JanusVariantCmdParameters extends ParamsManager {
         this.inputLogFile1 = openInputFile(line, INPUT_LOGFILE_1_PATH_PARAM_NAME);
         this.inputLogFile2 = openInputFile(line, INPUT_LOGFILE_2_PATH_PARAM_NAME);
 
-        this.inputLanguage1 = InputEncoding.valueOf(
+        this.inputLogLanguage1 = LogInputEncoding.valueOf(
                 line.getOptionValue(
                         INPUT_LOG_1_ENCODING_PARAM_NAME,
-                        this.inputLanguage1.toString()
+                        this.inputLogLanguage1.toString()
                 )
         );
-        this.inputLanguage2 = InputEncoding.valueOf(
+        this.inputLogLanguage2 = LogInputEncoding.valueOf(
                 line.getOptionValue(
                         INPUT_LOG_2_ENCODING_PARAM_NAME,
-                        this.inputLanguage2.toString()
+                        this.inputLogLanguage2.toString()
                 )
         );
 
@@ -190,6 +216,23 @@ public class JanusVariantCmdParameters extends ParamsManager {
                 line.getOptionValue(
                         EVENT_CLASSIFICATION_PARAM_NAME,
                         this.eventClassification.toString()
+                )
+        );
+
+
+        this.inputModelFile1=openInputFile(line, INPUT_MODELFILE_1_PATH_PARAM_NAME);
+        this.inputModelFile2=openInputFile(line, INPUT_MODELFILE_2_PATH_PARAM_NAME);
+
+        this.inputModelLanguage1 = InputModelParameters.InputEncoding.valueOf(
+                line.getOptionValue(
+                        INPUT_MODEL_ENCODING_1_PARAM_NAME,
+                        this.inputModelLanguage1.toString()
+                )
+        );
+        this.inputModelLanguage2 = InputModelParameters.InputEncoding.valueOf(
+                line.getOptionValue(
+                        INPUT_MODEL_ENCODING_2_PARAM_NAME,
+                        this.inputModelLanguage2.toString()
                 )
         );
 
@@ -277,8 +320,8 @@ public class JanusVariantCmdParameters extends ParamsManager {
                 Option.builder(INPUT_LOG_1_ENCODING_PARAM_NAME)
                         .hasArg().argName("language")
                         .longOpt("in-log-1-encoding")
-                        .desc("input encoding language " + printValues(InputEncoding.values())
-                                + printDefault(fromEnumValueToString(DEFAULT_INPUT_ENCODING)))
+                        .desc("input encoding language " + printValues(LogInputEncoding.values())
+                                + printDefault(fromEnumValueToString(DEFAULT_INPUT_LOG_ENCODING)))
                         .type(String.class)
                         .build()
         );
@@ -286,8 +329,8 @@ public class JanusVariantCmdParameters extends ParamsManager {
                 Option.builder(INPUT_LOG_2_ENCODING_PARAM_NAME)
                         .hasArg().argName("language")
                         .longOpt("in-log-2-encoding")
-                        .desc("input encoding language " + printValues(InputEncoding.values())
-                                + printDefault(fromEnumValueToString(DEFAULT_INPUT_ENCODING)))
+                        .desc("input encoding language " + printValues(LogInputEncoding.values())
+                                + printDefault(fromEnumValueToString(DEFAULT_INPUT_LOG_ENCODING)))
                         .type(String.class)
                         .build()
         );
@@ -297,6 +340,42 @@ public class JanusVariantCmdParameters extends ParamsManager {
                         .longOpt("in-log-evt-classifier")
                         .desc("event classification (resp., by activity name, or according to the log-specified pattern) " + printValues(EventClassification.values())
                                 + printDefault(fromEnumValueToString(DEFAULT_EVENT_CLASSIFICATION)))
+                        .type(String.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(INPUT_MODELFILE_1_PATH_PARAM_NAME)
+                        .hasArg().argName("path")
+//                .isRequired(true) // Causing more problems than not
+                        .longOpt("in-model-1-file")
+                        .desc("path to read the input model file from")
+                        .type(String.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(INPUT_MODELFILE_2_PATH_PARAM_NAME)
+                        .hasArg().argName("path")
+//                .isRequired(true) // Causing more problems than not
+                        .longOpt("in-model-2-file")
+                        .desc("path to read the input model file from")
+                        .type(String.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(INPUT_MODEL_ENCODING_1_PARAM_NAME)
+                        .hasArg().argName("language")
+                        .longOpt("in-model-1-encoding")
+                        .desc("input encoding language " + printValues(InputModelParameters.InputEncoding.values())
+                                + printDefault(fromEnumValueToString(DEFAULT_INPUT_MODEL_ENCODING)))
+                        .type(String.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(INPUT_MODEL_ENCODING_2_PARAM_NAME)
+                        .hasArg().argName("language")
+                        .longOpt("in-model-2-encoding")
+                        .desc("input encoding language " + printValues(InputModelParameters.InputEncoding.values())
+                                + printDefault(fromEnumValueToString(DEFAULT_INPUT_MODEL_ENCODING)))
                         .type(String.class)
                         .build()
         );
