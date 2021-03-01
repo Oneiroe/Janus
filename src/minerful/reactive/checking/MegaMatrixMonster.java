@@ -6,6 +6,7 @@ import minerful.reactive.miner.ReactiveMinerOfflineQueryingCore;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.apache.log4j.Logger;
 
+import java.io.*;
 import java.util.Collection;
 
 /**
@@ -74,6 +75,78 @@ public class MegaMatrixMonster {
         System.gc();
 //        measures = new float[matrixLite.length][automata.size()][Measures.MEASURE_NUM];
         constraintLogMeasures = new SummaryStatistics[automata.size()][Measures.MEASURE_NUM];
+    }
+
+    /**
+     * Return the space required to serialize the current results of the Mega Matrix Monster
+     *
+     * @return
+     * @throws IOException
+     */
+    public double getSpaceConsumption(String filePath) throws IOException {
+        double result = 0.0;
+        //        events
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = null;
+        FileOutputStream fos = new FileOutputStream(filePath, true);
+//        fos.write("traces;events-TOT;Constraints;Measures;EventsSpace;TracesSpace;LogSpace\n".getBytes());
+        if (matrixLite != null)
+            fos.write(("" + matrixLite.length + ";" + log.numberOfEvents() + ";" + matrixLite[0].length + ";" + measures[0][0].length + ";").getBytes());
+        else
+            fos.write(("" + matrix.length + ";" + log.numberOfEvents() + ";" + matrix[0].length + ";" + measures[0][0].length + ";").getBytes());
+
+        try {
+            oos = new ObjectOutputStream(baos);
+            if (matrixLite != null)
+                oos.writeObject(matrixLite);
+            else
+                oos.writeObject(matrix);
+            oos.flush();
+            oos.close();
+
+            logger.info("size of events measures data structure : " + baos.size() / 1024d / 1024d + " MB");
+            fos.write(("" + baos.size() / 1024d / 1024d + " MB;").getBytes());
+            result += baos.size();
+        } catch (IOException | OutOfMemoryError e) {
+            logger.error("size of events measures data structure TOO BIG for serialization");
+            fos.write(("outOfMem").getBytes());
+            e.printStackTrace();
+        }
+        //        traces
+        try {
+            baos = new ByteArrayOutputStream();
+            oos = new ObjectOutputStream(baos);
+            oos.writeObject(measures);
+            oos.flush();
+            oos.close();
+            logger.info("size of traces measures data structure : " + baos.size() / 1024d / 1024d + " MB");
+            fos.write(("" + baos.size() / 1024d / 1024d + " MB;").getBytes());
+            result += baos.size();
+        } catch (IOException | OutOfMemoryError e) {
+            logger.error("size of traces measures data structure TOO BIG for serialization");
+            fos.write(("outOfMem").getBytes());
+            e.printStackTrace();
+        }
+        //        log
+        try {
+            baos = new ByteArrayOutputStream();
+            oos = new ObjectOutputStream(baos);
+            oos.writeObject(constraintLogMeasures);
+            oos.flush();
+            oos.close();
+            logger.info("size of log measures data structure : " + baos.size() / 1024d / 1024d + " MB");
+            fos.write(("" + baos.size() / 1024d / 1024d + " MB\n").getBytes());
+            result += baos.size();
+        } catch (IOException | OutOfMemoryError e) {
+            logger.error("size of log measures data structure TOO BIG for serialization");
+            fos.write(("outOfMem\n").getBytes());
+            e.printStackTrace();
+        }
+
+        logger.info("Size of MegaMatrixMonster results : " + result / 1024d / 1024d + " MB");
+        fos.close();
+
+        return result / 1024d / 1024d;
     }
 
     public byte[][][] getMatrix() {
@@ -147,6 +220,7 @@ public class MegaMatrixMonster {
 //				constraintLogMeasures[constraint][measure] = Measures.getLogDuckTapeMeasures(constraint, measure, matrix);
             }
         }
+        System.out.print("\rConstraint: " + constraintsNum + "/" + constraintsNum);  // Status counter "current trace/total trace"
         System.out.println();
     }
 
@@ -242,6 +316,7 @@ public class MegaMatrixMonster {
                 }
             }
         }
+        System.out.print("\rTraces: " + matrix.length + "/" + matrix.length);  // Status counter "current trace/total trace"
         System.out.println();
     }
 
