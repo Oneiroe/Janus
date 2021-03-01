@@ -1,0 +1,744 @@
+/bin/bash /home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ /bin/bash /home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh
+mkdir: cannot create directory ‘./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL’: No such file or directory
+########### Generate Log
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.MinerFulLogMakerStarter
+python3: can't open file 'pySupport/cleanStringLog.py': [Errno 2] No such file or directory
+rm: cannot remove './tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log-original.txt': No such file or directory
+### Iteration:1 ------ Confidence threshold:1.0
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.95
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.9
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.85
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.8
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.75
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.7
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.65
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.6
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.55
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.5
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.45
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+^CError: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.4
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.35
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.3
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.25
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+Error: Could not find or load main class minerful.JanusOfflineMinerStarter
+/home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh: line 102: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-TIMES.csv: No such file or directory
+######################### Conformance Checking
+Error: Could not find or load main class minerful.JanusModelCheckStarter
+### Iteration:1 ------ Confidence threshold:0.2
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful/tests-Journal-SJ2T$ cd ..
+alessio@Levitas:~/Data/Phd/my_code/MINERful$ /bin/bash /home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh
+########### Generate Log
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+NikeFS2: Allocating new swap file. (#1: 67108864 bytes)
+NikeFS2: cleaned up 0 stale swap files (from 0 sessions).
+NikeFS2: Populating shadow map 1 (of 4 max.)
+### Iteration:1 ------ Confidence threshold:1.0
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 217475
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt-model[s_0.0_c_1.0].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][558][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 30376.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 558/558
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 21818.0
+JVM memory used:279.95533752441406 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 146.2152156829834 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 84.0893325805664 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 4.772088050842285 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 235.0766363143921 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.95
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 457/1000^C######################### Conformance Checking
+^C### Iteration:1 ------ Confidence threshold:0.9
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+^C######################### Conformance Checking
+Exception in thread "main" java.lang.IllegalArgumentException: Unreadable file: ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt-model[s_0.0_c_0.9].json
+        at minerful.params.ParamsManager.openInputFile(ParamsManager.java:78)
+        at minerful.io.params.InputModelParameters.setup(InputModelParameters.java:62)
+        at minerful.params.ParamsManager.parseAndSetup(ParamsManager.java:57)
+        at minerful.io.params.InputModelParameters.<init>(InputModelParameters.java:51)
+        at minerful.JanusModelCheckStarter.main(JanusModelCheckStarter.java:93)
+### Iteration:1 ------ Confidence threshold:0.85
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful$ /bin/bash /home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh
+mkdir: cannot create directory ‘./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL’: File exists
+########### Generate Log
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+### Iteration:1 ------ Confidence threshold:1.0
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][558][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 30846.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 402/1000^C### Iteration:1 ------ Confidence threshold:0.95
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_100_max_500_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+^C######################### Conformance Checking
+^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful$ ^C
+alessio@Levitas:~/Data/Phd/my_code/MINERful$ /bin/bash /home/alessio/Data/Phd/my_code/MINERful/tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL.sh
+mkdir: cannot create directory ‘./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL’: File exists
+########### Generate Log
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+NikeFS2: Allocating new swap file. (#1: 67108864 bytes)
+NikeFS2: cleaned up 0 stale swap files (from 0 sessions).
+NikeFS2: Populating shadow map 1 (of 4 max.)
+### Iteration:1 ------ Confidence threshold:1.0
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 24505
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_1.0].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][140][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 718.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 140/140
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 1183.0
+JVM memory used:34.85334014892578 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 3.3474502563476562 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 21.10486602783203 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 1.198716163635254 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 25.65103244781494 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.95
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 24539
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.95].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][275][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 1527.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 275/275
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 2433.0
+JVM memory used:73.2744369506836 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 6.56610107421875 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 41.446739196777344 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 2.3527956008911133 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 50.36563587188721 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.9
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 26163
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.9].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][372][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 2242.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 372/372
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 3379.0
+JVM memory used:83.30091857910156 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 8.878761291503906 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 56.06275177001953 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 3.182023048400879 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 68.12353610992432 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.85
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 25183
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.85].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][538][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 2950.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 538/538
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 4768.0
+JVM memory used:148.5760955810547 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 12.836509704589844 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 81.07572174072266 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 4.601113319396973 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 98.51334476470947 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.8
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 24746
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.8].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][621][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 3444.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 621/621
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 5574.0
+JVM memory used:165.8053436279297 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 14.815383911132812 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 93.58220672607422 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 5.3106584548950195 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 113.70824909210205 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.75
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 25390
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.75].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][727][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 3887.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 727/727
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 6987.0
+JVM memory used:167.32545471191406 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 17.342620849609375 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 109.5543441772461 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 6.216824531555176 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 133.11378955841064 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.7
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 25152
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.7].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][895][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 5302.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 895/895
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 7778.0
+JVM memory used:202.67393493652344 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 21.348052978515625 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 134.8686752319336 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 7.653012275695801 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 163.86974048614502 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.65
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 25589
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.65].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][1009][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 6097.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 1009/1009
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 9234.0
+JVM memory used:247.66732788085938 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 24.066024780273438 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 152.04625701904297 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 8.627568244934082 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 184.7398500442505 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.6
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 25626
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.6].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][1104][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 6721.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 1104/1104
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 10499.0
+JVM memory used:266.653564453125 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 26.33100128173828 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 166.36090850830078 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 9.439698219299316 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 202.13160800933838 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.55
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 24692
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.55].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][1189][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 6679.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 1189/1189
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 10391.0
+JVM memory used:284.392333984375 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 28.357559204101562 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 179.16875457763672 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 10.166340827941895 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 217.69265460968018 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.5
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 25270
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.5].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][1267][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 7846.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 1267/1267
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 11459.0
+JVM memory used:292.3037796020508 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 30.21722412109375 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 190.92183685302734 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 10.833142280578613 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 231.9722032546997 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.45
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 22876
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.45].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][1399][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 7152.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 1399/1399
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 13721.0
+JVM memory used:319.76151275634766 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 33.364349365234375 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 210.8116683959961 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 11.961575508117676 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 256.13759326934814 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.4
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 25320
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.4].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][1627][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 8869.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 1627/1627
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 14594.0
+JVM memory used:382.68553161621094 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 38.80029296875 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 245.16683197021484 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 13.910687446594238 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 297.8778123855591 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.35
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 25101
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.35].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][1823][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 9995.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 1823/1823
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 15583.0
+JVM memory used:419.1439743041992 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 43.473297119140625 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 274.7002182006836 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 15.5862398147583 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 333.7597551345825 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.3
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 25555
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.3].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][2037][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 11977.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 2037/2037
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 20345.0
+JVM memory used:496.9501647949219 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 48.57545471191406 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 306.9458541870117 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 17.415669441223145 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 372.9369783401489 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.25
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 24664
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.25].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][2320][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 12663.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 2320/2320
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 20336.0
+JVM memory used:556.2174758911133 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 55.32270050048828 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 349.5884475708008 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 19.834961891174316 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 424.7461099624634 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.2
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 24804
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.2].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][2764][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 14375.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 2764/2764
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 24023.0
+JVM memory used:655.9442749023438 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 65.90848541259766 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 416.49060821533203 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 23.630600929260254 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 506.02969455718994 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.15
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 24898
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.15].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][3222][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 16723.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 3222/3222
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 27819.0
+JVM memory used:727.9193878173828 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 76.82805633544922 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 485.5022964477539 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 27.54592227935791 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 589.876275062561 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.1
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 25063
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.1].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][3592][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 16417.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 3592/3592
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 29871.0
+JVM memory used:822.0274353027344 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 85.64954376220703 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 541.2540969848633 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 30.70895481109619 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 657.6125955581665 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.05
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 23924
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.05].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][4221][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 19769.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 4221/4221
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 34680.0
+JVM memory used:993.6113052368164 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 100.64607238769531 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 636.0321578979492 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 36.08611011505127 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 772.7643404006958 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+### Iteration:1 ------ Confidence threshold:0.0
+######################### Discover Model
+./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Loading log...
+Traces: 1000/1000
+INFO [main] minerful.JanusOfflineMinerStarter (info:141) - Total KB querying time: 24917
+INFO [main] core.MinerFulQueryingCore (pruneNonActiveConstraints:35) - Pruning non active constraints...
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Saving the discovered process as JSON in ./tests-Journal-SJ2T/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL/PERFORMANCE-SPACE-SYNTHETIC-var-MODEL-log[min_15_max_15_size_1000].txt-model[s_0.0_c_0.0].json...
+######################### Conformance Checking
+INFO [main] checking.ReactiveCheckingOfflineQueryingCore (runLog:155) - Basic result matrix created! Size: [1000][6094][*]
+Traces: 1000/1000
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total KB checking time: 25250.0
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:200) - Initializing measures matrix...
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:204) - Retrieving Trace Measures...
+Traces: 1000/1000
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (computeAllMeasures:212) - Retrieving Log Measures...
+Constraint: 6094/6094
+INFO [main] minerful.JanusModelCheckLauncher (info:141) - Total measurement retrieval time: 49498.0
+JVM memory used:1417.3410339355469 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:107) - size of events measures data structure : 145.30187225341797 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:122) - size of traces measures data structure : 918.2568130493164 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:137) - size of log measures data structure : 52.097893714904785 MB
+INFO [main] miner.ReactiveMinerOfflineQueryingCore (getSpaceConsumption:146) - Size of MegaMatrixMonster results : 1115.6565790176392 MB
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Terminal output yet not implemented
+INFO [main] minerful.MinerFulOutputManagementLauncher (info:141) - Output encoding: false
+alessio@Levitas:~/Data/Phd/my_code/MINERful$ 
