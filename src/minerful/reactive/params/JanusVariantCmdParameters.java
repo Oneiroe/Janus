@@ -21,6 +21,8 @@ public class JanusVariantCmdParameters extends ParamsManager {
     public static final String DIFFERENCE_THRESHOLD_NAME = "differenceThreshold";  // threshold for the difference of the variants constraints measurement to be considered relevant. default= 0.01
     public static final Double DEFAULT_DIFFERENCE_THRESHOLD = 0.01;  // threshold for the measure to consider it relevant, default: "0.8"
     public static final String SIMPLIFICATION_FLAG = "simplify";  // flag to simplify the result rules list according to their hierarchy
+    public static final String BEST_N_RESULTS_NAME = "bestNresults";  // number of rules in the TOP result list. default= 10
+    public static final Integer DEFAULT_BEST_N_RESULTS_VALUE = 10;  // number of rules in the TOP result list. default= 10
     //      Log managing fom MINERful
     public static final EventClassification DEFAULT_EVENT_CLASSIFICATION = EventClassification.name;
     public static final LogInputEncoding DEFAULT_INPUT_LOG_ENCODING = LogInputEncoding.xes;
@@ -154,6 +156,10 @@ public class JanusVariantCmdParameters extends ParamsManager {
      * Flag if the rules set returned from the permutation test should be simplified according to the rules hierarchy. Default=false
      **/
     public boolean simplify;
+    /**
+     * Number of rules for the TOP results. Default=10
+     **/
+    public int bestNresults;
 
     public JanusVariantCmdParameters() {
         super();
@@ -180,6 +186,7 @@ public class JanusVariantCmdParameters extends ParamsManager {
         this.encodeOutputTasks = false;
         this.simplify = false;
         this.differenceThreshold = DEFAULT_DIFFERENCE_THRESHOLD;
+        this.bestNresults = DEFAULT_BEST_N_RESULTS_VALUE;
     }
 
     public JanusVariantCmdParameters(Options options, String[] args) {
@@ -220,8 +227,8 @@ public class JanusVariantCmdParameters extends ParamsManager {
         );
 
 
-        this.inputModelFile1=openInputFile(line, INPUT_MODELFILE_1_PATH_PARAM_NAME);
-        this.inputModelFile2=openInputFile(line, INPUT_MODELFILE_2_PATH_PARAM_NAME);
+        this.inputModelFile1 = openInputFile(line, INPUT_MODELFILE_1_PATH_PARAM_NAME);
+        this.inputModelFile2 = openInputFile(line, INPUT_MODELFILE_2_PATH_PARAM_NAME);
 
         this.inputModelLanguage1 = InputModelParameters.InputEncoding.valueOf(
                 line.getOptionValue(
@@ -280,6 +287,13 @@ public class JanusVariantCmdParameters extends ParamsManager {
         this.fileToSaveModel2AsJSON = openOutputFile(line, SAVE_MODEL_2_AS_JSON_PARAM_NAME);
         this.encodeOutputTasks = line.hasOption(OUTPUT_KEEP_FLAG_NAME);
         this.simplify = line.hasOption(SIMPLIFICATION_FLAG);
+
+        this.bestNresults = Integer.parseInt(
+                line.getOptionValue(
+                        BEST_N_RESULTS_NAME,
+                        Integer.toString(this.bestNresults)
+                )
+        );
     }
 
     @Override
@@ -491,6 +505,14 @@ public class JanusVariantCmdParameters extends ParamsManager {
                         .longOpt("simplification-flag")
                         .desc("Flag if the output rules set shoul dbe simplified according to rules hierarchy. Default: false")
                         .type(Boolean.class)
+                        .build()
+        );
+        options.addOption(
+                Option.builder(BEST_N_RESULTS_NAME)
+                        .hasArg().argName("number")
+                        .longOpt("number-of-best-results")
+                        .desc("Number of rules to return in among the best results. Default: 10")
+                        .type(Integer.class)
                         .build()
         );
         return options;

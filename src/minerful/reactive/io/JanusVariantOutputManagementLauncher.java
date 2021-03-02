@@ -1,24 +1,21 @@
 package minerful.reactive.io;
 
+import com.google.common.collect.Ordering;
+import com.google.common.collect.TreeMultimap;
 import minerful.MinerFulOutputManagementLauncher;
 import minerful.concept.TaskChar;
 import minerful.concept.TaskCharArchive;
 import minerful.concept.constraint.Constraint;
 import minerful.params.SystemCmdParameters;
 import minerful.params.ViewCmdParameters;
-import minerful.reactive.checking.Measures;
-import minerful.reactive.checking.MegaMatrixMonster;
 import minerful.reactive.params.JanusVariantCmdParameters;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NavigableMap;
+import java.util.*;
 
 /**
  * Class to handle the output of Janus
@@ -88,10 +85,18 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
 
     private void exportVariantResultsToCSV(Map<String, Float> variantResults, File outputFile, JanusVariantCmdParameters varParams, TaskCharArchive alphabet, Map<String, Float> measurementsSpecification1, Map<String, Float> measurementsSpecification2) {
         //		header row
-        String[] header = {"Constraint", "p_value", "Measure_VAR1", "Measure_VAR2", "ABS-Difference", "Natural_Language_Description"};
         try {
-            FileWriter fw = new FileWriter(outputFile);
-            CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
+            String[] headerDetailed = {"Constraint", "p_value", "Measure_VAR1", "Measure_VAR2", "ABS-Difference", "Natural_Language_Description"};
+            FileWriter fwDetailed = new FileWriter(outputFile);
+            CSVPrinter printerDetailed = new CSVPrinter(fwDetailed, CSVFormat.DEFAULT.withHeader(headerDetailed).withDelimiter(';'));
+
+            String fileNameBestOf = outputFile.getAbsolutePath().substring(0, outputFile.getAbsolutePath().indexOf(".csv")).concat("[Best-" + varParams.bestNresults + "].txt");
+            String[] headerBestOf = {"RESULTS"};
+            FileWriter fwBestOf = new FileWriter(fileNameBestOf);
+            CSVPrinter printerBestOf = new CSVPrinter(fwBestOf, CSVFormat.DEFAULT.withHeader(headerBestOf).withDelimiter(';'));
+
+//            Sort results by difference in decreasing order
+            TreeMultimap<Float, String> sortedDiffResults = TreeMultimap.create(Ordering.natural().reverse(), Ordering.natural());
 
             Map<Character, TaskChar> translationMap = alphabet.getTranslationMapById();
             for (String constraint : variantResults.keySet()) {
@@ -100,7 +105,7 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
 //                Row builder
                 float difference = Math.abs(measurementsSpecification1.get(constraint) - measurementsSpecification2.get(constraint));
                 if (varParams.oKeep || variantResults.get(constraint) <= varParams.pValue) {
-                    printer.printRecord(new String[]{
+                    printerDetailed.printRecord(new String[]{
                             decodedConstraint,
                             variantResults.get(constraint).toString(),
                             measurementsSpecification1.get(constraint).toString(),
@@ -108,10 +113,21 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
                             String.valueOf(difference),
                             getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference)}
                     );
+                    sortedDiffResults.put(difference, getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference));
                 }
             }
+            fwDetailed.close();
 
-            fw.close();
+            int counter = varParams.bestNresults;
+            for (Float key : sortedDiffResults.keySet()) {
+                for (String line : sortedDiffResults.get(key)) {
+                    printerBestOf.printRecord(line);
+                    counter--; // first N results
+                }
+//                counter--; // First N distinct results
+                if (counter < 0) break;
+            }
+            fwBestOf.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

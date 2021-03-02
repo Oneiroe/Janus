@@ -56,6 +56,7 @@ PERMUTATIONS=1000 # number of permutations of the permutation test
 DISCOVERY_SUPPORT=0.00 # support threshold used for the initial discovery of the constraints of the variances
 DISCOVERY_CONFIDENCE=0.8 # confidence threshold used for the initial discovery of the constraints of the variances
 DIFFERENCE_THRESHOLD=0.01 # minimum difference between a rule in the two variance to be considered relevant
+BEST_N_RESULTS=10 # number of constraints in the best-of result
 
 #-oKeep keep values below the p-valu and difference threshold
 #-simplify remove constraints that are redundant
@@ -79,7 +80,8 @@ java -cp Janus.jar $JANUS_VARIANT_MAINCLASS \
   -oModel2JSON $OUTPUT_MODEL_JSON_2 \
   --no-screen-print-out \
   -simplify \
-  -differenceThreshold $DIFFERENCE_THRESHOLD
+  -differenceThreshold $DIFFERENCE_THRESHOLD \
+  -bestNresults $BEST_N_RESULTS
 #  -oKeep
 
 ##################################################################
