@@ -48,6 +48,7 @@ returns the measures leaderboard for which the rules of the reference model are 
         # check how many constraints from the original model are in the top N constraints
         counter = 0
         index = 0
+        tot = 0
         previous = ""
         #         test = 0
         # for value, constraint in ordered_measures[m][:best_N_threshold]:
@@ -55,6 +56,7 @@ returns the measures leaderboard for which the rules of the reference model are 
             # test += 1
             if value == 'nan':
                 continue
+            tot += 1
             if constraint in model:
                 counter += 1
             if value != previous:
@@ -62,10 +64,13 @@ returns the measures leaderboard for which the rules of the reference model are 
                 #               i.e. ranking of the first N DISTINCT results, not the first N
                 previous = value
                 index += 1
+                if tot > best_N_threshold:
+                    # Not the first n distinct,
+                    break
             if index > best_N_threshold:
                 break
         #         print(m + " stopped at ordered constraint number " + str(test))
-        measures_ranking += [(counter, m)]
+        measures_ranking += [(counter, tot, m)]
 
     measures_ranking = sorted(measures_ranking, reverse=True)
 
@@ -80,9 +85,9 @@ returns the measures leaderboard for which the rules of the reference model are 
     print("Saving measure ranking in... " + output_path)
     with open(output_path, 'w') as out_file:
         writer = csv.writer(out_file, delimiter=';')
-        header = ["Rank-" + str(best_N_threshold), "Measure"]
+        header = ["Rank-" + str(best_N_threshold) + "-true", "Rank-" + str(best_N_threshold) + "-TOT", "Measure"]
         writer.writerow(header)
-        writer.writerow([str(len(model)), "ORIGINAL-MODEL"])
+        writer.writerow([str(len(model)), str(len(ordered_measures['Confidence'])), "ORIGINAL-MODEL"])
         writer.writerows(measures_ranking)
 
 
@@ -95,7 +100,9 @@ Given the results of the previous experiment, return the average of the leaderbo
     output_path = sys.argv[3]
 
     temp_measures_ranking = {}  # measure:ranks
+    temp_measures_ranking_tot = {}  # measure:ranks
     tot = 0
+    iterations = 0
 
     for iteration in os.listdir(experiment_base_folder):
         try:
@@ -103,26 +110,30 @@ Given the results of the previous experiment, return the average of the leaderbo
                                        "*measures-ranking*top" + str(best_N_threshold) + "-*")[0]
             with open(os.path.join(experiment_base_folder, iteration, file_name), 'r') as ranking_file:
                 csv_reader = csv.reader(ranking_file, delimiter=';')
-                # [0]Rank-N; [1]Measure
+                # [0]Rank-N-true; [1]Rank-N-TOT; [2]Measure
                 for line in csv_reader:
-                    if line[1] == "Measure":
+                    if line[-1] == "Measure":
                         continue
-                    if line[1] == "ORIGINAL-MODEL":
+                    if line[-1] == "ORIGINAL-MODEL":
                         tot += int(line[0])
-                        continue
-                    temp_measures_ranking[line[1]] = temp_measures_ranking.setdefault(line[1], 0) + int(line[0])
+                        iterations += 1
+                        # continue
+                    temp_measures_ranking[line[-1]] = temp_measures_ranking.setdefault(line[-1], 0) + int(line[0])
+                    temp_measures_ranking_tot[line[-1]] = temp_measures_ranking_tot.setdefault(line[-1], 0) + int(
+                        line[1])
         except NotADirectoryError:
             pass
 
     measures_ranking = []
     for m in temp_measures_ranking.keys():
-        measures_ranking += [(temp_measures_ranking[m] / tot, m)]
+        # measures_ranking += [(temp_measures_ranking[m] / tot, m)]
+        measures_ranking += [(temp_measures_ranking[m] / iterations, temp_measures_ranking_tot[m] / iterations, m)]
     measures_ranking = sorted(measures_ranking, reverse=True)
 
     print("Saving average measure ranking in... " + output_path)
     with open(output_path, 'w') as output_file:
         csv_writer = csv.writer(output_file, delimiter=';')
-        header = ["Rank-" + str(best_N_threshold), "Measure"]
+        header = ["Rank-" + str(best_N_threshold) + "-true", "Rank-" + str(best_N_threshold) + "-TOT", "Measure"]
         csv_writer.writerow(header)
         csv_writer.writerows(measures_ranking)
 
@@ -134,13 +145,16 @@ def rank_tot():
     ranks = []
     result = {}
 
+    modelConstraints = 0
+
     for iteration_result in os.listdir(experiment_base_folder):
         # TODO adjust condition chek: problem: the csv generated with this call
         if iteration_result.endswith(".csv"):
             if "TOT" in iteration_result or "[top" not in iteration_result:
                 continue
             topN = re.findall(r'\d+', iteration_result)[-1]
-            rank = "Rank-" + topN
+            rank = "Rank-" + topN + "-true"
+            tot = "Rank-" + topN + "-TOT"
             ranks += [int(topN)]
             with open(os.path.join(experiment_base_folder, iteration_result), 'r') as input_file:
                 csv_reader = csv.DictReader(input_file, delimiter=';')
@@ -148,17 +162,40 @@ def rank_tot():
                 for line in csv_reader:
                     result.setdefault(line['Measure'], {})
                     result[line['Measure']][rank] = line[rank]
+                    result[line['Measure']][tot] = line[tot]
                     result[line['Measure']]['Measure'] = line['Measure']
+                    if line['Measure'] == "ORIGINAL-MODEL":
+                        modelConstraints = float(line[rank])
 
     ranks.sort()
 
     print("Saving total measure ranking in... " + output_path)
     with open(output_path, 'w') as output_file:
-        header = ["Measure"] + ["Rank-" + str(i) for i in ranks]
+        header = ["Measure"]
+        for i in ranks:
+            header += ["Rank-" + str(i) + "-true", "Rank-" + str(i) + "-TOT"]
         csv_writer = csv.DictWriter(output_file, fieldnames=header, delimiter=';')
         csv_writer.writeheader()
         for m in result.values():
             csv_writer.writerow(m)
+
+
+    output_path = output_path[:-4] + "[STATS].csv"
+    print("Saving total measure ranking STATS in... " + output_path)
+    with open(output_path, 'w') as output_file:
+        header = ["Measure"]
+        for i in ranks:
+            header += ["Rank-" + str(i) + "-true/totTrue", "Rank-" + str(i) + "-true/TOT"]
+        csv_writer = csv.DictWriter(output_file, fieldnames=header, delimiter=';')
+        csv_writer.writeheader()
+        for m in result.values():
+            temp = {"Measure": m["Measure"]}
+            for i in ranks:
+                temp["Rank-" + str(i) + "-true/totTrue"] = float(m["Rank-" + str(i) + "-true"]) / modelConstraints
+                temp["Rank-" + str(i) + "-true/TOT"] = float(m["Rank-" + str(i) + "-true"]) / float(
+                    m["Rank-" + str(i) + "-TOT"])
+
+            csv_writer.writerow(temp)
 
 
 if __name__ == "__main__":
