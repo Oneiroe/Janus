@@ -392,6 +392,36 @@ public class ReactiveVariantAnalysisCore {
                 processSpecificationUnionSize--;
             }
             logger.info("Number of simplified constraints: " + (initConstrNum - processSpecificationUnionSize));
+
+            //            simplification of symmetric constraints [CoExistence, NotCoExistence]
+            constraintsRemovalCandidate = new HashSet<>();
+            constraintsList = new HashSet<>(spec1.keySet());
+            initConstrNum = processSpecificationUnionSize;
+
+            for (String c : constraintsList) {
+                // skip constraints with only one variable from simplification
+                if (!c.contains(",")) continue;
+                String template = c.split("\\(")[0];
+                // only symmetric constraints
+                if (!template.equals("CoExistence") && !template.equals("NotCoExistence")) continue;
+                // skip constraints already labelled for removal
+                if (constraintsRemovalCandidate.contains(c)) continue;
+
+
+                String cVar1 = c.split("\\(")[1].replace(")", "").split(",")[0];
+                String cVar2 = c.split("\\(")[1].replace(")", "").split(",")[1];
+                String symmetricConstraint = template + "(" + cVar2 + "," + cVar1 + ")";
+                if (constraintsList.contains(symmetricConstraint)) constraintsRemovalCandidate.add(symmetricConstraint);
+            }
+            for (String c : constraintsRemovalCandidate) {
+                spec1.remove(c);
+                spec2.remove(c);
+                for (Map<String, Float> t : lCoded.values()) {
+                    t.remove(c);
+                }
+                processSpecificationUnionSize--;
+            }
+            logger.info("Number of simplified symmetric constraints: " + (initConstrNum - processSpecificationUnionSize));
         }
         //  difference min cut
         if (!janusVariantParams.oKeep) {

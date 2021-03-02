@@ -118,24 +118,24 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
     }
 
     public static final Map<String, String> DESCRIPTION = new HashMap<String, String>() {{
-        put("RespondedExistence", "If [$1] occurs, also [$2] occurs. \n");
-        put("CoExistence", "[$1] and [$2] co-occur. \n");
-        put("Succession", "[$1] is followed by [$2] and [$2] is preceded by [$1]. \n");
-        put("Precedence", "If [$2] occurs, [$1] occurred before it. \n");
-        put("Response", "If [$1] occurs, [$2] will occur afterwards. \n");
-        put("AlternateSuccession", "[$1] is followed by [$2] and [$2] is preceded by [$1], without any other occurrence of [$1] and [$2] in between. \n");
-        put("AlternatePrecedence", "If [$2] occurs, [$1] occurred before it without any other occurrence of [$2] in between. \n");
-        put("AlternateResponse", "If [$1] occurs, [$2] will occur afterwards without any other occurrence of [$1] in between. \n");
-        put("ChainSuccession", "[$1] is immediately followed by [$2] and [$2] is immediately preceded by [$1]. \n");
-        put("ChainPrecedence", "If [$2] occurs, [$1] occurred immediately before it. \n");
-        put("ChainResponse", "If [$1] occurs, [$2] occurs immediately afterwards. \n");
-        put("NotCoExistence", "[$1] and [$2] do not occur in together in the same process instance. \n");
-        put("NotSuccession", "[$1] is not followed by [$2] and [$2] is not preceded by [$1]. \n");
-        put("NotChainSuccession", "[$1] is not immediately followed by [$2] and [$2] is not immediately preceded by [$1]. \n");
-        put("Participation", "[$1] occurs in every process instance. \n");
-        put("AtMostOne", "[$1] may occur at most one time in a process instance. \n");
-        put("End", "The process ends with [$1]. \n");
-        put("Init", "The process starts with [$1]. \n");
+        put("RespondedExistence", "If [$1] occurs, also [$2] occurs. ");
+        put("CoExistence", "[$1] and [$2] co-occur. ");
+        put("Succession", "[$1] is followed by [$2] and [$2] is preceded by [$1]. ");
+        put("Precedence", "If [$2] occurs, [$1] occurred before it. ");
+        put("Response", "If [$1] occurs, [$2] will occur afterwards. ");
+        put("AlternateSuccession", "[$1] is followed by [$2] and [$2] is preceded by [$1], without any other occurrence of [$1] and [$2] in between. ");
+        put("AlternatePrecedence", "If [$2] occurs, [$1] occurred before it without any other occurrence of [$2] in between. ");
+        put("AlternateResponse", "If [$1] occurs, [$2] will occur afterwards without any other occurrence of [$1] in between. ");
+        put("ChainSuccession", "[$1] is immediately followed by [$2] and [$2] is immediately preceded by [$1]. ");
+        put("ChainPrecedence", "If [$2] occurs, [$1] occurred immediately before it. ");
+        put("ChainResponse", "If [$1] occurs, [$2] occurs immediately afterwards. ");
+        put("NotCoExistence", "[$1] and [$2] do not occur in together in the same process instance. ");
+        put("NotSuccession", "[$1] is not followed by [$2] and [$2] is not preceded by [$1]. ");
+        put("NotChainSuccession", "[$1] is not immediately followed by [$2] and [$2] is not immediately preceded by [$1]. ");
+        put("Participation", "[$1] occurs in every process instance. ");
+        put("AtMostOne", "[$1] may occur at most one time in a process instance. ");
+        put("End", "The process ends with [$1]. ");
+        put("Init", "The process starts with [$1]. ");
     }};
 
     private String getNaturalLanguageDescription(String constraint, String measure, float var1measure, float var2measure, float difference) {
@@ -144,7 +144,7 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
         if (DESCRIPTION.get(template) == null)
             logger.error("Constraint without natural language description: " + template);
 
-        if (constraint.contains(",") == false) {
+        if (!constraint.contains(",")) {
             String task = constraint.split("\\(")[1].replace(")", "");
             result = result.replace("$1", task);
         } else {
