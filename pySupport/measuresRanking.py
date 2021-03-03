@@ -191,9 +191,14 @@ def rank_tot():
         for m in result.values():
             temp = {"Measure": m["Measure"]}
             for i in ranks:
-                temp["Rank-" + str(i) + "-true/totTrue"] = float(m["Rank-" + str(i) + "-true"]) / modelConstraints
-                temp["Rank-" + str(i) + "-true/TOT"] = float(m["Rank-" + str(i) + "-true"]) / float(
-                    m["Rank-" + str(i) + "-TOT"])
+                try:
+                    temp["Rank-" + str(i) + "-true/totTrue"] = float(m["Rank-" + str(i) + "-true"]) / modelConstraints
+                except ZeroDivisionError:
+                    temp["Rank-" + str(i) + "-true/totTrue"] = "NaN"
+                try:
+                    temp["Rank-" + str(i) + "-true/TOT"] = float(m["Rank-" + str(i) + "-true"]) / float(m["Rank-" + str(i) + "-TOT"])
+                except ZeroDivisionError:
+                    temp["Rank-" + str(i) + "-true/TOT"] = "NaN"
 
             csv_writer.writerow(temp)
 

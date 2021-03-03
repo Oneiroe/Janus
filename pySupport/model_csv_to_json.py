@@ -25,10 +25,10 @@ def main():
                             "template": line["Template"],
                             "parameters": [
                                 [
-                                    line["Activation"]
+                                    line["Activation"] if ("Precedence" not in line["Template"]) else line["Target"]
                                 ],
                                 [
-                                    line["Target"]
+                                    line["Target"] if ("Precedence" not in line["Template"]) else line["Activation"]
                                 ]
                             ],
                             "support": float(line["Support"]),
