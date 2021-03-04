@@ -111,9 +111,9 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
                             measurementsSpecification1.get(constraint).toString(),
                             measurementsSpecification2.get(constraint).toString(),
                             String.valueOf(difference),
-                            getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference)}
+                            getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference, varParams)}
                     );
-                    sortedDiffResults.put(difference, getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference));
+                    sortedDiffResults.put(difference, getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference, varParams));
                 }
             }
             fwDetailed.close();
@@ -134,32 +134,48 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
     }
 
     public static final Map<String, String> DESCRIPTION = new HashMap<String, String>() {{
-        put("RespondedExistence", "If [$1] occurs, also [$2] occurs. ");
+        put("RespondedExistence", "if [$1] occurs, also [$2] occurs. ");
         put("CoExistence", "[$1] and [$2] co-occur. ");
         put("Succession", "[$1] is followed by [$2] and [$2] is preceded by [$1]. ");
-        put("Precedence", "If [$2] occurs, [$1] occurred before it. ");
-        put("Response", "If [$1] occurs, [$2] will occur afterwards. ");
+        put("Precedence", "if [$2] occurs, [$1] occurred before it. ");
+        put("Response", "if [$1] occurs, [$2] will occur afterwards. ");
         put("AlternateSuccession", "[$1] is followed by [$2] and [$2] is preceded by [$1], without any other occurrence of [$1] and [$2] in between. ");
-        put("AlternatePrecedence", "If [$2] occurs, [$1] occurred before it without any other occurrence of [$2] in between. ");
-        put("AlternateResponse", "If [$1] occurs, [$2] will occur afterwards without any other occurrence of [$1] in between. ");
+        put("AlternatePrecedence", "if [$2] occurs, [$1] occurred before it without any other occurrence of [$2] in between. ");
+        put("AlternateResponse", "if [$1] occurs, [$2] will occur afterwards without any other occurrence of [$1] in between. ");
         put("ChainSuccession", "[$1] is immediately followed by [$2] and [$2] is immediately preceded by [$1]. ");
-        put("ChainPrecedence", "If [$2] occurs, [$1] occurred immediately before it. ");
-        put("ChainResponse", "If [$1] occurs, [$2] occurs immediately afterwards. ");
+        put("ChainPrecedence", "if [$2] occurs, [$1] occurred immediately before it. ");
+        put("ChainResponse", "if [$1] occurs, [$2] occurs immediately afterwards. ");
         put("NotCoExistence", "[$1] and [$2] do not occur in together in the same process instance. ");
         put("NotSuccession", "[$1] is not followed by [$2] and [$2] is not preceded by [$1]. ");
         put("NotChainSuccession", "[$1] is not immediately followed by [$2] and [$2] is not immediately preceded by [$1]. ");
         put("Participation", "[$1] occurs in every process instance. ");
         put("AtMostOne", "[$1] may occur at most one time in a process instance. ");
-        put("End", "The process ends with [$1]. ");
-        put("Init", "The process starts with [$1]. ");
+        put("End", "the process ends with [$1]. ");
+        put("Init", "the process starts with [$1]. ");
     }};
 
-    private String getNaturalLanguageDescription(String constraint, String measure, float var1measure, float var2measure, float difference) {
+    private String getNaturalLanguageDescription(String constraint, String measure, float var1measure, float var2measure, float difference, JanusVariantCmdParameters varParams) {
         String template = constraint.split("\\(")[0];
-        String result = DESCRIPTION.get(template);
-        if (DESCRIPTION.get(template) == null)
-            logger.error("Constraint without natural language description: " + template);
+        String result;
 
+        if (Float.isNaN(difference)) {
+            if (Float.isNaN(var1measure)) {
+                if (var2measure < varParams.measureThreshold) result = "It may happen only in variant 2 that ";
+                else result = "It happens only in variant 2 that ";
+            } else {
+                if (var1measure < varParams.measureThreshold) result = "It may happen only in variant 1 that ";
+                else result = "It happens only in variant 1 that ";
+            }
+        } else {
+            String greaterVariance = (var1measure > var2measure) ? "1" : "2";
+            String smallerVariance = (var1measure > var2measure) ? "2" : "1";
+            result = "In variant " + greaterVariance + " it is " + (difference * 100) + "% more likely than variant" + smallerVariance + " that ";
+//        3)    .... In [Varaint 1/2] it is [diff %] more likely than [Variant 2/1]
+        }
+        if (DESCRIPTION.get(template) == null) {
+            logger.error("[Constraint without natural language description: " + template + "]");
+            result += "[Constraint without natural language description: " + template + "]";
+        } else result += DESCRIPTION.get(template);
         if (!constraint.contains(",")) {
             String task = constraint.split("\\(")[1].replace(")", "");
             result = result.replace("$1", task);
@@ -168,16 +184,7 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
             String task2 = constraint.split("\\(")[1].replace(")", "").split(",")[1];
             result = result.replace("$1", task1).replace("$2", task2);
         }
-        if (Float.isNaN(difference)) {
-            String onlyVariant = (Float.isNaN(var1measure)) ? "2" : "1";
-            result += "This happens only in variant " + onlyVariant;
-//            result += "This is applicable only in variant " + onlyVariant;
-        } else {
-            String greaterVariance = (var1measure > var2measure) ? "1" : "2";
-            String smallerVariance = (var1measure > var2measure) ? "2" : "1";
-            result += "In variant " + greaterVariance + " it is " + (difference * 100) + "% more likely than variant" + smallerVariance;
-//        3)    .... In [Varaint 1/2] it is [diff %] more likely than [Variant 2/1]
-        }
+
         return result;
     }
 
