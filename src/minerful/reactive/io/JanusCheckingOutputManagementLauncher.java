@@ -44,6 +44,7 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
     public void manageCheckOutput(MegaMatrixMonster matrix, NavigableMap<Constraint, String> additionalCnsIndexedInfo, OutputModelParameters outParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, TaskCharArchive alphabet) {
         File outputFile = null;
         File outputAggregatedMeasuresFile = null;
+        File outputNeuLogMeasuresFile = null;
         System.gc();
 
         // ************* CSV
@@ -78,6 +79,15 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                 } else {
                     exportAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile, alphabet);
                 }
+            }
+
+            // NEU log measures
+            logger.info("NEU log Measures...");
+            outputNeuLogMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("NeuLogMeasures.CSV")); //TODO improve
+            if (outParams.encodeOutputTasks) {
+                exportEncodedNeuLogMeasuresToCSV(matrix, outputNeuLogMeasuresFile);
+            } else {
+                exportNeuLogMeasuresToCSV(matrix, outputNeuLogMeasuresFile, alphabet);
             }
 
             double after = System.currentTimeMillis();
@@ -129,6 +139,9 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                     exportAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile, alphabet);
                 }
             }
+            // TODO NEU log measures
+            logger.info("NEU log Measures... Not Yet Implemented in JSON!");
+
             double after = System.currentTimeMillis();
             logger.info("Total JSON serialization time: " + (after - before));
         }
@@ -554,6 +567,106 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
 //                            String.valueOf(constraintLogMeasure[measureIndex].getPercentile(75)),
                             String.valueOf(constraintLogMeasure[measureIndex].getMax()),
                             String.valueOf(constraintLogMeasure[measureIndex].getMin())
+                    };
+                    printer.printRecord(row);
+                }
+            }
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * Export to CSV format the aggregated measures at the level of log.
+     * <p>
+     * the columns index is:
+     * constraint; quality-measure; duck-tape; mean; geometric-mean; variance; ....(all the other stats)
+     *
+     * @param megaMatrix
+     * @param outputAggregatedMeasuresFile
+     * @param alphabet
+     */
+    public void exportNeuLogMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile, TaskCharArchive alphabet) {
+        logger.debug("CSV NEU log measures...");
+        float[][] neuConstraintsLogMeasure = megaMatrix.getNeuConstraintLogMeasures();
+
+        List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+
+//		header row
+//		TODO make the columns parametric, not hard-coded
+        String[] header = new String[]{
+                "Constraint",
+                "Quality-Measure",
+                "Measure-Value"
+        };
+
+        try {
+            FileWriter fw = new FileWriter(outputAggregatedMeasuresFile);
+            CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
+
+            Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
+            LogTraceParser tr = it.next();
+
+            //		Row builder
+            for (int constraint = 0; constraint < neuConstraintsLogMeasure.length; constraint++) {
+//				String constraintName = automata.get(constraint).toString();
+                String constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+
+                for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
+//                    System.out.print("\rConstraints: " + constraint + "/" + constraintsLogMeasure.length+" Measure: " + measureIndex + "/" +  megaMatrix.getMeasureNames().length);
+                    String[] row = new String[]{
+                            constraintName,
+                            megaMatrix.getMeasureName(measureIndex),
+                            String.valueOf(neuConstraintsLogMeasure[constraint][measureIndex])
+                    };
+                    printer.printRecord(row);
+                }
+            }
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Export to CSV format the aggregated measures at the level of log. Events are encoded
+     * <p>
+     * the columns index is:
+     * constraint; quality-measure; duck-tape; mean; geometric-mean; variance; ....(all the other stats)
+     *
+     * @param megaMatrix
+     * @param outputAggregatedMeasuresFile
+     */
+    public void exportEncodedNeuLogMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile) {
+        logger.debug("CSV encoded NEU log measures...");
+        float[][] neuConstraintsLogMeasure = megaMatrix.getNeuConstraintLogMeasures();
+
+        List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+
+//		header row
+//		TODO make the columns parametric, not hard-coded
+        String[] header = new String[]{
+                "Constraint",
+                "Quality-Measure",
+                "Measure-Value"
+        };
+
+        try {
+            FileWriter fw = new FileWriter(outputAggregatedMeasuresFile);
+            CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
+
+
+            //		Row builder
+            for (int constraint = 0; constraint < neuConstraintsLogMeasure.length; constraint++) {
+                String constraintName = automata.get(constraint).toString();
+
+                for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
+                    String[] row = new String[]{
+                            constraintName,
+                            megaMatrix.getMeasureName(measureIndex),
+                            String.valueOf(neuConstraintsLogMeasure[constraint][measureIndex])
                     };
                     printer.printRecord(row);
                 }

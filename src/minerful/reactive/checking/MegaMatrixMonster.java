@@ -50,6 +50,9 @@ public class MegaMatrixMonster {
 
     private SummaryStatistics[][] constraintLogMeasures; // [constraint index][measure index]
 
+    //    TODO do not keep/initialize all the datastructures, but just the ones you need
+    private float[][] neuConstraintLogMeasures; // [constraint index][measure index]
+
     {
         if (logger == null) {
             logger = Logger.getLogger(ReactiveMinerOfflineQueryingCore.class.getCanonicalName());
@@ -142,11 +145,20 @@ public class MegaMatrixMonster {
             fos.write(("outOfMem\n").getBytes());
             e.printStackTrace();
         }
+        // TODO NEU LOG
 
         logger.info("Size of MegaMatrixMonster results : " + result / 1024d / 1024d + " MB");
         fos.close();
 
         return result / 1024d / 1024d;
+    }
+
+    public float[][] getNeuConstraintLogMeasures() {
+        return neuConstraintLogMeasures;
+    }
+
+    public void setNeuConstraintLogMeasures(float[][] neuConstraintLogMeasures) {
+        this.neuConstraintLogMeasures = neuConstraintLogMeasures;
     }
 
     public byte[][][] getMatrix() {
@@ -209,8 +221,8 @@ public class MegaMatrixMonster {
         }
 
         System.gc();
-        logger.info("Retrieving Log Measures...");
-        //		LOG MEASURES
+        logger.info("Retrieving Trace measures log statistics...");
+        //		trace measure LOG STATISTICS
         int constraintsNum = automata.size();
         for (int constraint = 0; constraint < automata.size(); constraint++) {
             System.out.print("\rConstraint: " + constraint + "/" + constraintsNum);  // Status counter "current trace/total trace"
@@ -222,6 +234,13 @@ public class MegaMatrixMonster {
         }
         System.out.print("\rConstraint: " + constraintsNum + "/" + constraintsNum);  // Status counter "current trace/total trace"
         System.out.println();
+
+        System.gc();
+        logger.info("Retrieving NEW Log Measures...");
+        //		LOG MEASURES
+        neuConstraintLogMeasures = new float[automata.size()][Measures.MEASURE_NUM];
+        computeNeuLogMeasures(nanTraceSubstituteFlag, nanTraceSubstituteValue, nanLogSkipFlag);
+
     }
 
     /**
@@ -317,6 +336,63 @@ public class MegaMatrixMonster {
             }
         }
         System.out.print("\rTraces: " + matrix.length + "/" + matrix.length);  // Status counter "current trace/total trace"
+        System.out.println();
+    }
+
+    private void computeNeuLogMeasures(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
+        int constraintsNum = automata.size();
+        int tracesNum = matrix.length;
+
+//        for each constraint
+        for (int constraint = 0; constraint < constraintsNum; constraint++) {
+            System.out.print("\rConstraint: " + constraint + "/" + constraintsNum);  // Status counter "current trace/total trace"
+//            for each measure
+            float[] currentTraceProbabilities = new float[9];
+            float ATgivenA = 0;
+            float AnotTgivenA = 0;
+            float notATgivenNotA = 0;
+            float notAnotTgivenNotA = 0;
+
+            for (int trace = 0; trace < tracesNum; trace++) {
+                // result { 0: activation, 1: target, 2: no activation, 3: no target}
+                // result {4: 00, 5: 01, , 6: 10, 7:11}
+                // result {8: trace length}
+//                    A/n	-A/n	T/n	    -T/n	AT/n	A-T/n	-AT/n	-A-T/n  N
+//                    0	    2	    1   	3   	7   	6   	5   	4       8
+                currentTraceProbabilities = Measures.getTraceProbabilities(matrix[trace][constraint]);
+//                    AT|A	A-T|A	-AT|-A	-A-T|-A
+                if (Float.isNaN(currentTraceProbabilities[7] / currentTraceProbabilities[0])) {
+                    notATgivenNotA += currentTraceProbabilities[5] / currentTraceProbabilities[2];
+                    notAnotTgivenNotA += currentTraceProbabilities[4] / currentTraceProbabilities[2];
+                } else {
+                    ATgivenA += currentTraceProbabilities[7] / currentTraceProbabilities[0];
+                    AnotTgivenA += currentTraceProbabilities[6] / currentTraceProbabilities[0];
+                }
+            }
+            ATgivenA /= tracesNum;
+            AnotTgivenA /= tracesNum;
+            notATgivenNotA /= tracesNum;
+            notAnotTgivenNotA /= tracesNum;
+            float A = ATgivenA + AnotTgivenA;
+            float notA = notATgivenNotA + notAnotTgivenNotA;
+            float T = ATgivenA + notATgivenNotA;
+            float notT = AnotTgivenA + notAnotTgivenNotA;
+            float n = tracesNum;
+
+//            float pA = p[0];
+//            float pT = p[1];
+//            float pnA = p[2];
+//            float pnT = p[3];
+//            float pnAnT = p[4];
+//            float pnAT = p[5];
+//            float pAnT = p[6];
+//            float pAT = p[7];
+            float[] currentLogProbabilities = {A, T, notA, notT, notAnotTgivenNotA, notATgivenNotA, AnotTgivenA, ATgivenA, n};
+            for (int measure = 0; measure < Measures.MEASURE_NUM; measure++) {
+                neuConstraintLogMeasures[constraint][measure] = Measures.getLogMeasure(currentLogProbabilities, measure);
+            }
+        }
+        System.out.print("\rConstraint: " + constraintsNum + "/" + constraintsNum);  // Status counter "current trace/total trace"
         System.out.println();
     }
 

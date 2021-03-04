@@ -74,7 +74,7 @@ public class Measures {
      * @param measureName
      * @return
      */
-    public static int getMeasureIndex(String measureName){
+    public static int getMeasureIndex(String measureName) {
 //        TODO make a stronger search not case-sensitive, ignoring spaces and symbols like bars
         return ArrayUtils.indexOf(MEASURE_NAMES, measureName);
     }
@@ -275,6 +275,21 @@ public class Measures {
 //
 //    }
 
+    /**
+     * Generic method to return  the log measure for a specific measure using the already computed log probabilities.
+     * <p>
+     * The usage of this function is intended for batch measurement involving all measures, to avoid to call them one by one.
+     *
+     * @param logProbabilities
+     * @param measureIndex
+     * @return
+     */
+    public static float getLogMeasure(float[] logProbabilities, int measureIndex) {
+        /* TODO traces and log measures shares the same formulae,
+            you just have to compute the trace/log probabilities in different way.
+            Refactor functions to reflect this */
+        return getTraceMeasure(logProbabilities, measureIndex);
+    }
 
     /**
      * Generic method to return  the trace measure for a specific measure using the already computed trace probabilities.
