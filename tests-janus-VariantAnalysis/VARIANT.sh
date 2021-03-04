@@ -46,17 +46,17 @@ OUTPUT_MODEL_JSON_2=${LOG_VAR_2}"-model.json"
 OUTPUT_MODEL_CSV_2=${LOG_VAR_2}"-model.csv"
 
 LOGS_ENCODING="xes"
-MEASURE="Confidence"  # decide the measure to use for the analysis
-#MEASURE_THRESHOLD=0.8 # NOT YET USED in the software
-P_VALUE=0.01 # p_value threshold to consider a difference statistically relevant
-PERMUTATIONS=1000 # number of permutations of the permutation test
+MEASURE="Confidence"      # decide the measure to use for the analysis
+MEASURE_THRESHOLD=0.8     # rules with a measure below this threshold in both the variants are discarded
+P_VALUE=0.01              # p_value threshold to consider a difference statistically relevant
+PERMUTATIONS=1000         # number of permutations of the permutation test
 #NaN_LOG="-nanLogSkip" # NOT YET exposed in input
 #NaN_LOG=""
 #DIFFERENCE_POLICY="absolute" # {"absolute", "distinct"} # NOT YET IMPLEMENTED decide if considering the ABSOLUTE distance between the results or keep the DISTINCT sign/orientation of the relations, i.e., to keep the sign of the difference
-DISCOVERY_SUPPORT=0.00 # support threshold used for the initial discovery of the constraints of the variances
-DISCOVERY_CONFIDENCE=0.8 # confidence threshold used for the initial discovery of the constraints of the variances
+DISCOVERY_SUPPORT=0.00    # support threshold used for the initial discovery of the constraints of the variances
+DISCOVERY_CONFIDENCE=0.8  # confidence threshold used for the initial discovery of the constraints of the variances
 DIFFERENCE_THRESHOLD=0.01 # minimum difference between a rule in the two variance to be considered relevant
-BEST_N_RESULTS=10 # number of constraints in the best-of result
+BEST_N_RESULTS=10         # number of constraints in the best-of result
 
 #-oKeep keep values below the p-valu and difference threshold
 #-simplify remove constraints that are redundant
@@ -69,13 +69,14 @@ java -cp Janus.jar $JANUS_VARIANT_MAINCLASS \
   -iLE2 $LOGS_ENCODING \
   -iLF2 $LOG_VAR_2 \
   -measure $MEASURE \
+  -measureThreshold $MEASURE_THRESHOLD \
   -pValue $P_VALUE \
   -permutations $PERMUTATIONS \
   -oCSV $VARIANT_RESULTS_CSV \
   -s $DISCOVERY_SUPPORT \
   -c $DISCOVERY_CONFIDENCE \
   -oModel1CSV $OUTPUT_MODEL_CSV_1 \
-  -oModel1JSON $OUTPUT_MODEL_JSON_1\
+  -oModel1JSON $OUTPUT_MODEL_JSON_1 \
   -oModel2CSV $OUTPUT_MODEL_CSV_2 \
   -oModel2JSON $OUTPUT_MODEL_JSON_2 \
   --no-screen-print-out \

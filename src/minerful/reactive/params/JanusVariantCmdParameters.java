@@ -17,7 +17,7 @@ public class JanusVariantCmdParameters extends ParamsManager {
     public static final String MEASURE_NAME = "measure";  // measure to use for the comparison, default: "confidence"
     public static final String DEFAULT_MEASURE = "Confidence";  // measure to use for the comparison, default: "confidence"
     public static final String MEASURE_THRESHOLD_NAME = "measureThreshold";  // threshold for the measure to consider it relevant, default: "0.8"
-    public static final Double DEFAULT_MEASURE_THRESHOLD = 0.8;  // threshold for the measure to consider it relevant, default: "0.8"
+    public static final Double DEFAULT_MEASURE_THRESHOLD = 0.0;  // threshold for the measure to consider it relevant, default: "0.0"
     public static final String DIFFERENCE_THRESHOLD_NAME = "differenceThreshold";  // threshold for the difference of the variants constraints measurement to be considered relevant. default= 0.01
     public static final Double DEFAULT_DIFFERENCE_THRESHOLD = 0.01;  // threshold for the measure to consider it relevant, default: "0.8"
     public static final String SIMPLIFICATION_FLAG = "simplify";  // flag to simplify the result rules list according to their hierarchy
@@ -405,7 +405,7 @@ public class JanusVariantCmdParameters extends ParamsManager {
                 Option.builder(MEASURE_THRESHOLD_NAME)
                         .hasArg().argName("number")
                         .longOpt("measure-threshold")
-                        .desc("threshold to consider the measure relevant. default: 0.8")
+                        .desc("threshold to consider the measure relevant. default: 0.0")
                         .type(Double.class)
                         .build()
         );

@@ -442,6 +442,25 @@ public class ReactiveVariantAnalysisCore {
             }
             logger.info("Number of removed constraints: " + (initialConstraintsList.length - processSpecificationUnionSize));
         }
+//        Measures below threshold
+        if (janusVariantParams.measureThreshold > 0) {
+            logger.info("Removing rules below threshold in both variants...");
+            int initialConstrNum = processSpecificationUnionSize;
+
+            String[] initialConstraintsList = new String[spec1.size()];
+            spec1.keySet().toArray(initialConstraintsList);
+            for (String constraint : initialConstraintsList) {
+                if (spec1.get(constraint) < janusVariantParams.measureThreshold && spec2.get(constraint) < janusVariantParams.measureThreshold) {
+                    spec1.remove(constraint);
+                    spec2.remove(constraint);
+                    for (Map<String, Float> t : lCoded.values()) {
+                        t.remove(constraint);
+                    }
+                    processSpecificationUnionSize--;
+                }
+            }
+            logger.info("Number of removed constraints: " + (initialConstrNum - processSpecificationUnionSize));
+        }
 
 //        encode index
         indexToTraceMap = new HashMap<>();
