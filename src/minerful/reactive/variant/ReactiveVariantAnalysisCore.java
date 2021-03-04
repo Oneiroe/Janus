@@ -430,8 +430,10 @@ public class ReactiveVariantAnalysisCore {
             spec1.keySet().toArray(initialConstraintsList);
             for (String constraint : initialConstraintsList) {
                 float difference = Math.abs(spec1.get(constraint) - spec2.get(constraint));
-//            if (Float.isNaN(difference) || difference< janusVariantParams.differenceThreshold){
-                if (difference < janusVariantParams.differenceThreshold) {
+//          if one is NaN, the rule is removed if the non-NaN value is below the difference threshold (like if NaN=0)
+                if ((difference < janusVariantParams.differenceThreshold) ||
+                        (Float.isNaN(spec1.get(constraint)) && spec2.get(constraint) < janusVariantParams.differenceThreshold) ||
+                        (Float.isNaN(spec2.get(constraint)) && spec1.get(constraint) < janusVariantParams.differenceThreshold)) {
                     spec1.remove(constraint);
                     spec2.remove(constraint);
                     for (Map<String, Float> t : lCoded.values()) {
