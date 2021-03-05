@@ -139,8 +139,15 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                     exportAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile, alphabet);
                 }
             }
-            // TODO NEU log measures
-            logger.info("NEU log Measures... Not Yet Implemented in JSON!");
+            // NEU Log measures
+            logger.info("NEU log Measures...");
+            outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("NeuLogMeasures.json")); //TODO improve
+            if (outParams.encodeOutputTasks) {
+                exportEncodedNeuLogMeasuresToJson(matrix, outputAggregatedMeasuresFile);
+            } else {
+                exportNeuLogMeasuresToJson(matrix, outputAggregatedMeasuresFile, alphabet);
+            }
+
 
             double after = System.currentTimeMillis();
             logger.info("Total JSON serialization time: " + (after - before));
@@ -707,6 +714,20 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
         return constraintJson;
     }
 
+
+    /**
+     * Builds the json structure for a given constraint
+     */
+    private JsonElement neuLogConstraintMeasuresJsonBuilder(MegaMatrixMonster megaMatrix, int constaintIndex, float[] constraintLogMeasure) {
+        JsonObject constraintJson = new JsonObject();
+
+        for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
+            constraintJson.addProperty(megaMatrix.getMeasureName(measureIndex), constraintLogMeasure[measureIndex]);
+        }
+
+        return constraintJson;
+    }
+
     /**
      * write the jon file with the aggregated measures
      *
@@ -765,6 +786,74 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                 jsonOutput.add(
                         automata.get(constraint).toString(),
                         aggregatedConstraintMeasuresJsonBuilder(megaMatrix, constraint, constraintLogMeasure[constraint])
+                );
+            }
+            gson.toJson(jsonOutput, fw);
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logger.debug("JSON encoded aggregated measures...DONE!");
+    }
+
+    /**
+     * write the jon file with the aggregated measures
+     *
+     * @param megaMatrix
+     * @param outputFile
+     * @param alphabet
+     */
+    public void exportNeuLogMeasuresToJson(MegaMatrixMonster megaMatrix, File outputFile, TaskCharArchive alphabet) {
+        logger.debug("JSON aggregated measures...");
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try {
+            FileWriter fw = new FileWriter(outputFile);
+            JsonObject jsonOutput = new JsonObject();
+
+            Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
+            LogTraceParser tr = it.next();
+
+            List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+
+//			\/ \/ \/ LOG RESULTS
+            float[][] neuConstraintsLogMeasure = megaMatrix.getNeuConstraintLogMeasures();
+
+            for (int constraint = 0; constraint < neuConstraintsLogMeasure.length; constraint++) {
+                jsonOutput.add(
+                        automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById()),
+                        neuLogConstraintMeasuresJsonBuilder(megaMatrix, constraint, neuConstraintsLogMeasure[constraint])
+                );
+            }
+            gson.toJson(jsonOutput, fw);
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logger.debug("JSON encoded aggregated measures...DONE!");
+    }
+
+    /**
+     * write the jon file with the aggregated measures. events are encoded
+     *
+     * @param megaMatrix
+     * @param outputFile
+     */
+    public void exportEncodedNeuLogMeasuresToJson(MegaMatrixMonster megaMatrix, File outputFile) {
+        logger.debug("JSON encoded aggregated measures...");
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try {
+            FileWriter fw = new FileWriter(outputFile);
+            JsonObject jsonOutput = new JsonObject();
+
+            List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+
+//			\/ \/ \/ LOG RESULTS
+            float[][] neuConstraintsLogMeasure = megaMatrix.getNeuConstraintLogMeasures();
+
+            for (int constraint = 0; constraint < neuConstraintsLogMeasure.length; constraint++) {
+                jsonOutput.add(
+                        automata.get(constraint).toString(),
+                        neuLogConstraintMeasuresJsonBuilder(megaMatrix, constraint, neuConstraintsLogMeasure[constraint])
                 );
             }
             gson.toJson(jsonOutput, fw);
