@@ -67,7 +67,7 @@ ERROR_TYPE="del"
 ERROR_LOG=${TEST_FOLDER}/${TEST_BASE_NAME}"-error-log.txt"
 
 # Test variables
-ITERATIONS=1
+ITERATIONS=10
 
 ##################################################################
 # Generate log

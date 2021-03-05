@@ -135,7 +135,7 @@ do
     ##################################################################
     ## Plot results
     echo "########### Plot results"
-    /home/alessio/Data/Phd/my_code/PyVEnv/pySupport/bin/python pySupport/error_injection_plots.py $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN]_" $ITERATIONS $TARGET_CHAR $ERROR_TYPE
+    /home/alessio/Data/Phd/my_code/PyVEnv/pySupport/bin/python pySupport/error_injection_plots.py $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN]_" $ITERATIONS ${TEST_FOLDER}/${TEST_BASE_NAME}"_output/" $TARGET_CHAR $ERROR_TYPE
 
 done
 
