@@ -1811,6 +1811,7 @@ public class Measures {
 
 //        int n = reactiveConstraintEvaluation.length;
 
+//        TODO check ranges of this function: supposedly [0.5-1], but there are lower results
         float result = (n * pAT + 1) / (n * pA + 2);
 
         return result;

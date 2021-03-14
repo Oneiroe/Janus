@@ -130,11 +130,27 @@ public class MegaMatrixMonster {
             fos.write(("outOfMem").getBytes());
             e.printStackTrace();
         }
-        //        log
+        //        TRACE STATSS
         try {
             baos = new ByteArrayOutputStream();
             oos = new ObjectOutputStream(baos);
             oos.writeObject(constraintLogMeasures);
+            oos.flush();
+            oos.close();
+            logger.info("size of trace measures stats data structure : " + baos.size() / 1024d / 1024d + " MB");
+            fos.write(("" + baos.size() / 1024d / 1024d + " MB\n").getBytes());
+            result += baos.size();
+        } catch (IOException | OutOfMemoryError e) {
+            logger.error("size of trace measures stats data structure TOO BIG for serialization");
+            fos.write(("outOfMem\n").getBytes());
+            e.printStackTrace();
+        }
+        // NEU LOG
+        //        log
+        try {
+            baos = new ByteArrayOutputStream();
+            oos = new ObjectOutputStream(baos);
+            oos.writeObject(neuConstraintLogMeasures);
             oos.flush();
             oos.close();
             logger.info("size of log measures data structure : " + baos.size() / 1024d / 1024d + " MB");
@@ -145,7 +161,6 @@ public class MegaMatrixMonster {
             fos.write(("outOfMem\n").getBytes());
             e.printStackTrace();
         }
-        // TODO NEU LOG
 
         logger.info("Size of MegaMatrixMonster results : " + result / 1024d / 1024d + " MB");
         fos.close();
