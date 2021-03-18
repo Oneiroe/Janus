@@ -14,7 +14,8 @@ public enum DeclareMapTemplate {
 	Succession,
 	Not_Chain_Precedence, Not_Chain_Response,
 	Not_Precedence, Not_Response,
-	Not_Responded_Existence;
+	Not_Responded_Existence,
+	BeforeThisOrLaterThat;
 	
 	public String getName() {
 		switch(this) {
