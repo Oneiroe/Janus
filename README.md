@@ -1,6 +1,6 @@
 Janus
 =========================
-Janus is a tool-set for the discovery and evaluation of declarative process mining specifications.
+Janus is a tool-set for the discovery, evaluation, and anlysis of declarative process specifications.
 
 It is based on Linear Temporal Logic over finite traces with past operators (LTLp~f~) and specifically on the concept  of reactive constraints: formulae with an explicit distinction between the activator and consequent factors of the formula itself.
 
@@ -9,11 +9,14 @@ Janus software base is forked from [MINERful](https://github.com/cdc08x/MINERful
 Features
 ---------------------------------------
 - **declarative process discovery**: 
-	- Input:    rules template set and an event log;
+	- Input: rules template set and an event log;
 	- Output: declarative process model.
 - **declarative specification measurements**: 
 	- Input: declarative process model and an event log
 	- Output: set of measurements for the rules containend in the model with respect to the event log.
+- **variant analysis based on declarative specifications**
+	- Input: 2 event logs.
+	- Output: set of rules with a statistically significant difference between the logs.
 
 For the features inherited from MINERful (e.g., declarative models simulator) refer to its [offical page](https://github.com/cdc08x/MINERful).
 
