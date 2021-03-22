@@ -1,0 +1,1387 @@
+{
+  "name": "Model",
+  "tasks": [
+    "IV Liquid",
+    "Admission NC",
+    "Release A",
+    "LacticAcid",
+    "Release D",
+    "Release B",
+    "Return ER",
+    "Leucocytes",
+    "CRP",
+    "Release E",
+    "ER Registration",
+    "Admission IC",
+    "ER Triage",
+    "Release C",
+    "IV Antibiotics",
+    "ER Sepsis Triage"
+  ],
+  "constraints": [
+    {
+      "template": "Init",
+      "parameters": [
+        [
+          "ER Registration"
+        ]
+      ],
+      "support": 0.948,
+      "confidence": 0.948,
+      "interestFactor": 0.948
+    },
+    {
+      "template": "AtMostOne",
+      "parameters": [
+        [
+          "ER Registration"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "AtMostOne",
+      "parameters": [
+        [
+          "ER Sepsis Triage"
+        ]
+      ],
+      "support": 0.999,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "AtMostOne",
+      "parameters": [
+        [
+          "ER Triage"
+        ]
+      ],
+      "support": 0.997,
+      "confidence": 0.997,
+      "interestFactor": 0.997
+    },
+    {
+      "template": "Succession",
+      "parameters": [
+        [
+          "ER Registration"
+        ],
+        [
+          "ER Triage"
+        ]
+      ],
+      "support": 0.991,
+      "confidence": 0.991,
+      "interestFactor": 0.991
+    },
+    {
+      "template": "Succession",
+      "parameters": [
+        [
+          "ER Triage"
+        ],
+        [
+          "ER Sepsis Triage"
+        ]
+      ],
+      "support": 0.98,
+      "confidence": 0.98,
+      "interestFactor": 0.98
+    },
+    {
+      "template": "Precedence",
+      "parameters": [
+        [
+          "ER Registration"
+        ],
+        [
+          "CRP"
+        ]
+      ],
+      "support": 0.936,
+      "confidence": 0.976,
+      "interestFactor": 0.976
+    },
+    {
+      "template": "Precedence",
+      "parameters": [
+        [
+          "ER Registration"
+        ],
+        [
+          "Leucocytes"
+        ]
+      ],
+      "support": 0.937,
+      "confidence": 0.972,
+      "interestFactor": 0.972
+    },
+    {
+      "template": "Precedence",
+      "parameters": [
+        [
+          "ER Registration"
+        ],
+        [
+          "LacticAcid"
+        ]
+      ],
+      "support": 0.816,
+      "confidence": 0.997,
+      "interestFactor": 0.997
+    },
+    {
+      "template": "AtMostOne",
+      "parameters": [
+        [
+          "IV Liquid"
+        ]
+      ],
+      "support": 0.717,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "AtMostOne",
+      "parameters": [
+        [
+          "IV Antibiotics"
+        ]
+      ],
+      "support": 0.784,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "Precedence",
+      "parameters": [
+        [
+          "ER Sepsis Triage"
+        ],
+        [
+          "IV Liquid"
+        ]
+      ],
+      "support": 0.677,
+      "confidence": 0.944,
+      "interestFactor": 0.944
+    },
+    {
+      "template": "Precedence",
+      "parameters": [
+        [
+          "ER Sepsis Triage"
+        ],
+        [
+          "IV Antibiotics"
+        ]
+      ],
+      "support": 0.784,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "RespondedExistence",
+      "parameters": [
+        [
+          "IV Liquid"
+        ],
+        [
+          "IV Antibiotics"
+        ]
+      ],
+      "support": 0.717,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "Precedence",
+      "parameters": [
+        [
+          "ER Sepsis Triage"
+        ],
+        [
+          "Admission NC"
+        ]
+      ],
+      "support": 0.756,
+      "confidence": 0.993,
+      "interestFactor": 0.993
+    },
+    {
+      "template": "Precedence",
+      "parameters": [
+        [
+          "ER Sepsis Triage"
+        ],
+        [
+          "Admission IC"
+        ]
+      ],
+      "support": 0.103,
+      "confidence": 0.982,
+      "interestFactor": 0.982
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Admission IC"
+        ],
+        [
+          "IV Antibiotics"
+        ]
+      ],
+      "support": 0.791,
+      "confidence": 0.998,
+      "interestFactor": 0.998
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Admission IC"
+        ],
+        [
+          "IV Liquid"
+        ]
+      ],
+      "support": 0.732,
+      "confidence": 0.997,
+      "interestFactor": 0.997
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Admission NC"
+        ],
+        [
+          "IV Antibiotics"
+        ]
+      ],
+      "support": 0.87,
+      "confidence": 0.988,
+      "interestFactor": 0.988
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Admission NC"
+        ],
+        [
+          "IV Liquid"
+        ]
+      ],
+      "support": 0.842,
+      "confidence": 0.967,
+      "interestFactor": 0.967
+    },
+    {
+      "template": "Precedence",
+      "parameters": [
+        [
+          "ER Sepsis Triage"
+        ],
+        [
+          "Return ER"
+        ]
+      ],
+      "support": 0.279,
+      "confidence": 0.997,
+      "interestFactor": 0.997
+    },
+    {
+      "template": "AtMostOne",
+      "parameters": [
+        [
+          "Return ER"
+        ]
+      ],
+      "support": 0.28,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Return ER"
+        ],
+        [
+          "Admission IC"
+        ]
+      ],
+      "support": 0.34,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Return ER"
+        ],
+        [
+          "Admission NC"
+        ]
+      ],
+      "support": 0.762,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Return ER"
+        ],
+        [
+          "CRP"
+        ]
+      ],
+      "support": 0.957,
+      "confidence": 0.997,
+      "interestFactor": 0.997
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Return ER"
+        ],
+        [
+          "ER Sepsis Triage"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Return ER"
+        ],
+        [
+          "IV Antibiotics"
+        ]
+      ],
+      "support": 0.813,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Return ER"
+        ],
+        [
+          "IV Liquid"
+        ]
+      ],
+      "support": 0.766,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Return ER"
+        ],
+        [
+          "LacticAcid"
+        ]
+      ],
+      "support": 0.835,
+      "confidence": 0.998,
+      "interestFactor": 0.998
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Return ER"
+        ],
+        [
+          "Leucocytes"
+        ]
+      ],
+      "support": 0.962,
+      "confidence": 0.997,
+      "interestFactor": 0.997
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Return ER"
+        ],
+        [
+          "Release A"
+        ]
+      ],
+      "support": 0.655,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Return ER"
+        ],
+        [
+          "Release B"
+        ]
+      ],
+      "support": 0.333,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Return ER"
+        ],
+        [
+          "Release C"
+        ]
+      ],
+      "support": 0.298,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Return ER"
+        ],
+        [
+          "Release D"
+        ]
+      ],
+      "support": 0.293,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Return ER"
+        ],
+        [
+          "Release E"
+        ]
+      ],
+      "support": 0.285,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "AtMostOne",
+      "parameters": [
+        [
+          "Release A"
+        ]
+      ],
+      "support": 0.639,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "AtMostOne",
+      "parameters": [
+        [
+          "Release B"
+        ]
+      ],
+      "support": 0.639,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "AtMostOne",
+      "parameters": [
+        [
+          "Release C"
+        ]
+      ],
+      "support": 0.639,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "AtMostOne",
+      "parameters": [
+        [
+          "Release D"
+        ]
+      ],
+      "support": 0.639,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "AtMostOne",
+      "parameters": [
+        [
+          "Release E"
+        ]
+      ],
+      "support": 0.639,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release A"
+        ],
+        [
+          "Release B"
+        ]
+      ],
+      "support": 0.692,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release A"
+        ],
+        [
+          "Release C"
+        ]
+      ],
+      "support": 0.663,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release A"
+        ],
+        [
+          "Release D"
+        ]
+      ],
+      "support": 0.662,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release A"
+        ],
+        [
+          "Release E"
+        ]
+      ],
+      "support": 0.645,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release B"
+        ],
+        [
+          "Release A"
+        ]
+      ],
+      "support": 0.692,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release B"
+        ],
+        [
+          "Release C"
+        ]
+      ],
+      "support": 0.663,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release B"
+        ],
+        [
+          "Release D"
+        ]
+      ],
+      "support": 0.662,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release B"
+        ],
+        [
+          "Release E"
+        ]
+      ],
+      "support": 0.645,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release C"
+        ],
+        [
+          "Release B"
+        ]
+      ],
+      "support": 0.692,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release C"
+        ],
+        [
+          "Release A"
+        ]
+      ],
+      "support": 0.663,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release C"
+        ],
+        [
+          "Release D"
+        ]
+      ],
+      "support": 0.662,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release C"
+        ],
+        [
+          "Release E"
+        ]
+      ],
+      "support": 0.645,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release D"
+        ],
+        [
+          "Release A"
+        ]
+      ],
+      "support": 0.692,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release D"
+        ],
+        [
+          "Release C"
+        ]
+      ],
+      "support": 0.663,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release D"
+        ],
+        [
+          "Release B"
+        ]
+      ],
+      "support": 0.662,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release D"
+        ],
+        [
+          "Release E"
+        ]
+      ],
+      "support": 0.645,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release E"
+        ],
+        [
+          "Release B"
+        ]
+      ],
+      "support": 0.692,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release E"
+        ],
+        [
+          "Release C"
+        ]
+      ],
+      "support": 0.663,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release E"
+        ],
+        [
+          "Release D"
+        ]
+      ],
+      "support": 0.662,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotCoExistence",
+      "parameters": [
+        [
+          "Release E"
+        ],
+        [
+          "Release A"
+        ]
+      ],
+      "support": 0.645,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release A"
+        ],
+        [
+          "Admission IC"
+        ]
+      ],
+      "support": 0.662,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release A"
+        ],
+        [
+          "Admission NC"
+        ]
+      ],
+      "support": 0.763,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release A"
+        ],
+        [
+          "CRP"
+        ]
+      ],
+      "support": 0.961,
+      "confidence": 0.996,
+      "interestFactor": 0.996
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release A"
+        ],
+        [
+          "ER Sepsis Triage"
+        ]
+      ],
+      "support": 1.0,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release A"
+        ],
+        [
+          "IV Antibiotics"
+        ]
+      ],
+      "support": 0.86,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release A"
+        ],
+        [
+          "IV Liquid"
+        ]
+      ],
+      "support": 0.843,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release A"
+        ],
+        [
+          "LacticAcid"
+        ]
+      ],
+      "support": 0.881,
+      "confidence": 0.998,
+      "interestFactor": 0.998
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release A"
+        ],
+        [
+          "Leucocytes"
+        ]
+      ],
+      "support": 0.962,
+      "confidence": 0.995,
+      "interestFactor": 0.995
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release B"
+        ],
+        [
+          "Admission IC"
+        ]
+      ],
+      "support": 0.146,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release B"
+        ],
+        [
+          "Admission NC"
+        ]
+      ],
+      "support": 0.767,
+      "confidence": 0.999,
+      "interestFactor": 0.999
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release B"
+        ],
+        [
+          "CRP"
+        ]
+      ],
+      "support": 0.959,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release B"
+        ],
+        [
+          "ER Sepsis Triage"
+        ]
+      ],
+      "support": 0.999,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release B"
+        ],
+        [
+          "IV Antibiotics"
+        ]
+      ],
+      "support": 0.794,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release B"
+        ],
+        [
+          "IV Liquid"
+        ]
+      ],
+      "support": 0.73,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release B"
+        ],
+        [
+          "LacticAcid"
+        ]
+      ],
+      "support": 0.825,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release B"
+        ],
+        [
+          "Leucocytes"
+        ]
+      ],
+      "support": 0.964,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release C"
+        ],
+        [
+          "Admission IC"
+        ]
+      ],
+      "support": 0.128,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release C"
+        ],
+        [
+          "Admission NC"
+        ]
+      ],
+      "support": 0.762,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release C"
+        ],
+        [
+          "CRP"
+        ]
+      ],
+      "support": 0.959,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release C"
+        ],
+        [
+          "ER Sepsis Triage"
+        ]
+      ],
+      "support": 0.999,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release C"
+        ],
+        [
+          "IV Antibiotics"
+        ]
+      ],
+      "support": 0.788,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release C"
+        ],
+        [
+          "IV Liquid"
+        ]
+      ],
+      "support": 0.722,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release C"
+        ],
+        [
+          "LacticAcid"
+        ]
+      ],
+      "support": 0.821,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release C"
+        ],
+        [
+          "Leucocytes"
+        ]
+      ],
+      "support": 0.964,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release D"
+        ],
+        [
+          "Admission IC"
+        ]
+      ],
+      "support": 0.123,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release D"
+        ],
+        [
+          "Admission NC"
+        ]
+      ],
+      "support": 0.762,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release D"
+        ],
+        [
+          "CRP"
+        ]
+      ],
+      "support": 0.959,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release D"
+        ],
+        [
+          "ER Sepsis Triage"
+        ]
+      ],
+      "support": 0.999,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release D"
+        ],
+        [
+          "IV Antibiotics"
+        ]
+      ],
+      "support": 0.787,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release D"
+        ],
+        [
+          "IV Liquid"
+        ]
+      ],
+      "support": 0.722,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release D"
+        ],
+        [
+          "LacticAcid"
+        ]
+      ],
+      "support": 0.821,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release D"
+        ],
+        [
+          "Leucocytes"
+        ]
+      ],
+      "support": 0.964,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release E"
+        ],
+        [
+          "Admission IC"
+        ]
+      ],
+      "support": 0.109,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release E"
+        ],
+        [
+          "Admission NC"
+        ]
+      ],
+      "support": 0.762,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release E"
+        ],
+        [
+          "CRP"
+        ]
+      ],
+      "support": 0.959,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release E"
+        ],
+        [
+          "ER Sepsis Triage"
+        ]
+      ],
+      "support": 0.999,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release E"
+        ],
+        [
+          "IV Antibiotics"
+        ]
+      ],
+      "support": 0.787,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release E"
+        ],
+        [
+          "IV Liquid"
+        ]
+      ],
+      "support": 0.72,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release E"
+        ],
+        [
+          "LacticAcid"
+        ]
+      ],
+      "support": 0.821,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    },
+    {
+      "template": "NotSuccession",
+      "parameters": [
+        [
+          "Release E"
+        ],
+        [
+          "Leucocytes"
+        ]
+      ],
+      "support": 0.964,
+      "confidence": 1.0,
+      "interestFactor": 1.0
+    }
+  ]
+}

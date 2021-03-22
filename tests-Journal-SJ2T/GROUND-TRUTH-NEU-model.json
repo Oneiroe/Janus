@@ -22,14 +22,7 @@
     "u",
     "v",
     "w",
-    "x",
-    "y",
-    "z",
-    "j",
-    "k",
-    "ü",
-    "§",
-    "ß"
+    "z"
   ],
   "constraints": [
     {
@@ -168,76 +161,6 @@
         ],
         [
           "t"
-        ]
-      ],
-      "support": 1.0,
-      "confidence": 1.0,
-      "interestFactor": 1.0
-    },
-    {
-      "template": "CoExistence",
-      "parameters": [
-        [
-          "u"
-        ],
-        [
-          "v"
-        ]
-      ],
-      "support": 1.0,
-      "confidence": 1.0,
-      "interestFactor": 1.0
-    },
-    {
-      "template": "Succession",
-      "parameters": [
-        [
-          "w"
-        ],
-        [
-          "x"
-        ]
-      ],
-      "support": 1.0,
-      "confidence": 1.0,
-      "interestFactor": 1.0
-    },
-    {
-      "template": "AlternateSuccession",
-      "parameters": [
-        [
-          "y"
-        ],
-        [
-          "z"
-        ]
-      ],
-      "support": 1.0,
-      "confidence": 1.0,
-      "interestFactor": 1.0
-    },
-    {
-      "template": "ChainSuccession",
-      "parameters": [
-        [
-          "j"
-        ],
-        [
-          "k"
-        ]
-      ],
-      "support": 1.0,
-      "confidence": 1.0,
-      "interestFactor": 1.0
-    },
-    {
-      "template": "NotCoExistence",
-      "parameters": [
-        [
-          "ü"
-        ],
-        [
-          "§"
         ]
       ],
       "support": 1.0,

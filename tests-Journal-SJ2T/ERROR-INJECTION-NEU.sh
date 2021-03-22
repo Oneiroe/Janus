@@ -15,8 +15,8 @@ clear
 ##################################################################
 ##################################################################
 ## script variables
-TEST_FOLDER="tests-SJ2T"
-TEST_BASE_NAME="ERROR-INJECTION"
+TEST_FOLDER="tests-Journal-SJ2T"
+TEST_BASE_NAME="ERROR-INJECTION-NEU"
 
 mkdir ${TEST_FOLDER}/${TEST_BASE_NAME}"_output/"
 mkdir ${TEST_FOLDER}/${TEST_BASE_NAME}"_output/plotly"
@@ -56,7 +56,7 @@ ERROR_POLICY="string"
 #      to spread the errors over the whole collection of traces [DEFAULT];
 #      'string'
 #      to inject the errors in every trace
-ERROR_TYPE="insdel"
+ERROR_TYPE="del"
 #type of the errors to inject. Possible values are:
 #      'ins'
 #      suppression of the target task;
@@ -74,7 +74,7 @@ ITERATIONS=10
 echo "########### Generate Log"
 ### GENERATE LOG with MinerFulLogMakerStarter ****
 if ! test -f ${ORIGINAL_GENERATED_LOG}; then
-  java -Xmx$MEMORY_MAX -cp Janus.jar $LOG_MAINCLASS \
+  java -Xmx$MEMORY_MAX -cp Janus-NEU.jar $LOG_MAINCLASS \
       --input-model-file $MODEL \
       --input-model-encoding $MODEL_ENCODING  \
       --size $TESTBED_SIZE \
@@ -94,17 +94,17 @@ fi
 
 # check measures with janus
 echo "##### SJ2T Check original log"
-java -cp Janus.jar minerful.JanusModelCheckStarter -iLF $ORIGINAL_GENERATED_LOG -iLE $LOG_ENCODING -iMF $MODEL -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON -d none $NaN_LOG -detailsLevel $DETAILS_LEVEL
+java -cp Janus-NEU.jar minerful.JanusModelCheckStarter -iLF $ORIGINAL_GENERATED_LOG -iLE $LOG_ENCODING -iMF $MODEL -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON -d none $NaN_LOG -detailsLevel $DETAILS_LEVEL
 
 # save result
 # generate MEAN-only CSV of aggregated measures
 echo "########### Post Processing"
-python3 pySupport/singleAggregationPerspectiveFocusCSV.py $OUTPUT_CHECK_JSON"AggregatedMeasures.json" $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN]_0.csv"
+python3 pySupport/singleAggregationNeuCSV.py $OUTPUT_CHECK_JSON"NeuLogMeasures.json" $OUTPUT_CHECK_JSON"NeuLogMeasures[MEAN]_0.csv"
 
 
 ##################################################################
 ## injection error cycle
-for TARGET_CHAR in   "a" "b" "c" "d" "e" "f" "g" "h" "i" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z" "j" "k" "1" "2" "3" "4" "5" "6" "0"
+for TARGET_CHAR in "a" "b" "c" "d"  "e"  "f"  "g"  "h"  "i"  "l"  "m"  "n"  "o"  "p"  "q"  "r"  "s"  "t"  "u"  "v"  "w"  "x"  "y"  "z"  "j"  "k"  "ü"  "§"  "ß"
 do
     ##################################################################
     ## injection error cycle single target
@@ -115,7 +115,7 @@ do
         do
             # Error injection
             echo "### Char:"${TARGET_CHAR}" ------ Iteration:"${ITERATION}" ------ Error-injection level:"${ERROR_PERCENTAGE}
-            java -Xmx$MEMORY_MAX -cp Janus.jar $ERROR_MAINCLASS \
+            java -Xmx$MEMORY_MAX -cp Janus-NEU.jar $ERROR_MAINCLASS \
             -iLF $ORIGINAL_GENERATED_LOG \
             -iLE $LOG_ENCODING \
             --err-target $TARGET_CHAR \
@@ -129,14 +129,14 @@ do
 
             # check measures with janus
             echo "### SJ2T Check"
-            java -cp Janus.jar minerful.JanusModelCheckStarter -iLF $ERROR_LOG -iLE $LOG_ENCODING -iMF $MODEL -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON -d none $NaN_LOG -detailsLevel $DETAILS_LEVEL
+            java -cp Janus-NEU.jar minerful.JanusModelCheckStarter -iLF $ERROR_LOG -iLE $LOG_ENCODING -iMF $MODEL -iME $MODEL_ENCODING -oCSV $OUTPUT_CHECK_CSV -oJSON $OUTPUT_CHECK_JSON -d none $NaN_LOG -detailsLevel $DETAILS_LEVEL
 
 #            echo $'Press any key to continue...\n'
 #            read anyKey
 
             # save result
             echo "########### Post Processing"
-            python3 pySupport/singleAggregationPerspectiveFocusCSV.py $OUTPUT_CHECK_JSON"AggregatedMeasures.json" $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN]_"${ITERATION}"_"${ERROR_PERCENTAGE}".csv"
+            python3 pySupport/singleAggregationNeuCSV.py $OUTPUT_CHECK_JSON"NeuLogMeasures.json" $OUTPUT_CHECK_JSON"NeuLogMeasures[MEAN]_"${ITERATION}"_"${ERROR_PERCENTAGE}".csv"
 
         done
     done
@@ -146,7 +146,7 @@ do
     ##################################################################
     ## Plot results
     echo "########### Plot results"
-    /home/alessio/Data/Phd/my_code/PyVEnv/pySupport/bin/python pySupport/error_injection_plots.py $OUTPUT_CHECK_JSON"AggregatedMeasures[MEAN]_" $ITERATIONS ${TEST_FOLDER}/${TEST_BASE_NAME}"_output/" $TARGET_CHAR $ERROR_TYPE
+    /home/alessio/Data/Phd/my_code/PyVEnv/pySupport/bin/python pySupport/error_injection_plots.py $OUTPUT_CHECK_JSON"NeuLogMeasures[MEAN]_" $ITERATIONS ${TEST_FOLDER}/${TEST_BASE_NAME}"_output/" $TARGET_CHAR $ERROR_TYPE
 
 done
 
@@ -156,4 +156,3 @@ echo "########### Informativeness"
 ##################################################################
 ## Cleaning
 rm ${TEST_FOLDER}/${TEST_BASE_NAME}"-output"*
-cp -r ${TEST_FOLDER}/${TEST_BASE_NAME}"_output/" "tests-Journal-SJ2T"/${TEST_BASE_NAME}"_output/"
