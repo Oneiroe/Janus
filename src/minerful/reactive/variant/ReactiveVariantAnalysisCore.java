@@ -39,7 +39,7 @@ public class ReactiveVariantAnalysisCore {
 
     public static final Map<String, String[]> HIERARCHY = new HashMap<String, String[]>() {{
         put("Participation", new String[]{});
-        put("RespondedExistence", new String[]{"Participation($2)"});
+        put("RespondedExistence", new String[]{"Participation($2)"}); //this link is ok only if the simplification works with equivalences of measures, otherwise it is not direct
         put("CoExistence", new String[]{"RespondedExistence($1,$2)", "RespondedExistence($2,$1)"});
         put("Succession", new String[]{"Response($1,$2)", "Precedence($1,$2)", "CoExistence($1,$2)"});
         put("Precedence", new String[]{"RespondedExistence($2,$1)"});
@@ -64,15 +64,7 @@ public class ReactiveVariantAnalysisCore {
     private static class PermutationResult {
         float[][] result1; // permutation test results for first group
         float[][] result2; // permutation test results for second group
-        String[] constraints;  // list of constraint names
         float[] test;  // test statistics for the difference of the groups, mind that constraints and permutations indices as swapped wrt the permutation results
-
-        public PermutationResult(float[][] result1, float[][] result2, String[] constraints) {
-            this.result1 = result1;
-            this.result2 = result2;
-            this.constraints = constraints;
-            this.test = new float[constraints.length];
-        }
 
         public PermutationResult(float[][] result1, float[][] result2) {
             this.result1 = result1;
@@ -101,11 +93,6 @@ public class ReactiveVariantAnalysisCore {
         this.janusVariantParams = janusVariantParams;
         this.pValueThreshold = janusVariantParams.pValue;
         this.measure = janusVariantParams.measure;
-    }
-
-    public ReactiveVariantAnalysisCore(LogParser logParser_1, ProcessModel processSpecification1, LogParser logParser_2, ProcessModel processSpecification2, JanusVariantCmdParameters janusVariantParams, double pValueThreshold) {
-        this(logParser_1, processSpecification1, logParser_2, processSpecification2, janusVariantParams);
-        this.pValueThreshold = pValueThreshold;
     }
 
     /**
@@ -141,94 +128,11 @@ public class ReactiveVariantAnalysisCore {
         after = System.currentTimeMillis();
         logger.info("Permutation test time: " + (after - before));
 
-
 //        POST-PROCESSING
-//        Now computed before the permutation test
-//        if (janusVariantParams.simplify) {
-//            before = System.currentTimeMillis();
-//            logger.info("Rules simplification...");
-//            results = postSimplifyConstraintSetHierarchical(results);
-//            after = System.currentTimeMillis();
-//            logger.info("Post-processing time: " + (after - before));
-//        }
+//        TODO Sort result according to ABS-diff
         return results;
     }
 
-    /**
-     * Simplify the rules set before the permutation test according to the rules hierarchy.
-     * <p>
-     * Specifically we try to keep the most generic rules if the most specific ones have the same measurements
-     *
-     * @param constraints
-     */
-    private void preSimplifyCOnstraintSetHierarchical(Set<String> constraints) {
-//        Set<String> constraintsView = results.keySet();
-        Set<String> constraintsList = new HashSet<>(constraints);
-        int constrNum = constraints.size();
-//        String[] constraintsList= new String[constrNum];
-//        constraintsView.toArray(constraintsList);
-
-        Map<String, Float> spec1 = getMeasurementsVar1(true);
-        Map<String, Float> spec2 = getMeasurementsVar2(true);
-        for (String c : constraintsList) {
-            String template = c.split("\\(")[0];
-            // skip constraints with only one variable from simplification
-            if (c.contains(",") == false || HIERARCHY.get(template) == null) continue;
-            String cVar1 = c.split("\\(")[1].replace(")", "").split(",")[0];
-            String cVar2 = c.split("\\(")[1].replace(")", "").split(",")[1];
-            for (String d : HIERARCHY.get(template)) {
-                String derived = d.replace("$1", cVar1).replace("$2", cVar2);
-                if (constraintsList.contains(derived)) {
-                    if (spec1.get(derived) - spec1.get(c) == 0 || spec2.get(derived) - spec2.get(c) == 0) {
-                        constraints.remove(c);
-                    }
-                }
-            }
-        }
-        int newConstrNum = constraints.size();
-        logger.info("Number of simplified constraints: " + (constrNum - newConstrNum));
-
-//        side effect/change lCodedIndex
-
-
-    }
-
-    /**
-     * Simplify the resulting rules set from the permutation test according to the rules hierarchy.
-     * <p>
-     * Specifically we try to keep the most generic rules if the most specific ones have the same measurements
-     *
-     * @param results
-     * @return
-     */
-    private Map<String, Float> postSimplifyConstraintSetHierarchical(Map<String, Float> results) {
-        Set<String> constraintsView = results.keySet();
-        Set<String> constraintsList = new HashSet<>(results.keySet());
-        int constrNum = constraintsView.size();
-//        String[] constraintsList= new String[constrNum];
-//        constraintsView.toArray(constraintsList);
-
-        Map<String, Float> spec1 = getMeasurementsVar1(true);
-        Map<String, Float> spec2 = getMeasurementsVar2(true);
-        for (String c : constraintsList) {
-            String template = c.split("\\(")[0];
-            // skip constraints with only one variable from simplification
-            if (c.contains(",") == false || HIERARCHY.get(template) == null) continue;
-            String cVar1 = c.split("\\(")[1].replace(")", "").split(",")[0];
-            String cVar2 = c.split("\\(")[1].replace(")", "").split(",")[1];
-            for (String d : HIERARCHY.get(template)) {
-                String derived = d.replace("$1", cVar1).replace("$2", cVar2);
-                if (constraintsList.contains(derived)) {
-                    if (spec1.get(derived) - spec1.get(c) == 0 || spec2.get(derived) - spec2.get(c) == 0) {
-                        results.remove(c);
-                    }
-                }
-            }
-        }
-        int newConstrNum = results.size();
-        logger.info("Number of simplified constraints: " + (constrNum - newConstrNum));
-        return results;
-    }
 
     /**
      * Checks the significance of the permutation test results
@@ -266,10 +170,12 @@ public class ReactiveVariantAnalysisCore {
                 }
             }
             pRes.test[cIndex] = pRes.test[cIndex] / nPermutations;
-//            if (pRes.test[cIndex]<=pValueThreshold) System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
-//            System.out.println(pRes.constraints[cIndex] + " p_vale=" + pRes.test[cIndex]);
-            result.put(indexToConstraintMap.get(cIndex), pRes.test[cIndex]);
+
+            if (janusVariantParams.oKeep || pRes.test[cIndex] <= pValueThreshold) {
+                result.put(indexToConstraintMap.get(cIndex), pRes.test[cIndex]);
+            }
         }
+        logger.info("Rules Number: " + nConstraints + " ; relevant: " + result.size() + " ; non-relevant: " + (nConstraints - result.size()));
         return result;
     }
 
@@ -301,12 +207,17 @@ public class ReactiveVariantAnalysisCore {
             permutableTracesIndexList.add(traceToIndexMap.get(t));
         }
 
+        float[] pValues = new float[nConstraints];
+        Set<Integer> blackList = new HashSet();
+
         int step = 25;
         for (int i = 0; i < nPermutations; i++) {
             if (i % step == 0)
                 System.out.print("\rPermutation: " + i + "/" + nPermutations);  // Status counter "current trace/total trace"
 
             for (int c = 0; c < nConstraints; c++) {
+                if (!janusVariantParams.oKeep && blackList.contains(c))
+                    continue;
                 int traceIndex = -1;
                 int nanTraces1 = 0;
                 int nanTraces2 = 0;
@@ -328,6 +239,11 @@ public class ReactiveVariantAnalysisCore {
                 }
                 result1[i][c] = result1[i][c] / (log1Size - nanTraces1);
                 result2[i][c] = result2[i][c] / (log2Size - nanTraces2);
+                if (Math.abs(result1[i][c] - result2[i][c]) >= Math.abs(result1[0][c] - result2[0][c])) {
+                    pValues[c] += 1.0;
+                }
+                if (!janusVariantParams.oKeep && (pValues[c] / nPermutations) > janusVariantParams.pValue)
+                    blackList.add(c); //if the constraints presernts a pValues greater than the threshold before the end of the permutations, we can discard it immediately
             }
 //            permutation "0" are the original logs
             Collections.shuffle(permutableTracesIndexList);
@@ -537,37 +453,6 @@ public class ReactiveVariantAnalysisCore {
     }
 
     /**
-     * Computes the union of the two models. It store the results in mTot and returns it in output
-     *
-     * @param processSpecification1
-     * @param processSpecification2
-     * @return
-     */
-    private void setModelsUnion(ProcessModel processSpecification1, ProcessModel processSpecification2) {
-        processSpecificationUnion = ProcessModel.union(processSpecification1, processSpecification2);
-    }
-
-
-    /**
-     * Computes the differences of the two models. It store the results in mDiffs and returns it in output
-     *
-     * @param processSpecification1
-     * @param processSpecification2
-     * @return
-     */
-    private void setModelsDifferences(ProcessModel processSpecification1, ProcessModel processSpecification2) {
-//        Set mDiffs = new HashSet<ProcessModel>();
-//        HashSet<ProcessModel> temp1 = new HashSet(processSpecification1.getAllConstraints());
-//        HashSet<ProcessModel> temp2 = new HashSet(processSpecification2.getAllConstraints());
-//        temp1.removeAll(processSpecification2.getAllConstraints());
-//        temp2.removeAll(processSpecification1.getAllConstraints());
-//        mDiffs.addAll(temp1);
-//        mDiffs.addAll(temp2);
-
-        processSpecificationDifference = ProcessModel.difference(processSpecification1, processSpecification2);
-    }
-
-    /**
      * Get the log level measurement of a given log parser using already encoded log measurements
      * *
      *
@@ -602,48 +487,6 @@ public class ReactiveVariantAnalysisCore {
     }
 
     /**
-     * Get the log level measurement of a given log parser using the process model union
-     * <p>
-     * global requirements:
-     * - lCodedIndex
-     * - indexToConstraintMap
-     * - traceToIndexMap
-     *
-     * @param nanCheck
-     * @return Map<String, Float>  constraint-name:measurement
-     */
-    private Map<String, Float> getMeasurementsOfOneVariantIndex(boolean nanCheck, LogParser logParser, ProcessModel processUnion) {
-        Map<String, Float> result = new HashMap<>(); // constraint->measurement
-        int logSize = logParser.length();
-        List<String> permutableTracesList = new LinkedList<>();
-        for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
-            permutableTracesList.add(it.next().printStringTrace());
-        }
-        List<Integer> permutableTracesIndexList = new LinkedList<>();
-        for (String t : permutableTracesList) {
-            permutableTracesIndexList.add(traceToIndexMap.get(t));
-        }
-
-        int nConstraints = processUnion.howManyConstraints();
-        for (int c = 0; c < nConstraints; c++) {
-            int nanTraces = 0;
-            float constraintResult = 0;
-            for (int t : permutableTracesIndexList) {
-                if (nanCheck & Float.isNaN(lCodedIndex[t][c])) {
-                    nanTraces++;
-                    continue; // TODO expose in input
-                }
-                constraintResult += lCodedIndex[t][c];
-
-            }
-            constraintResult = constraintResult / (logSize - nanTraces);
-            result.put(indexToConstraintMap.get(c), constraintResult);
-        }
-
-        return result;
-    }
-
-    /**
      * the first variant
      * Get the original log level measurement of the first variant
      *
@@ -663,23 +506,5 @@ public class ReactiveVariantAnalysisCore {
     public Map<String, Float> getMeasurementsVar2(boolean nanCheck) {
         return spec2;
     }
-
-    private String decodeConstraint(String encodedConstraint, Map<Character, TaskChar> translationMap) {
-        StringBuilder resultBuilder = new StringBuilder();
-        String constraint = encodedConstraint.substring(0, encodedConstraint.indexOf("("));
-        resultBuilder.append(constraint);
-        String[] encodedVariables = encodedConstraint.substring(encodedConstraint.indexOf("(")).replace("(", "").replace(")", "").split(",");
-        resultBuilder.append("(");
-        String decodedActivator = translationMap.get(encodedVariables[0].charAt(0)).toString();
-        resultBuilder.append(decodedActivator);
-        if (encodedVariables.length > 1) { //constraints with 2 variables
-            resultBuilder.append(",");
-            String decodedTarget = translationMap.get(encodedVariables[1].charAt(0)).toString();
-            resultBuilder.append(decodedTarget);
-        }
-        resultBuilder.append(")");
-        return resultBuilder.toString();
-    }
-
 
 }

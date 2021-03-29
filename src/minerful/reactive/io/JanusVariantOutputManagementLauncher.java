@@ -86,10 +86,6 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
     private void exportVariantResultsToCSV(Map<String, Float> variantResults, File outputFile, JanusVariantCmdParameters varParams, TaskCharArchive alphabet, Map<String, Float> measurementsSpecification1, Map<String, Float> measurementsSpecification2) {
         //		header row
         try {
-            int totRulesNum = variantResults.keySet().size();
-            int relevantRulesNum = 0;
-
-
             String[] headerDetailed = {"Constraint", "p_value", "Measure_VAR1", "Measure_VAR2", "ABS-Difference", "Natural_Language_Description"};
             FileWriter fwDetailed = new FileWriter(outputFile);
             CSVPrinter printerDetailed = new CSVPrinter(fwDetailed, CSVFormat.DEFAULT.withHeader(headerDetailed).withDelimiter(';'));
@@ -109,18 +105,16 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
                 String decodedConstraint = decodeConstraint(constraint, translationMap);
 //                Row builder
                 float difference = Math.abs(measurementsSpecification1.get(constraint) - measurementsSpecification2.get(constraint));
-                if (varParams.oKeep || variantResults.get(constraint) <= varParams.pValue) {
-                    relevantRulesNum++;
-                    printerDetailed.printRecord(new String[]{
-                            decodedConstraint,
-                            variantResults.get(constraint).toString(),
-                            String.format("%.3f", measurementsSpecification1.get(constraint)),
-                            String.format("%.3f", measurementsSpecification2.get(constraint)),
-                            String.format("%.3f", difference),
-                            getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference, varParams)}
-                    );
-                    sortedDiffResults.put(difference, getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference, varParams));
-                }
+                printerDetailed.printRecord(new String[]{
+                        decodedConstraint,
+                        variantResults.get(constraint).toString(),
+                        String.format("%.3f", measurementsSpecification1.get(constraint)),
+                        String.format("%.3f", measurementsSpecification2.get(constraint)),
+                        String.format("%.3f", difference),
+                        getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference, varParams)}
+                );
+                sortedDiffResults.put(difference, getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference, varParams));
+
             }
             fwDetailed.close();
 
@@ -134,8 +128,6 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
                 if (counter < 0) break;
             }
             fwBestOf.close();
-
-            logger.info("Rules Number: " + totRulesNum + " ; relevant: " + relevantRulesNum + " ; non-relevant: " + (totRulesNum - relevantRulesNum));
         } catch (IOException e) {
             e.printStackTrace();
         }
