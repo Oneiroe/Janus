@@ -96,16 +96,15 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
             CSVPrinter printerBestOf = new CSVPrinter(fwBestOf, CSVFormat.DEFAULT.withHeader(headerBestOf).withDelimiter(';'));
 
 //            Sort results by difference in decreasing order
-            TreeMultimap<Float, String> sortedDiffResults = TreeMultimap.create(Ordering.natural().reverse(), Ordering.natural());
+            TreeMultimap<Float, String[]> sortedDiffResults = TreeMultimap.create(Ordering.natural().reverse(), Ordering.usingToString());
 
             Map<Character, TaskChar> translationMap = alphabet.getTranslationMapById();
             for (String constraint : variantResults.keySet()) {
-
 //                decode constraint
                 String decodedConstraint = decodeConstraint(constraint, translationMap);
 //                Row builder
                 float difference = Math.abs(measurementsSpecification1.get(constraint) - measurementsSpecification2.get(constraint));
-                printerDetailed.printRecord(new String[]{
+                sortedDiffResults.put(difference, new String[]{
                         decodedConstraint,
                         variantResults.get(constraint).toString(),
                         String.format("%.3f", measurementsSpecification1.get(constraint)),
@@ -113,20 +112,21 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
                         String.format("%.3f", difference),
                         getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference, varParams)}
                 );
-                sortedDiffResults.put(difference, getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference, varParams));
 
             }
-            fwDetailed.close();
 
             int counter = varParams.bestNresults;
+            boolean continueBest = true;
             for (Float key : sortedDiffResults.keySet()) {
-                for (String line : sortedDiffResults.get(key)) {
-                    printerBestOf.printRecord(line);
+                for (String[] line : sortedDiffResults.get(key)) {
+                    printerDetailed.printRecord(line);
+                    if (continueBest) printerBestOf.printRecord(line[line.length-1]); //print only natural language
                     counter--; // first N results
                 }
+                if (counter < 0) continueBest = false;
 //                counter--; // First N distinct results
-                if (counter < 0) break;
             }
+            fwDetailed.close();
             fwBestOf.close();
         } catch (IOException e) {
             e.printStackTrace();
