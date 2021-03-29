@@ -38,7 +38,8 @@ public class ReactiveVariantAnalysisCore {
     private Map<String, Float> spec2; // measurement of the union model over the second variant
 
     public static final Map<String, String[]> HIERARCHY = new HashMap<String, String[]>() {{
-        put("RespondedExistence", new String[]{});
+        put("Participation", new String[]{});
+        put("RespondedExistence", new String[]{"Participation($2)"});
         put("CoExistence", new String[]{"RespondedExistence($1,$2)", "RespondedExistence($2,$1)"});
         put("Succession", new String[]{"Response($1,$2)", "Precedence($1,$2)", "CoExistence($1,$2)"});
         put("Precedence", new String[]{"RespondedExistence($2,$1)"});

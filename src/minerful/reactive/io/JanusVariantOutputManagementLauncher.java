@@ -86,8 +86,9 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
     private void exportVariantResultsToCSV(Map<String, Float> variantResults, File outputFile, JanusVariantCmdParameters varParams, TaskCharArchive alphabet, Map<String, Float> measurementsSpecification1, Map<String, Float> measurementsSpecification2) {
         //		header row
         try {
-            int totRulesNum=variantResults.keySet().size();
-            int relevantRulesNum=0;
+            int totRulesNum = variantResults.keySet().size();
+            int relevantRulesNum = 0;
+
 
             String[] headerDetailed = {"Constraint", "p_value", "Measure_VAR1", "Measure_VAR2", "ABS-Difference", "Natural_Language_Description"};
             FileWriter fwDetailed = new FileWriter(outputFile);
@@ -113,9 +114,9 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
                     printerDetailed.printRecord(new String[]{
                             decodedConstraint,
                             variantResults.get(constraint).toString(),
-                            measurementsSpecification1.get(constraint).toString(),
-                            measurementsSpecification2.get(constraint).toString(),
-                            String.valueOf(difference),
+                            String.format("%.3f", measurementsSpecification1.get(constraint)),
+                            String.format("%.3f", measurementsSpecification2.get(constraint)),
+                            String.format("%.3f", difference),
                             getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference, varParams)}
                     );
                     sortedDiffResults.put(difference, getNaturalLanguageDescription(decodedConstraint, varParams.measure, measurementsSpecification1.get(constraint), measurementsSpecification2.get(constraint), difference, varParams));
@@ -134,7 +135,7 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
             }
             fwBestOf.close();
 
-            logger.info("Rules Number: "+totRulesNum+ " ; relevant: "+relevantRulesNum+" ; non-relevant: "+(totRulesNum - relevantRulesNum));
+            logger.info("Rules Number: " + totRulesNum + " ; relevant: " + relevantRulesNum + " ; non-relevant: " + (totRulesNum - relevantRulesNum));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -155,7 +156,7 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
         put("NotCoExistence", "[$1] and [$2] do not occur in together in the same process instance. ");
         put("NotSuccession", "[$1] is not followed by [$2] and [$2] is not preceded by [$1]. ");
         put("NotChainSuccession", "[$1] is not immediately followed by [$2] and [$2] is not immediately preceded by [$1]. ");
-        put("Participation", "[$1] occurs in every process instance. ");
+        put("Participation", "[$1] occurs in a process instance. ");
         put("AtMostOne", "[$1] may occur at most one time in a process instance. ");
         put("End", "the process ends with [$1]. ");
         put("Init", "the process starts with [$1]. ");
@@ -176,7 +177,7 @@ public class JanusVariantOutputManagementLauncher extends MinerFulOutputManageme
         } else {
             String greaterVariance = (var1measure > var2measure) ? "1" : "2";
             String smallerVariance = (var1measure > var2measure) ? "2" : "1";
-            result = "In variant " + greaterVariance + " it is " + (difference * 100) + "% more likely than variant" + smallerVariance + " that ";
+            result = "In variant " + greaterVariance + " it is " + String.format("%.1f", difference * 100) + "% more likely than variant" + smallerVariance + " that ";
 //        3)    .... In [Varaint 1/2] it is [diff %] more likely than [Variant 2/1]
         }
         if (DESCRIPTION.get(template) == null) {
