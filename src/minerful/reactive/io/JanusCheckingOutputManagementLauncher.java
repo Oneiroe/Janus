@@ -217,16 +217,21 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                     for (int measureIndex = 0; measureIndex < Measures.MEASURE_NUM; measureIndex++) {
                         measurements[measureIndex] = String.valueOf(megaMatrix.getSpecificMeasure(trace, constraint, measureIndex));
                     }
-
+                    String constraintName;
+                    if (constraint == matrix[trace].length - 1) {
+                        constraintName = "MODEL";
+                    } else {
+                        constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+                    }
                     String[] row = ArrayUtils.addAll(
                             new String[]{
                                     traceString,
-                                    automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById()),
+                                    constraintName,
                                     Arrays.toString(matrix[trace][constraint])
                             }, measurements);
                     printer.printRecord(row);
-
                 }
+
             }
             fw.close();
         } catch (IOException e) {
@@ -299,10 +304,17 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                         measurements[measureIndex] = String.valueOf(megaMatrix.getSpecificMeasure(trace, constraint, measureIndex));
                     }
 
+                    String constraintName;
+                    if (constraint == matrix[trace].length - 1) {
+                        constraintName = "MODEL";
+                    } else {
+                        constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+                    }
+
                     String[] row = ArrayUtils.addAll(
                             new String[]{
                                     traceString,
-                                    automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById()),
+                                    constraintName,
                                     String.valueOf(matrix[trace][constraint][0]),
                                     String.valueOf(matrix[trace][constraint][1]),
                                     String.valueOf(matrix[trace][constraint][2]),
@@ -363,10 +375,17 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                         measurements[measureIndex] = String.valueOf(megaMatrix.getSpecificMeasure(trace, constraint, measureIndex));
                     }
 
+                    String constraintName;
+                    if (constraint == matrix[trace].length - 1) {
+                        constraintName = "MODEL";
+                    } else {
+                        constraintName = automata.get(constraint).toString();
+                    }
+
                     String[] row = ArrayUtils.addAll(
                             new String[]{
                                     traceString,
-                                    automata.get(constraint).toString(),
+                                    constraintName,
                                     Arrays.toString(matrix[trace][constraint])
                             }, measurements);
                     printer.printRecord(row);
@@ -427,10 +446,18 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                         measurements[measureIndex] = String.valueOf(megaMatrix.getSpecificMeasure(trace, constraint, measureIndex));
                     }
 
+                    String constraintName;
+                    if (constraint == matrix[trace].length - 1) {
+                        constraintName = "MODEL";
+                    } else {
+                        constraintName = automata.get(constraint).toString();
+                    }
+
+
                     String[] row = ArrayUtils.addAll(
                             new String[]{
                                     traceString,
-                                    automata.get(constraint).toString(),
+                                    constraintName,
                                     String.valueOf(matrix[trace][constraint][0]),
                                     String.valueOf(matrix[trace][constraint][1]),
                                     String.valueOf(matrix[trace][constraint][2]),
@@ -492,8 +519,13 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
 
             //		Row builder
             for (int constraint = 0; constraint < constraintsLogMeasure.length; constraint++) {
-//				String constraintName = automata.get(constraint).toString();
-                String constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+                String constraintName;
+                if (constraint == constraintsLogMeasure.length - 1) {
+                    constraintName = "MODEL";
+                } else {
+                    constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+                }
+
                 SummaryStatistics[] constraintLogMeasure = constraintsLogMeasure[constraint]; //TODO performance slowdown
 
                 for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
@@ -558,7 +590,14 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
 
             //		Row builder
             for (int constraint = 0; constraint < constraintsLogMeasure.length; constraint++) {
-                String constraintName = automata.get(constraint).toString();
+                String constraintName;
+                if (constraint == constraintsLogMeasure.length - 1) {
+                    constraintName = "MODEL";
+                } else {
+                    constraintName = automata.get(constraint).toString();
+                }
+
+
                 SummaryStatistics[] constraintLogMeasure = constraintsLogMeasure[constraint];
 
                 for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
@@ -618,8 +657,13 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
 
             //		Row builder
             for (int constraint = 0; constraint < neuConstraintsLogMeasure.length; constraint++) {
-//				String constraintName = automata.get(constraint).toString();
-                String constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+                String constraintName;
+                if (constraint == neuConstraintsLogMeasure.length - 1) {
+                    constraintName = "MODEL";
+                } else {
+                    constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+                }
+
 
                 for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
 //                    System.out.print("\rConstraints: " + constraint + "/" + constraintsLogMeasure.length+" Measure: " + measureIndex + "/" +  megaMatrix.getMeasureNames().length);
@@ -667,7 +711,12 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
 
             //		Row builder
             for (int constraint = 0; constraint < neuConstraintsLogMeasure.length; constraint++) {
-                String constraintName = automata.get(constraint).toString();
+                String constraintName;
+                if (constraint == neuConstraintsLogMeasure.length - 1) {
+                    constraintName = "MODEL";
+                } else {
+                    constraintName = automata.get(constraint).toString();
+                }
 
                 for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
                     String[] row = new String[]{
@@ -750,9 +799,16 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
 //			\/ \/ \/ LOG RESULTS
             SummaryStatistics[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
 
+            String constraintName;
             for (int constraint = 0; constraint < constraintLogMeasure.length; constraint++) {
+                if (constraint == constraintLogMeasure.length - 1) {
+                    constraintName = "MODEL";
+                } else {
+                    constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+                }
+
                 jsonOutput.add(
-                        automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById()),
+                        constraintName,
                         aggregatedConstraintMeasuresJsonBuilder(megaMatrix, constraint, constraintLogMeasure[constraint])
                 );
             }
@@ -782,9 +838,16 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
 //			\/ \/ \/ LOG RESULTS
             SummaryStatistics[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
 
+            String constraintName;
             for (int constraint = 0; constraint < constraintLogMeasure.length; constraint++) {
+                if (constraint == constraintLogMeasure.length - 1) {
+                    constraintName = "MODEL";
+                } else {
+                    constraintName = automata.get(constraint).toString();
+                }
+
                 jsonOutput.add(
-                        automata.get(constraint).toString(),
+                        constraintName,
                         aggregatedConstraintMeasuresJsonBuilder(megaMatrix, constraint, constraintLogMeasure[constraint])
                 );
             }
@@ -818,9 +881,15 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
 //			\/ \/ \/ LOG RESULTS
             float[][] neuConstraintsLogMeasure = megaMatrix.getNeuConstraintLogMeasures();
 
+            String constraintName;
             for (int constraint = 0; constraint < neuConstraintsLogMeasure.length; constraint++) {
+                if (constraint == neuConstraintsLogMeasure.length - 1) {
+                    constraintName = "MODEL";
+                } else {
+                    constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+                }
                 jsonOutput.add(
-                        automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById()),
+                        constraintName,
                         neuLogConstraintMeasuresJsonBuilder(megaMatrix, constraint, neuConstraintsLogMeasure[constraint])
                 );
             }
@@ -850,9 +919,16 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
 //			\/ \/ \/ LOG RESULTS
             float[][] neuConstraintsLogMeasure = megaMatrix.getNeuConstraintLogMeasures();
 
+            String constraintName;
             for (int constraint = 0; constraint < neuConstraintsLogMeasure.length; constraint++) {
+                if (constraint == neuConstraintsLogMeasure.length - 1) {
+                    constraintName = "MODEL";
+                } else {
+                    constraintName = automata.get(constraint).toString();
+                }
+
                 jsonOutput.add(
-                        automata.get(constraint).toString(),
+                        constraintName,
                         neuLogConstraintMeasuresJsonBuilder(megaMatrix, constraint, neuConstraintsLogMeasure[constraint])
                 );
             }
@@ -905,8 +981,14 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                 for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
 
 //                  for each constraint
-                    String constraintString = automata.get(constraint).toString();
-                    fw.write("\t\t{\"" + constraintString + "\": [ ");
+                    String constraintName;
+                    if (constraint == matrix[trace].length - 1) {
+                        constraintName = "MODEL";
+                    } else {
+                        constraintName = automata.get(constraint).toString();
+                    }
+
+                    fw.write("\t\t{\"" + constraintName + "\": [ ");
                     for (int eventResult = 0; eventResult < matrix[trace][constraint].length; eventResult++) {
                         char event = traceString.charAt(eventResult);
                         byte result = matrix[trace][constraint][eventResult];
@@ -970,8 +1052,14 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                 for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
 
 //                  for each constraint
-                    String constraintString = automata.get(constraint).toString();
-                    fw.write("\t\t{\"Constraint\": \"" + constraintString + "\", ");
+                    String constraintName;
+                    if (constraint == matrix[trace].length - 1) {
+                        constraintName = "MODEL";
+                    } else {
+                        constraintName = automata.get(constraint).toString();
+                    }
+
+                    fw.write("\t\t{\"Constraint\": \"" + constraintName + "\", ");
                     fw.write("\"N(A)\": " + matrix[trace][constraint][0] + ",");
                     fw.write("\"N(T)\": " + matrix[trace][constraint][1] + ",");
                     fw.write("\"N(¬A)\": " + matrix[trace][constraint][2] + ",");
@@ -1046,9 +1134,15 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                 for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
                     tr.init();
 //                  for each constraint
-                    String constraintString = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+                    String constraintName;
+                    if (constraint == matrix[trace].length - 1) {
+                        constraintName = "MODEL";
+                    } else {
+                        constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+                    }
 
-                    fw.write("\t\t{\"" + constraintString + "\": [ ");
+
+                    fw.write("\t\t{\"" + constraintName + "\": [ ");
                     for (int eventResult = 0; eventResult < matrix[trace][constraint].length; eventResult++) {
                         String event = tr.parseSubsequent().getEvent().getTaskClass().toString();
                         byte result = matrix[trace][constraint][eventResult];
@@ -1123,9 +1217,14 @@ public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagem
                 for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
                     tr.init();
 //                  for each constraint
-                    String constraintString = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+                    String constraintName;
+                    if (constraint == matrix[trace].length - 1) {
+                        constraintName = "MODEL";
+                    } else {
+                        constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+                    }
 
-                    fw.write("\t\t{\"Constraint\": \"" + constraintString + "\", ");
+                    fw.write("\t\t{\"Constraint\": \"" + constraintName + "\", ");
                     fw.write("\"N(A)\": " + matrix[trace][constraint][0] + ",");
                     fw.write("\"N(T)\": " + matrix[trace][constraint][1] + ",");
                     fw.write("\"N(¬A)\": " + matrix[trace][constraint][2] + ",");

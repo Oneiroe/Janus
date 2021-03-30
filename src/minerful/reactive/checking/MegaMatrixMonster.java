@@ -38,6 +38,18 @@ import java.util.Collection;
  * 8 -> Trace lenght [#]
  * <p>
  * Note. Supposedly only 4 value (marked with #) are enough to derive all the others, but lets try to keep all 9 for now
+ *
+ * About model measures:
+ * the model measures are computed considering the model as a constraint itself.
+ * It is always the last constraint, thus all the automata.size()+1 along this class.
+ *
+ * The rationale of the trace evaluation of the model is:
+ * take all the activated automata in one instant of the trace and check if their targets are satisfied.
+ * Practically speaking:
+ *      if there is at least one 10, then the entire model evaluates to 10,
+ * else if there is at least one 11, then the entire model evaluates to 11,
+ * else if there is at least one 01, then the entire model evaluates to 01,
+ * otherwise the entire model evaluates to 00.
  */
 public class MegaMatrixMonster {
     protected static Logger logger;
@@ -69,7 +81,7 @@ public class MegaMatrixMonster {
         this.matrix = matrix;
         System.gc();
 //        measures = new float[matrix.length][automata.size()][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
-        constraintLogMeasures = new SummaryStatistics[automata.size()][Measures.MEASURE_NUM];
+        constraintLogMeasures = new SummaryStatistics[automata.size()+1][Measures.MEASURE_NUM];
     }
 
     public MegaMatrixMonster(int[][][] matrixLite, LogParser log, Collection<SeparatedAutomatonOfflineRunner> automata) {
@@ -77,7 +89,7 @@ public class MegaMatrixMonster {
         this.matrixLite = matrixLite;
         System.gc();
 //        measures = new float[matrixLite.length][automata.size()][Measures.MEASURE_NUM];
-        constraintLogMeasures = new SummaryStatistics[automata.size()][Measures.MEASURE_NUM];
+        constraintLogMeasures = new SummaryStatistics[automata.size()+1][Measures.MEASURE_NUM];
     }
 
     /**
@@ -225,7 +237,7 @@ public class MegaMatrixMonster {
      */
     public void computeAllMeasures(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
         logger.info("Initializing measures matrix...");
-        measures = new float[matrix.length][automata.size()][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
+        measures = new float[matrix.length][automata.size()+1][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
 
         //		TRACE MEASURES
         logger.info("Retrieving Trace Measures...");
@@ -238,8 +250,8 @@ public class MegaMatrixMonster {
         System.gc();
         logger.info("Retrieving Trace measures log statistics...");
         //		trace measure LOG STATISTICS
-        int constraintsNum = automata.size();
-        for (int constraint = 0; constraint < automata.size(); constraint++) {
+        int constraintsNum = automata.size()+1;
+        for (int constraint = 0; constraint < (automata.size()+1); constraint++) {
             System.out.print("\rConstraint: " + constraint + "/" + constraintsNum);  // Status counter "current trace/total trace"
             for (int measure = 0; measure < Measures.MEASURE_NUM; measure++) {
 //				constraintLogMeasures[constraint][measure] = Measures.getMeasureAverage(constraint, measure, measures);
@@ -253,7 +265,7 @@ public class MegaMatrixMonster {
         System.gc();
         logger.info("Retrieving NEW Log Measures...");
         //		LOG MEASURES
-        neuConstraintLogMeasures = new float[automata.size()][Measures.MEASURE_NUM];
+        neuConstraintLogMeasures = new float[automata.size()+1][Measures.MEASURE_NUM];
         computeNeuLogMeasures(nanTraceSubstituteFlag, nanTraceSubstituteValue, nanLogSkipFlag);
 
     }
@@ -355,7 +367,7 @@ public class MegaMatrixMonster {
     }
 
     private void computeNeuLogMeasures(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
-        int constraintsNum = automata.size();
+        int constraintsNum = automata.size()+1;
         int tracesNum = matrix.length;
 
 //        for each constraint

@@ -151,34 +151,54 @@ public class ReactiveCheckingOfflineQueryingCore implements Callable<MegaMatrixM
      * @return ordered Array of supports for the full log for each automaton
      */
     public void runLog(LogParser logParser, List<SeparatedAutomatonOfflineRunner> automata) {
-        byte[][][] finalResults = new byte[logParser.length()][automata.size()][]; // TODO case length=0
-        logger.info("Basic result matrix created! Size: [" + logParser.length() + "][" + automata.size() + "][*]");
+        byte[][][] finalResults = new byte[logParser.length()][automata.size() + 1][]; // TODO case length=0
+        logger.info("Basic result matrix created! Size: [" + logParser.length() + "][" + (automata.size() + 1) + "][*]");
 
         int currentTraceNumber = 0;
         int numberOfTotalTraces = logParser.length();
 
-        Instant start = Instant.now();
-        Instant end = Instant.now();
-        Duration timeElapsed = Duration.between(start, end);
-        int samplingInterval = 300;
-        int TracesTillSampling = 1;
-
         for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
             LogTraceParser tr = it.next();
             runTrace(tr, automata, finalResults[currentTraceNumber]);
-            currentTraceNumber++;
 
-            if (currentTraceNumber != 1 & currentTraceNumber % samplingInterval == 0) {
-                end = Instant.now();
-                timeElapsed = Duration.between(start, end);
-                TracesTillSampling = currentTraceNumber;
-            }
+            // MODEL TRACE EVALUATION
+            computeModelTraceEvaluation(finalResults[currentTraceNumber]);
+
+            currentTraceNumber++;
             System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
         }
         System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);
         System.out.println();
 
         this.megaMonster = new MegaMatrixMonster(finalResults, this.logParser, this.bag.getSeparatedAutomataOfflineRunners());
+    }
+
+    /**
+     * Compute the P2P evaluation of the trace joining the results of each separated automaton.
+     * <p>
+     * The rationale is: select only the activated automata and check if no activated target is violated
+     * <p>
+     * Evaluation, ie each point i
+     * if      10 in at least one i -> 10 : 2
+     * elif    11 in at least one i -> 11 : 3
+     * elif    01 in at least one i -> 01 : 1
+     * else                         -> 00 : 0
+     *
+     * @param finalResult
+     */
+    private void computeModelTraceEvaluation(byte[][] finalResult) {
+        int traceLen = finalResult[0].length;
+        int modelIndex = finalResult.length - 1;
+        finalResult[modelIndex] = new byte[traceLen];
+        for (int i = 0; i < traceLen; i++) {
+            for (int c = 0; c < modelIndex ; c++) {
+                if (finalResult[c][i] == 2) {
+                    finalResult[modelIndex][i] = 2;
+                    break;
+                }
+                finalResult[modelIndex][i] |= finalResult[c][i];
+            }
+        }
     }
 
     /**
