@@ -20,6 +20,72 @@ constraint_white_list = {
     'Response'
 }
 
+INFTY = 100000000
+MEASURES_MAX_MIN = {
+    "Support": [0, 1],
+    "Confidence": [0, 1],
+    "Recall": [0, 1],
+    "Lovinger": [-INFTY, 1],
+    "Specificity": [0, 1],
+    "Accuracy": [0, 1],
+    "Lift": [0, INFTY],
+    "Leverage": [-1, 1],
+    "Compliance": [0, 1],
+    "Odds Ratio": [0, INFTY],
+    "Gini Index": [0, 1],
+    "Certainty factor": [-1, 1],
+    "Coverage": [0, 1],
+    "Prevalence": [0, 1],
+    "Added Value": [-1, 1],
+    "Relative Risk": [0, INFTY],
+    "Jaccard": [0, 1],
+    "Ylue Q": [-1, 1],
+    "Ylue Y": [-1, 1],
+    "Klosgen": [-1, 1],
+    "Conviction": [0, INFTY],
+    "Interestingness Weighting Dependency": [0, INFTY],
+    "Collective Strength": [-INFTY, INFTY],  # [0, INFTY], # TODO BEWARE
+    "Laplace Correction": [0, 1],  # [0.5, 1], # TODO BEWARE at the minimum here
+    "J Measure": [-INFTY, INFTY],
+    "One-way Support": [-INFTY, INFTY],
+    "Two-way Support": [-INFTY, INFTY],
+    "Two-way Support Variation": [-INFTY, INFTY],
+    "Linear Correlation Coefficient": [-INFTY, INFTY],
+    "Piatetsky-Shapiro": [-1, 1],
+    "Cosine": [0, 1], # [0,INFTY] # TODO BEWARE
+    "Information Gain": [-INFTY, INFTY],
+    "Sebag-Schoenauer": [0, INFTY],
+    "Least Contradiction": [-INFTY, INFTY],
+    "Odd Multiplier": [0, INFTY],
+    "Example and Counterexample Rate": [-INFTY, 1],
+    "Zhang": [-INFTY, INFTY]
+}
+
+
+def normalize_single_measure(x, measure):
+    """
+        ((x / (1 + abs(x)) – min_norm )/(max_norm – min_norm)
+
+        min_norm= min /( 1+ abs(min) )
+        max_norm= max /( 1+ abs(max) )
+
+        infinity approximated to 100000000
+
+    :param x: measure measurement
+    :param measure: measure identifyier as per SJ2T
+    :return normalized measure
+    """
+    min_norm = MEASURES_MAX_MIN[measure][0] / (1 + abs(MEASURES_MAX_MIN[measure][0]))
+    max_norm = MEASURES_MAX_MIN[measure][1] / (1 + abs(MEASURES_MAX_MIN[measure][1]))
+
+    return (x / (1 + abs(x)) - min_norm) / (max_norm - min_norm)
+
+
+def normalize_measure_trend(vector, measure):
+    for i in range(len(vector)):
+        vector[i] = normalize_single_measure(vector[i], measure)
+    return vector
+
 
 def get_constraints_vector_mfout(original_file):
     """
@@ -263,7 +329,8 @@ def plot_decay_single_constraint(constraint, constraint_measures_trend, threshol
     plt.close()
 
 
-def plotly_decay_single_constraint(constraint, constraint_measures_trend, altered_task='', alteration_type='', out_folder=''):
+def plotly_decay_single_constraint(constraint, constraint_measures_trend, altered_task='', alteration_type='',
+                                   out_folder=''):
     fig = go.Figure()
 
     for measure in constraint_measures_trend[constraint]:
@@ -287,7 +354,36 @@ def plotly_decay_single_constraint(constraint, constraint_measures_trend, altere
     # fig.show()
     extension = 'html'
     fig.write_html(
-        out_folder+'/plotly/ERROR-INJECTION-' + altered_task + '-' + constraint + '.' + extension)
+        out_folder + '/plotly/ERROR-INJECTION-' + altered_task + '-' + constraint + '.' + extension)
+
+    ##################
+    #     NORMALIZED
+    fig = go.Figure()
+
+    for measure in constraint_measures_trend[constraint]:
+        fig.add_trace(go.Scatter(
+            x=np.arange(len(constraint_measures_trend[constraint][measure]) * 10, step=10),
+            y=np.round(
+                np.array(normalize_measure_trend(constraint_measures_trend[constraint][measure], measure)).astype(
+                    np.float), decimals=2),
+            mode='lines',
+            name=measure))
+
+    fig.update_layout(
+        title=constraint + ' ' + 'alteration: ' + alteration_type + ':' + altered_task + ' NORMALIZED',
+        xaxis_title="Error%",
+        yaxis_title="Value",
+        # font=dict(
+        #     family="Courier New, monospace",
+        #     size=18,
+        #     color="#7f7f7f"
+        # )
+    )
+
+    # fig.show()
+    extension = 'html'
+    fig.write_html(
+        out_folder + '/plotly/NORMALIZED-ERROR-INJECTION-' + altered_task + '-' + constraint + '.' + extension)
 
 
 def load_results_average(file_csv_base_name, err_percent, iteration):
@@ -362,7 +458,8 @@ def main():
                 # Measures decay Plots
                 plot_decay_single_constraint(constraint, constraint_measures_trend, 1, altered_task, alteration_type,
                                              out_folder)
-                plotly_decay_single_constraint(constraint, constraint_measures_trend, altered_task, alteration_type, out_folder)
+                plotly_decay_single_constraint(constraint, constraint_measures_trend, altered_task, alteration_type,
+                                               out_folder)
                 # Informativeness
                 calculate_measures_informativeness(constraint, constraint_measures_trend, altered_task, alteration_type,
                                                    out_folder)
