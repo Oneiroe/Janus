@@ -1,4 +1,4 @@
-package minerful.reactive.checking;
+package minerful.reactive.measurements;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;

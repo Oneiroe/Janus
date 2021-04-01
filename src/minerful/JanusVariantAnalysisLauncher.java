@@ -22,7 +22,7 @@ import java.util.Map;
  * Class for launching Janus variant analysis on two logs
  */
 public class JanusVariantAnalysisLauncher {
-    public static MessagePrinter logger = MessagePrinter.getInstance(JanusModelCheckLauncher.class);
+    public static MessagePrinter logger = MessagePrinter.getInstance(JanusMeasurementsLauncher.class);
 
     private PostProcessingCmdParameters discoveryParams;
     private JanusVariantCmdParameters janusParams;

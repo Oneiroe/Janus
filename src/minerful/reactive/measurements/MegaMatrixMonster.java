@@ -1,4 +1,4 @@
-package minerful.reactive.checking;
+package minerful.reactive.measurements;
 
 import minerful.logparser.LogParser;
 import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
@@ -292,7 +292,7 @@ public class MegaMatrixMonster {
      */
     public float[][] computeTracesSingleMeasure(int measureIndex, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
         logger.info("Initializing traces measure matrix...");
-        float[][] measureResult = new float[matrix.length][automata.size()];  //the space problem is here, not in the byte matrix
+        float[][] measureResult = new float[matrix.length][automata.size()+1];  //the space problem is here, not in the byte matrix
 
         logger.info("Retrieving Trace Measures...");
         if (matrixLite == null) {
@@ -330,7 +330,7 @@ public class MegaMatrixMonster {
      */
     public SummaryStatistics[] computeSingleMeasureLog(float[][] traceMeasures, boolean nanLogSkipFlag) {
         logger.info("Initializing log measure matrix...");
-        int constraintsNum = automata.size();
+        int constraintsNum = automata.size()+1;
         SummaryStatistics[] logMeasuresresult = new SummaryStatistics[constraintsNum];
 
         logger.info("Retrieving Log Measures...");

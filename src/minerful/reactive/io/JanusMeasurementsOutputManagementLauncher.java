@@ -8,13 +8,12 @@ import minerful.MinerFulOutputManagementLauncher;
 import minerful.concept.TaskCharArchive;
 import minerful.concept.constraint.Constraint;
 import minerful.io.params.OutputModelParameters;
-import minerful.logparser.LogParser;
 import minerful.logparser.LogTraceParser;
 import minerful.params.SystemCmdParameters;
 import minerful.params.ViewCmdParameters;
 import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
-import minerful.reactive.checking.Measures;
-import minerful.reactive.checking.MegaMatrixMonster;
+import minerful.reactive.measurements.Measures;
+import minerful.reactive.measurements.MegaMatrixMonster;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.ArrayUtils;
@@ -29,7 +28,7 @@ import java.util.NavigableMap;
 /**
  * Class to handle the output of Janus
  */
-public class JanusCheckingOutputManagementLauncher extends MinerFulOutputManagementLauncher {
+public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputManagementLauncher {
 
     /**
      * reads the terminal input parameters and launch the proper output functions

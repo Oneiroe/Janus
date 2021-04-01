@@ -12,15 +12,15 @@ import minerful.params.InputLogCmdParameters;
 import minerful.params.SystemCmdParameters;
 import minerful.params.ViewCmdParameters;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
-import minerful.reactive.checking.MegaMatrixMonster;
-import minerful.reactive.io.JanusCheckingOutputManagementLauncher;
-import minerful.reactive.params.JanusCheckingCmdParameters;
+import minerful.reactive.measurements.MegaMatrixMonster;
+import minerful.reactive.io.JanusMeasurementsOutputManagementLauncher;
+import minerful.reactive.params.JanusMeasurementsCmdParameters;
 import minerful.utils.MessagePrinter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-public class JanusModelCheckStarter extends MinerFulMinerStarter {
-    public static MessagePrinter logger = MessagePrinter.getInstance(JanusModelCheckStarter.class);
+public class JanusMeasurementsStarter extends MinerFulMinerStarter {
+    public static MessagePrinter logger = MessagePrinter.getInstance(JanusMeasurementsStarter.class);
 
     @Override
     public Options setupOptions() {
@@ -33,7 +33,7 @@ public class JanusModelCheckStarter extends MinerFulMinerStarter {
                 chkOptions = CheckingCmdParameters.parseableOptions(),
                 inputLogOptions = InputLogCmdParameters.parseableOptions(),
                 inpuModlOptions = InputModelParameters.parseableOptions(),
-                janusOptions = JanusCheckingCmdParameters.parseableOptions();
+                janusOptions = JanusMeasurementsCmdParameters.parseableOptions();
 
         for (Object opt : systemOptions.getOptions()) {
             cmdLineOptions.addOption((Option) opt);
@@ -64,7 +64,7 @@ public class JanusModelCheckStarter extends MinerFulMinerStarter {
     }
 
     public static void main(String[] args) {
-        JanusModelCheckStarter checkStarter = new JanusModelCheckStarter();
+        JanusMeasurementsStarter checkStarter = new JanusMeasurementsStarter();
         Options cmdLineOptions = checkStarter.setupOptions();
 
         SystemCmdParameters systemParams =
@@ -95,8 +95,8 @@ public class JanusModelCheckStarter extends MinerFulMinerStarter {
                 new ViewCmdParameters(
                         cmdLineOptions,
                         args);
-        JanusCheckingCmdParameters janusParams =
-                new JanusCheckingCmdParameters(
+        JanusMeasurementsCmdParameters janusParams =
+                new JanusMeasurementsCmdParameters(
                         cmdLineOptions,
                         args);
 
@@ -106,10 +106,10 @@ public class JanusModelCheckStarter extends MinerFulMinerStarter {
             systemParams.printHelp(cmdLineOptions);
             System.exit(0);
         }
-        JanusModelCheckLauncher miFuCheLa = new JanusModelCheckLauncher(inpuModlParams, preProcParams, inputLogParams, chkParams, systemParams, janusParams);
+        JanusMeasurementsLauncher miFuCheLa = new JanusMeasurementsLauncher(inpuModlParams, preProcParams, inputLogParams, chkParams, systemParams, janusParams);
         MegaMatrixMonster evaluation = miFuCheLa.checkModel();
 
         TaskCharArchive alphabet = miFuCheLa.getProcessSpecification().getTaskCharArchive(); // note. The character mapping of the model is greater or equal to the log parser one because it is constructed starting from it
-        new JanusCheckingOutputManagementLauncher().manageCheckOutput(evaluation, viewParams, outParams, systemParams, alphabet);
+        new JanusMeasurementsOutputManagementLauncher().manageCheckOutput(evaluation, viewParams, outParams, systemParams, alphabet);
     }
 }

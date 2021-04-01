@@ -1,13 +1,12 @@
 package minerful.reactive.variant;
 
 import minerful.concept.ProcessModel;
-import minerful.concept.TaskChar;
 import minerful.logparser.LogParser;
 import minerful.logparser.LogTraceParser;
 import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
-import minerful.reactive.checking.MegaMatrixMonster;
-import minerful.reactive.checking.ReactiveCheckingOfflineQueryingCore;
-import minerful.reactive.params.JanusCheckingCmdParameters;
+import minerful.reactive.measurements.MegaMatrixMonster;
+import minerful.reactive.measurements.ReactiveMeasurementsOfflineQueryingCore;
+import minerful.reactive.params.JanusMeasurementsCmdParameters;
 import minerful.reactive.params.JanusVariantCmdParameters;
 import org.apache.log4j.Logger;
 
@@ -74,7 +73,7 @@ public class ReactiveVariantAnalysisCore {
 
     {
         if (logger == null) {
-            logger = Logger.getLogger(ReactiveCheckingOfflineQueryingCore.class.getCanonicalName());
+            logger = Logger.getLogger(ReactiveMeasurementsOfflineQueryingCore.class.getCanonicalName());
         }
     }
 
@@ -419,11 +418,11 @@ public class ReactiveVariantAnalysisCore {
      */
     private Map<String, Map<String, Float>> encodeLog(LogParser logParser, ProcessModel model) {
         Map<String, Map<String, Float>> result = new HashMap();
-        JanusCheckingCmdParameters janusCheckingParams = new JanusCheckingCmdParameters(false, 0, true, false);
-        ReactiveCheckingOfflineQueryingCore reactiveCheckingOfflineQueryingCore = new ReactiveCheckingOfflineQueryingCore(
+        JanusMeasurementsCmdParameters janusCheckingParams = new JanusMeasurementsCmdParameters(false, 0, true, false);
+        ReactiveMeasurementsOfflineQueryingCore reactiveMeasurementsOfflineQueryingCore = new ReactiveMeasurementsOfflineQueryingCore(
                 0, logParser, janusCheckingParams, null, logParser.getTaskCharArchive(), null, model.bag);
         double before = System.currentTimeMillis();
-        MegaMatrixMonster measures = reactiveCheckingOfflineQueryingCore.check();
+        MegaMatrixMonster measures = reactiveMeasurementsOfflineQueryingCore.check();
         double after = System.currentTimeMillis();
 
         logger.info("Total KB checking time: " + (after - before));

@@ -1,10 +1,10 @@
-package minerful.reactive.checking;
+package minerful.reactive.measurements;
 
 import minerful.concept.TaskCharArchive;
 import minerful.concept.constraint.ConstraintsBag;
 import minerful.logparser.LogParser;
 import minerful.logparser.LogTraceParser;
-import minerful.reactive.params.JanusCheckingCmdParameters;
+import minerful.reactive.params.JanusMeasurementsCmdParameters;
 import minerful.miner.stats.GlobalStatsTable;
 import minerful.postprocessing.params.PostProcessingCmdParameters;
 import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
@@ -19,11 +19,11 @@ import java.util.concurrent.Callable;
 /**
  * Class to manage and organize the run of automata over a Log/Trace
  */
-public class ReactiveCheckingOfflineQueryingCore implements Callable<MegaMatrixMonster> {
+public class ReactiveMeasurementsOfflineQueryingCore implements Callable<MegaMatrixMonster> {
 
     protected static Logger logger;
     private final LogParser logParser;
-    private final JanusCheckingCmdParameters janusCheckingParams;
+    private final JanusMeasurementsCmdParameters janusCheckingParams;
     private final PostProcessingCmdParameters postPrarams;
     private final TaskCharArchive taskCharArchive; // alphabet
     private final GlobalStatsTable globalStatsTable;
@@ -33,7 +33,7 @@ public class ReactiveCheckingOfflineQueryingCore implements Callable<MegaMatrixM
 
     {
         if (logger == null) {
-            logger = Logger.getLogger(ReactiveCheckingOfflineQueryingCore.class.getCanonicalName());
+            logger = Logger.getLogger(ReactiveMeasurementsOfflineQueryingCore.class.getCanonicalName());
         }
     }
 
@@ -48,9 +48,9 @@ public class ReactiveCheckingOfflineQueryingCore implements Callable<MegaMatrixM
      * @param globalStatsTable
      * @param bag
      */
-    public ReactiveCheckingOfflineQueryingCore(int jobNum, LogParser logParser, JanusCheckingCmdParameters janusCheckingParams,
-                                               PostProcessingCmdParameters postPrarams, TaskCharArchive taskCharArchive,
-                                               GlobalStatsTable globalStatsTable, ConstraintsBag bag) {
+    public ReactiveMeasurementsOfflineQueryingCore(int jobNum, LogParser logParser, JanusMeasurementsCmdParameters janusCheckingParams,
+                                                   PostProcessingCmdParameters postPrarams, TaskCharArchive taskCharArchive,
+                                                   GlobalStatsTable globalStatsTable, ConstraintsBag bag) {
         this.jobNum = jobNum;
         this.logParser = logParser;
         this.janusCheckingParams = janusCheckingParams;

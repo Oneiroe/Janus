@@ -5,7 +5,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-public class JanusCheckingCmdParameters extends ParamsManager {
+public class JanusMeasurementsCmdParameters extends ParamsManager {
 
     public static final String NaN_TRACE_SUBSTITUTE_FLAG_PARAM_NAME = "nanTraceSubstitute";
     public static final String NaN_TRACE_SUBSTITUTE_VALUE_PARAM_NAME = "nanTraceValue";
@@ -26,7 +26,7 @@ public class JanusCheckingCmdParameters extends ParamsManager {
      */
     public boolean liteFlag;
 
-    public JanusCheckingCmdParameters() {
+    public JanusMeasurementsCmdParameters() {
         super();
         this.nanTraceSubstituteFlag = false;
         this.nanTraceSubstituteValue = 0;
@@ -34,14 +34,14 @@ public class JanusCheckingCmdParameters extends ParamsManager {
         this.liteFlag = false;
     }
 
-    public JanusCheckingCmdParameters(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
+    public JanusMeasurementsCmdParameters(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
         super();
         this.nanTraceSubstituteFlag = nanTraceSubstituteFlag;
         this.nanTraceSubstituteValue = nanTraceSubstituteValue;
         this.nanLogSkipFlag = nanLogSkipFlag;
     }
 
-    public JanusCheckingCmdParameters(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag, boolean liteFlag) {
+    public JanusMeasurementsCmdParameters(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag, boolean liteFlag) {
         super();
         this.nanTraceSubstituteFlag = nanTraceSubstituteFlag;
         this.nanTraceSubstituteValue = nanTraceSubstituteValue;
@@ -49,13 +49,13 @@ public class JanusCheckingCmdParameters extends ParamsManager {
         this.liteFlag = liteFlag;
     }
 
-    public JanusCheckingCmdParameters(Options options, String[] args) {
+    public JanusMeasurementsCmdParameters(Options options, String[] args) {
         this();
         // parse the command line arguments
         this.parseAndSetup(options, args);
     }
 
-    public JanusCheckingCmdParameters(String[] args) {
+    public JanusMeasurementsCmdParameters(String[] args) {
         this();
         // parse the command line arguments
         this.parseAndSetup(new Options(), args);
