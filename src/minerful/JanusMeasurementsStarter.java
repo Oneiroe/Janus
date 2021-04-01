@@ -28,7 +28,7 @@ public class JanusMeasurementsStarter extends MinerFulMinerStarter {
 
         Options systemOptions = SystemCmdParameters.parseableOptions(),
                 outputOptions = OutputModelParameters.parseableOptions(),
-                postPrOptions = PostProcessingCmdParameters.parseableOptions(),
+//                postPrOptions = PostProcessingCmdParameters.parseableOptions(),
                 viewOptions = ViewCmdParameters.parseableOptions(),
                 chkOptions = CheckingCmdParameters.parseableOptions(),
                 inputLogOptions = InputLogCmdParameters.parseableOptions(),
@@ -41,9 +41,9 @@ public class JanusMeasurementsStarter extends MinerFulMinerStarter {
         for (Object opt : outputOptions.getOptions()) {
             cmdLineOptions.addOption((Option) opt);
         }
-        for (Object opt : postPrOptions.getOptions()) {
-            cmdLineOptions.addOption((Option) opt);
-        }
+//        for (Object opt : postPrOptions.getOptions()) {
+//            cmdLineOptions.addOption((Option) opt);
+//        }
         for (Object opt : viewOptions.getOptions()) {
             cmdLineOptions.addOption((Option) opt);
         }
@@ -75,10 +75,10 @@ public class JanusMeasurementsStarter extends MinerFulMinerStarter {
                 new OutputModelParameters(
                         cmdLineOptions,
                         args);
-        PostProcessingCmdParameters preProcParams =
-                new PostProcessingCmdParameters(
-                        cmdLineOptions,
-                        args);
+//        PostProcessingCmdParameters preProcParams =
+//                new PostProcessingCmdParameters(
+//                        cmdLineOptions,
+//                        args);
         CheckingCmdParameters chkParams =
                 new CheckingCmdParameters(
                         cmdLineOptions,
@@ -106,10 +106,10 @@ public class JanusMeasurementsStarter extends MinerFulMinerStarter {
             systemParams.printHelp(cmdLineOptions);
             System.exit(0);
         }
-        JanusMeasurementsLauncher miFuCheLa = new JanusMeasurementsLauncher(inpuModlParams, preProcParams, inputLogParams, chkParams, systemParams, janusParams);
+        JanusMeasurementsLauncher miFuCheLa = new JanusMeasurementsLauncher(inpuModlParams, inputLogParams, chkParams, systemParams, janusParams);
         MegaMatrixMonster evaluation = miFuCheLa.checkModel();
 
         TaskCharArchive alphabet = miFuCheLa.getProcessSpecification().getTaskCharArchive(); // note. The character mapping of the model is greater or equal to the log parser one because it is constructed starting from it
-        new JanusMeasurementsOutputManagementLauncher().manageCheckOutput(evaluation, viewParams, outParams, systemParams, alphabet);
+        new JanusMeasurementsOutputManagementLauncher().manageMeasurementsOutput(evaluation, viewParams, outParams, systemParams, janusParams, alphabet);
     }
 }

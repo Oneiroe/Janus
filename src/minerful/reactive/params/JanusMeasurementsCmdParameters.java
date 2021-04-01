@@ -12,6 +12,42 @@ public class JanusMeasurementsCmdParameters extends ParamsManager {
     public static final String NaN_LOG_SKIP_FLAG_PARAM_NAME = "nanLogSkip";
     public static final String LITE_FLAG_PARAM_NAME = "lite";
 
+    public static final String DETAILS_LEVEL_PARAM_NAME = "detailsLevel";
+    public static final DetailLevel DEFAULT_DETAILS_LEVEL = DetailLevel.all;
+
+    public enum DetailLevel {
+        /**
+         * Compute and return only the events evaluation.
+         * Note.    Regardless if it is returned in output or not,
+         * the events evaluation is computed anyway because it is the foundation of all the the other measures
+         */
+        event,
+        /**
+         * Compute and return only the traces measurements
+         */
+        trace,
+        /**
+         * Compute and return only the traces measurements descriptive statistics across the event log
+         */
+        traceStats,
+        /**
+         * Compute and return only the log measurements
+         */
+        log,
+        /**
+         * Compute and return only the traces measurements and their descriptive statistics across the event log
+         */
+        allTrace,
+        /**
+         * Compute and return only the log measurements and the traces measurements descriptive statistics across the event log
+         */
+        allLog,
+        /**
+         * Compute and return the measures everything [DEFAULT]
+         */
+        all;
+    }
+
     /**
      * decide if a NaN should be kept as-is in a measure-trace evaluation should be substituted with a certain value
      */
@@ -25,6 +61,10 @@ public class JanusMeasurementsCmdParameters extends ParamsManager {
      * decide if to use the MEgaMatrixMonster (details for singles events) or the MegaMatrixLite (space reduction, only traces results)
      */
     public boolean liteFlag;
+    /**
+     * parameter to set to output only the traces result, the aggregated measures, or both. default= both
+     **/
+    public DetailLevel detailsLevel;
 
     public JanusMeasurementsCmdParameters() {
         super();
@@ -32,6 +72,7 @@ public class JanusMeasurementsCmdParameters extends ParamsManager {
         this.nanTraceSubstituteValue = 0;
         this.nanLogSkipFlag = false;
         this.liteFlag = false;
+        this.detailsLevel = DEFAULT_DETAILS_LEVEL;
     }
 
     public JanusMeasurementsCmdParameters(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
@@ -47,6 +88,11 @@ public class JanusMeasurementsCmdParameters extends ParamsManager {
         this.nanTraceSubstituteValue = nanTraceSubstituteValue;
         this.nanLogSkipFlag = nanLogSkipFlag;
         this.liteFlag = liteFlag;
+    }
+
+    public JanusMeasurementsCmdParameters(DetailLevel detailsLevel) {
+        super();
+        this.detailsLevel = detailsLevel;
     }
 
     public JanusMeasurementsCmdParameters(Options options, String[] args) {
@@ -102,7 +148,13 @@ public class JanusMeasurementsCmdParameters extends ParamsManager {
                 )
         );
         this.nanLogSkipFlag = line.hasOption(NaN_LOG_SKIP_FLAG_PARAM_NAME);
-        this.liteFlag=line.hasOption(LITE_FLAG_PARAM_NAME);
+        this.liteFlag = line.hasOption(LITE_FLAG_PARAM_NAME);
+        this.detailsLevel = DetailLevel.valueOf(
+                line.getOptionValue(
+                        DETAILS_LEVEL_PARAM_NAME,
+                        this.detailsLevel.toString()
+                )
+        );
     }
 
     @Override
@@ -145,6 +197,15 @@ public class JanusMeasurementsCmdParameters extends ParamsManager {
                 Option.builder(LITE_FLAG_PARAM_NAME)
                         .longOpt("lite-flag")
                         .desc("Flag to use the space saving data structure")
+                        .build()
+        );
+        options.addOption(
+                Option.builder(DETAILS_LEVEL_PARAM_NAME)
+                        .hasArg().argName("name")
+                        .longOpt("details-level")
+                        .desc(("levels of details of the measures to compute. {event(only events evaluation), trace(only trace measures), traceStats(only trace measures log stats), log(only log measures), allTrace(traces measures and their stats), allLog(log measures and traces measures stats), all}. Default: all")
+                                + printDefault(fromEnumValueToString(DEFAULT_DETAILS_LEVEL)))
+                        .type(String.class)
                         .build()
         );
         return options;

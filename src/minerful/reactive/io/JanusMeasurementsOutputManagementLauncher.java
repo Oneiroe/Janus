@@ -14,6 +14,8 @@ import minerful.params.ViewCmdParameters;
 import minerful.reactive.automaton.SeparatedAutomatonOfflineRunner;
 import minerful.reactive.measurements.Measures;
 import minerful.reactive.measurements.MegaMatrixMonster;
+import minerful.reactive.params.JanusMeasurementsCmdParameters;
+import minerful.reactive.params.JanusMeasurementsCmdParameters.DetailLevel;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.ArrayUtils;
@@ -40,7 +42,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
      * @param systemParams
      * @param alphabet
      */
-    public void manageCheckOutput(MegaMatrixMonster matrix, NavigableMap<Constraint, String> additionalCnsIndexedInfo, OutputModelParameters outParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, TaskCharArchive alphabet) {
+    public void manageMeasurementsOutput(MegaMatrixMonster matrix, NavigableMap<Constraint, String> additionalCnsIndexedInfo, OutputModelParameters outParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, JanusMeasurementsCmdParameters measurementsParams, TaskCharArchive alphabet) {
         File outputFile = null;
         File outputAggregatedMeasuresFile = null;
         File outputNeuLogMeasuresFile = null;
@@ -52,9 +54,13 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
             logger.info("Saving the discovered process as CSV in " + outputFile + "...");
             double before = System.currentTimeMillis();
 
-            // Detailed traces results
-            if (outParams.detailsLevel.equals("both") || outParams.detailsLevel.equals("trace")) {
-                logger.info("MegaMatrixMonster...");
+
+            // Events evaluation
+            if (
+                    measurementsParams.detailsLevel.equals(DetailLevel.event) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.all)
+            ) {
+                logger.info("Events Evaluation...");
                 if (matrix.getMatrixLite() == null) {
                     if (outParams.encodeOutputTasks) {
                         exportEncodedReadable3DMatrixToCSV(matrix, outputFile);
@@ -69,9 +75,22 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                     }
                 }
             }
-            // Aggregated Log measures
-            if (outParams.detailsLevel.equals("both") || outParams.detailsLevel.equals("aggregated")) {
-                logger.info("Aggregated Measures...");
+            // Trace Measures
+            if (
+                    measurementsParams.detailsLevel.equals(DetailLevel.trace) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.allTrace) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.all)
+            ) {
+                logger.info("Traces Measures...into event file for now");
+            }
+            // Trace Measures descriptive statistics
+            if (
+                    measurementsParams.detailsLevel.equals(DetailLevel.traceStats) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.allTrace) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.allLog) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.all)
+            ) {
+                logger.info("Traces Measures Stats...");
                 outputAggregatedMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("AggregatedMeasures.CSV")); //TODO improve
                 if (outParams.encodeOutputTasks) {
                     exportEncodedAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile);
@@ -79,14 +98,19 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                     exportAggregatedMeasuresToCSV(matrix, outputAggregatedMeasuresFile, alphabet);
                 }
             }
-
-            // NEU log measures
-            logger.info("NEU log Measures...");
-            outputNeuLogMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("NeuLogMeasures.CSV")); //TODO improve
-            if (outParams.encodeOutputTasks) {
-                exportEncodedNeuLogMeasuresToCSV(matrix, outputNeuLogMeasuresFile);
-            } else {
-                exportNeuLogMeasuresToCSV(matrix, outputNeuLogMeasuresFile, alphabet);
+            // Log Measures
+            if (
+                    measurementsParams.detailsLevel.equals(DetailLevel.log) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.allLog) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.all)
+            ) {
+                logger.info("Log Measures...");
+                outputNeuLogMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("NeuLogMeasures.CSV")); //TODO improve
+                if (outParams.encodeOutputTasks) {
+                    exportEncodedNeuLogMeasuresToCSV(matrix, outputNeuLogMeasuresFile);
+                } else {
+                    exportNeuLogMeasuresToCSV(matrix, outputNeuLogMeasuresFile, alphabet);
+                }
             }
 
             double after = System.currentTimeMillis();
@@ -111,9 +135,12 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
             double before = System.currentTimeMillis();
 
 
-            // Detailed traces results
-            if (outParams.detailsLevel.equals("both") || outParams.detailsLevel.equals("trace")) {
-                logger.info("MegaMatrixMonster...");
+            // Events evaluation
+            if (
+                    measurementsParams.detailsLevel.equals(DetailLevel.event) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.all)
+            ) {
+                logger.info("Events Evaluation...");
                 if (matrix.getMatrixLite() == null) {
                     if (outParams.encodeOutputTasks) {
                         exportEncodedReadable3DMatrixToJson(matrix, outputFile);
@@ -128,9 +155,22 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                     }
                 }
             }
-            // Aggregated Log measures
-            if (outParams.detailsLevel.equals("both") || outParams.detailsLevel.equals("aggregated")) {
-                logger.info("Aggregated Measures...");
+            // Trace Measures
+            if (
+                    measurementsParams.detailsLevel.equals(DetailLevel.trace) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.allTrace) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.all)
+            ) {
+                logger.info("Traces Measures...into event file for now");
+            }
+            // Trace Measures descriptive statistics
+            if (
+                    measurementsParams.detailsLevel.equals(DetailLevel.traceStats) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.allTrace) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.allLog) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.all)
+            ) {
+                logger.info("Traces Measures Stats...");
                 outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("AggregatedMeasures.json")); // TODO improve
                 if (outParams.encodeOutputTasks) {
                     exportEncodedAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile);
@@ -138,15 +178,20 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                     exportAggregatedMeasuresToJson(matrix, outputAggregatedMeasuresFile, alphabet);
                 }
             }
-            // NEU Log measures
-            logger.info("NEU log Measures...");
-            outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("NeuLogMeasures.json")); //TODO improve
-            if (outParams.encodeOutputTasks) {
-                exportEncodedNeuLogMeasuresToJson(matrix, outputAggregatedMeasuresFile);
-            } else {
-                exportNeuLogMeasuresToJson(matrix, outputAggregatedMeasuresFile, alphabet);
+            // Log Measures
+            if (
+                    measurementsParams.detailsLevel.equals(DetailLevel.log) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.allLog) ||
+                            measurementsParams.detailsLevel.equals(DetailLevel.all)
+            ) {
+                logger.info("Log Measures...");
+                outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("NeuLogMeasures.json")); //TODO improve
+                if (outParams.encodeOutputTasks) {
+                    exportEncodedNeuLogMeasuresToJson(matrix, outputAggregatedMeasuresFile);
+                } else {
+                    exportNeuLogMeasuresToJson(matrix, outputAggregatedMeasuresFile, alphabet);
+                }
             }
-
 
             double after = System.currentTimeMillis();
             logger.info("Total JSON serialization time: " + (after - before));
@@ -154,9 +199,9 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
         logger.info("Output encoding: " + outParams.encodeOutputTasks);
     }
 
-    public void manageCheckOutput(MegaMatrixMonster matrix,
-                                  ViewCmdParameters viewParams, OutputModelParameters outParams, SystemCmdParameters systemParams, TaskCharArchive alphabet) {
-        this.manageCheckOutput(matrix, null, outParams, viewParams, systemParams, alphabet);
+    public void manageMeasurementsOutput(MegaMatrixMonster matrix,
+                                         ViewCmdParameters viewParams, OutputModelParameters outParams, SystemCmdParameters systemParams, JanusMeasurementsCmdParameters measurementsParams, TaskCharArchive alphabet) {
+        this.manageMeasurementsOutput(matrix, null, outParams, viewParams, systemParams, measurementsParams, alphabet);
     }
 
 
@@ -1103,7 +1148,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
      * Serialize the 3D matrix into a Json file to have a readable result
      */
     public void exportReadable3DMatrixToJson(MegaMatrixMonster megaMatrix, File outputFile, TaskCharArchive alphabet) {
-        logger.info("JSON readable serialization...");
+//        logger.info("JSON readable serialization...");
         try {
             FileWriter fw = new FileWriter(outputFile);
             fw.write("{\n");

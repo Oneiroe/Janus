@@ -7,7 +7,6 @@ import minerful.io.params.InputModelParameters;
 import minerful.logparser.LogParser;
 import minerful.params.InputLogCmdParameters;
 import minerful.params.SystemCmdParameters;
-import minerful.postprocessing.params.PostProcessingCmdParameters;
 import minerful.reactive.measurements.MegaMatrixMonster;
 import minerful.reactive.measurements.ReactiveMeasurementsOfflineQueryingCore;
 import minerful.reactive.params.JanusMeasurementsCmdParameters;
@@ -42,8 +41,7 @@ public class JanusMeasurementsLauncher {
         this.eventLog = inputLog;
     }
 
-    public JanusMeasurementsLauncher(InputModelParameters inputParams, PostProcessingCmdParameters preProcParams,
-                                     InputLogCmdParameters inputLogParams, CheckingCmdParameters chkParams, SystemCmdParameters systemParams, JanusMeasurementsCmdParameters janusParams) {
+    public JanusMeasurementsLauncher(InputModelParameters inputParams, InputLogCmdParameters inputLogParams, CheckingCmdParameters chkParams, SystemCmdParameters systemParams, JanusMeasurementsCmdParameters janusParams) {
         this(chkParams, janusParams);
 
         if (inputParams.inputFile == null) {
@@ -56,6 +54,7 @@ public class JanusMeasurementsLauncher {
         this.processSpecification =
                 new ProcessModelLoader().loadProcessModel(inputParams.inputLanguage, inputParams.inputFile, this.eventLog.getTaskCharArchive());
         // Apply some preliminary pruning
+//        PostProcessingCmdParameters preProcParams; //from input
 //		MinerFulPruningCore pruniCore = new MinerFulPruningCore(this.processSpecification, preProcParams);
 //		this.processSpecification.bag = pruniCore.massageConstraints();
 
