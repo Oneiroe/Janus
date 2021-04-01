@@ -191,7 +191,7 @@ public class ReactiveMeasurementsOfflineQueryingCore implements Callable<MegaMat
         int modelIndex = finalResult.length - 1;
         finalResult[modelIndex] = new byte[traceLen];
         for (int i = 0; i < traceLen; i++) {
-            for (int c = 0; c < modelIndex ; c++) {
+            for (int c = 0; c < modelIndex; c++) {
                 if (finalResult[c][i] == 2) {
                     finalResult[modelIndex][i] = 2;
                     break;
@@ -199,6 +199,22 @@ public class ReactiveMeasurementsOfflineQueryingCore implements Callable<MegaMat
                 finalResult[modelIndex][i] |= finalResult[c][i];
             }
         }
+    }
+
+    private void computeModelTraceEvaluationLite(int[][] finalResult) {
+        int traceLen = finalResult[0].length;
+        int modelIndex = finalResult.length - 1;
+        byte[] tempResults = new byte[traceLen];
+        for (int i = 0; i < traceLen; i++) {
+            for (int c = 0; c < modelIndex; c++) {
+                if (finalResult[c][i] == 2) {
+                    finalResult[modelIndex][i] = 2;
+                    break;
+                }
+                finalResult[modelIndex][i] |= finalResult[c][i];
+            }
+        }
+        finalResult[modelIndex] = getTraceCounters(tempResults);
     }
 
     /**
@@ -226,28 +242,20 @@ public class ReactiveMeasurementsOfflineQueryingCore implements Callable<MegaMat
      * @return ordered Array of supports for the full log for each automaton
      */
     public void runLogLite(LogParser logParser, List<SeparatedAutomatonOfflineRunner> automata) {
-        int[][][] finalResults = new int[logParser.length()][automata.size()][9]; // TODO case length=0
-        logger.info("Basic result matrix-LITE created! Size: [" + logParser.length() + "][" + automata.size() + "][9]");
+        int[][][] finalResults = new int[logParser.length()][automata.size() + 1][9]; // TODO case length=0
+        logger.info("Basic result matrix-LITE created! Size: [" + logParser.length() + "][" + (automata.size() + 1) + "][9]");
 
         int currentTraceNumber = 0;
         int numberOfTotalTraces = logParser.length();
 
-        Instant start = Instant.now();
-        Instant end = Instant.now();
-        Duration timeElapsed = Duration.between(start, end);
-        int samplingInterval = 300;
-        int TracesTillSampling = 1;
-
         for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
             LogTraceParser tr = it.next();
             runTraceLite(tr, automata, finalResults[currentTraceNumber]);
-            currentTraceNumber++;
 
-            if (currentTraceNumber != 1 & currentTraceNumber % samplingInterval == 0) {
-                end = Instant.now();
-                timeElapsed = Duration.between(start, end);
-                TracesTillSampling = currentTraceNumber;
-            }
+            // MODEL TRACE EVALUATION
+            computeModelTraceEvaluationLite(finalResults[currentTraceNumber]);
+
+            currentTraceNumber++;
             System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);  // Status counter "current trace/total trace"
         }
         System.out.print("\rTraces: " + currentTraceNumber + "/" + numberOfTotalTraces);

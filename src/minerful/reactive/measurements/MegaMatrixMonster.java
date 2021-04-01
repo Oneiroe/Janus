@@ -237,13 +237,14 @@ public class MegaMatrixMonster {
      */
     public void computeAllMeasures(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
         logger.info("Initializing measures matrix...");
-        measures = new float[matrix.length][automata.size()+1][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
 
         //		TRACE MEASURES
         logger.info("Retrieving Trace Measures...");
         if (matrixLite == null) {
+            measures = new float[matrix.length][automata.size()+1][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
             computeTraceMeasuresMonster(nanTraceSubstituteFlag, nanTraceSubstituteValue, nanLogSkipFlag);
         } else {
+            measures = new float[matrixLite.length][automata.size()+1][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
             computeTraceMeasuresLite(nanTraceSubstituteFlag, nanTraceSubstituteValue, nanLogSkipFlag);
         }
 
@@ -368,7 +369,7 @@ public class MegaMatrixMonster {
 
     private void computeNeuLogMeasures(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
         int constraintsNum = automata.size()+1;
-        int tracesNum = matrix.length;
+        int tracesNum = log.wholeLength();
 
 //        for each constraint
         for (int constraint = 0; constraint < constraintsNum; constraint++) {
@@ -386,7 +387,11 @@ public class MegaMatrixMonster {
                 // result {8: trace length}
 //                    A/n	-A/n	T/n	    -T/n	AT/n	A-T/n	-AT/n	-A-T/n  N
 //                    0	    2	    1   	3   	7   	6   	5   	4       8
-                currentTraceProbabilities = Measures.getTraceProbabilities(matrix[trace][constraint]);
+                if (matrixLite==null) {
+                    currentTraceProbabilities = Measures.getTraceProbabilities(matrix[trace][constraint]);
+                }else{
+                    currentTraceProbabilities = Measures.getTraceProbabilities(matrixLite[trace][constraint]);
+                }
 //                    AT|A	A-T|A	-AT|-A	-A-T|-A
                 if (Float.isNaN(currentTraceProbabilities[7] / currentTraceProbabilities[0])) {
                     notATgivenNotA += currentTraceProbabilities[5] / currentTraceProbabilities[2];
