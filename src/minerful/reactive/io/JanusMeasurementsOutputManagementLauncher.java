@@ -56,7 +56,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
             ) {
                 logger.info("Events Evaluation...");
                 outputFile=new File(baseOutputPath.concat("[eventsEvaluation].csv"));
-                if (matrix.getMatrixLite() == null) {
+                if (matrix.getEventsEvaluationMatrixLite() == null) {
                     exportEventsEvaluationToCSV(matrix, outputFile, outParams.encodeOutputTasks, alphabet);
                 } else {
                     exportEventsEvaluationLiteToCSV(matrix, outputFile, outParams.encodeOutputTasks, alphabet);
@@ -124,7 +124,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
             ) {
                 logger.info("Events Evaluation...");
                 outputFile=new File(baseOutputPath.concat("[eventsEvaluation].json"));
-                if (matrix.getMatrixLite() == null) {
+                if (matrix.getEventsEvaluationMatrixLite() == null) {
                     exportEventsEvaluationToJson(matrix, outputFile, outParams.encodeOutputTasks, alphabet);
                 } else {
                     exportEventsEvaluationLiteToJson(matrix, outputFile, outParams.encodeOutputTasks, alphabet);
@@ -199,7 +199,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
             FileWriter fw = new FileWriter(outputFile);
             CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
 
-            byte[][][] matrix = megaMatrix.getMatrix();
+            byte[][][] matrix = megaMatrix.getEventsEvaluationMatrix();
             Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
             List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
@@ -274,7 +274,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
             FileWriter fw = new FileWriter(outputFile);
             CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
 
-            int[][][] matrix = megaMatrix.getMatrixLite();
+            int[][][] matrix = megaMatrix.getEventsEvaluationMatrixLite();
             Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
             List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
@@ -413,7 +413,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
      */
     public void exportTracesMeasuresStatisticsToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile, boolean encodeOutputTasks, TaskCharArchive alphabet) {
         logger.debug("CSV aggregated measures...");
-        SummaryStatistics[][] constraintsLogMeasure = megaMatrix.getConstraintLogMeasures();
+        SummaryStatistics[][] constraintsLogMeasure = megaMatrix.getTraceMeasuresDescriptiveStatistics();
 
         List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
@@ -490,7 +490,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
      */
     public void exportLogMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputAggregatedMeasuresFile, boolean encodeOutputTasks, TaskCharArchive alphabet) {
         logger.debug("CSV log measures...");
-        float[][] neuConstraintsLogMeasure = megaMatrix.getNeuConstraintLogMeasures();
+        float[][] neuConstraintsLogMeasure = megaMatrix.getLogMeasuresMatrix();
 
         List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
@@ -624,7 +624,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
             List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
 //			\/ \/ \/ LOG RESULTS
-            SummaryStatistics[][] constraintLogMeasure = megaMatrix.getConstraintLogMeasures();
+            SummaryStatistics[][] constraintLogMeasure = megaMatrix.getTraceMeasuresDescriptiveStatistics();
 
             String constraintName;
             for (int constraint = 0; constraint < constraintLogMeasure.length; constraint++) {
@@ -669,7 +669,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
             List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
 //			\/ \/ \/ LOG RESULTS
-            float[][] neuConstraintsLogMeasure = megaMatrix.getNeuConstraintLogMeasures();
+            float[][] neuConstraintsLogMeasure = megaMatrix.getLogMeasuresMatrix();
 
             String constraintName;
             for (int constraint = 0; constraint < neuConstraintsLogMeasure.length; constraint++) {
@@ -710,7 +710,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
             FileWriter fw = new FileWriter(outputFile);
             JsonObject jsonOutput = new JsonObject();
 
-            byte[][][] matrix = megaMatrix.getMatrix();
+            byte[][][] matrix = megaMatrix.getEventsEvaluationMatrix();
             Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
             List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
@@ -775,7 +775,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
             FileWriter fw = new FileWriter(outputFile);
             JsonObject jsonOutput = new JsonObject();
 
-            int[][][] matrix = megaMatrix.getMatrixLite();
+            int[][][] matrix = megaMatrix.getEventsEvaluationMatrixLite();
             Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
             List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 

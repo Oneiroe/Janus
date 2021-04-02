@@ -38,32 +38,33 @@ import java.util.Collection;
  * 8 -> Trace lenght [#]
  * <p>
  * Note. Supposedly only 4 value (marked with #) are enough to derive all the others, but lets try to keep all 9 for now
- *
+ * <p>
  * About model measures:
  * the model measures are computed considering the model as a constraint itself.
  * It is always the last constraint, thus all the automata.size()+1 along this class.
- *
+ * <p>
  * The rationale of the trace evaluation of the model is:
  * take all the activated automata in one instant of the trace and check if their targets are satisfied.
  * Practically speaking:
- *      if there is at least one 10, then the entire model evaluates to 10,
+ * if there is at least one 10, then the entire model evaluates to 10,
  * else if there is at least one 11, then the entire model evaluates to 11,
  * else if there is at least one 01, then the entire model evaluates to 01,
  * otherwise the entire model evaluates to 00.
  */
 public class MegaMatrixMonster {
     protected static Logger logger;
-    private byte[][][] matrix; // [trace index][constraint index][event index]
     private final LogParser log;
     private final Collection<SeparatedAutomatonOfflineRunner> automata;
-    private int[][][] matrixLite; // [trace index][constraint index][counter index]
 
-    private float[][][] measures; // [trace index][constraint index][measure index] -> support:0, confidence:1, lovinger: 2
+    private byte[][][] eventsEvaluationMatrix; // [trace index][constraint index][event index]
+    private int[][][] eventsEvaluationMatrixLite; // [trace index][constraint index][counter index]
 
-    private SummaryStatistics[][] constraintLogMeasures; // [constraint index][measure index]
+    private float[][][] traceMeasuresMatrix; // [trace index][constraint index][measure index] -> support:0, confidence:1, lovinger: 2
 
-    //    TODO do not keep/initialize all the datastructures, but just the ones you need
-    private float[][] neuConstraintLogMeasures; // [constraint index][measure index]
+    private SummaryStatistics[][] traceMeasuresDescriptiveStatistics; // [constraint index][measure index]
+
+    private float[][] logMeasuresMatrix; // [constraint index][measure index]
+
 
     {
         if (logger == null) {
@@ -78,18 +79,14 @@ public class MegaMatrixMonster {
 
     public MegaMatrixMonster(byte[][][] matrix, LogParser log, Collection<SeparatedAutomatonOfflineRunner> automata) {
         this(log, automata);
-        this.matrix = matrix;
+        this.eventsEvaluationMatrix = matrix;
         System.gc();
-//        measures = new float[matrix.length][automata.size()][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
-        constraintLogMeasures = new SummaryStatistics[automata.size()+1][Measures.MEASURE_NUM];
     }
 
     public MegaMatrixMonster(int[][][] matrixLite, LogParser log, Collection<SeparatedAutomatonOfflineRunner> automata) {
         this(log, automata);
-        this.matrixLite = matrixLite;
+        this.eventsEvaluationMatrixLite = matrixLite;
         System.gc();
-//        measures = new float[matrixLite.length][automata.size()][Measures.MEASURE_NUM];
-        constraintLogMeasures = new SummaryStatistics[automata.size()+1][Measures.MEASURE_NUM];
     }
 
     /**
@@ -105,17 +102,17 @@ public class MegaMatrixMonster {
         ObjectOutputStream oos = null;
         FileOutputStream fos = new FileOutputStream(filePath, true);
 //        fos.write("traces;events-TOT;Constraints;Measures;EventsSpace;TracesSpace;LogSpace\n".getBytes());
-        if (matrixLite != null)
-            fos.write(("" + matrixLite.length + ";" + log.numberOfEvents() + ";" + matrixLite[0].length + ";" + measures[0][0].length + ";").getBytes());
+        if (eventsEvaluationMatrixLite != null)
+            fos.write(("" + eventsEvaluationMatrixLite.length + ";" + log.numberOfEvents() + ";" + eventsEvaluationMatrixLite[0].length + ";" + traceMeasuresMatrix[0][0].length + ";").getBytes());
         else
-            fos.write(("" + matrix.length + ";" + log.numberOfEvents() + ";" + matrix[0].length + ";" + measures[0][0].length + ";").getBytes());
+            fos.write(("" + eventsEvaluationMatrix.length + ";" + log.numberOfEvents() + ";" + eventsEvaluationMatrix[0].length + ";" + traceMeasuresMatrix[0][0].length + ";").getBytes());
 
         try {
             oos = new ObjectOutputStream(baos);
-            if (matrixLite != null)
-                oos.writeObject(matrixLite);
+            if (eventsEvaluationMatrixLite != null)
+                oos.writeObject(eventsEvaluationMatrixLite);
             else
-                oos.writeObject(matrix);
+                oos.writeObject(eventsEvaluationMatrix);
             oos.flush();
             oos.close();
 
@@ -131,7 +128,7 @@ public class MegaMatrixMonster {
         try {
             baos = new ByteArrayOutputStream();
             oos = new ObjectOutputStream(baos);
-            oos.writeObject(measures);
+            oos.writeObject(traceMeasuresMatrix);
             oos.flush();
             oos.close();
             logger.info("size of traces measures data structure : " + baos.size() / 1024d / 1024d + " MB");
@@ -146,7 +143,7 @@ public class MegaMatrixMonster {
         try {
             baos = new ByteArrayOutputStream();
             oos = new ObjectOutputStream(baos);
-            oos.writeObject(constraintLogMeasures);
+            oos.writeObject(traceMeasuresDescriptiveStatistics);
             oos.flush();
             oos.close();
             logger.info("size of trace measures stats data structure : " + baos.size() / 1024d / 1024d + " MB");
@@ -162,7 +159,7 @@ public class MegaMatrixMonster {
         try {
             baos = new ByteArrayOutputStream();
             oos = new ObjectOutputStream(baos);
-            oos.writeObject(neuConstraintLogMeasures);
+            oos.writeObject(logMeasuresMatrix);
             oos.flush();
             oos.close();
             logger.info("size of log measures data structure : " + baos.size() / 1024d / 1024d + " MB");
@@ -180,28 +177,16 @@ public class MegaMatrixMonster {
         return result / 1024d / 1024d;
     }
 
-    public float[][] getNeuConstraintLogMeasures() {
-        return neuConstraintLogMeasures;
+    public float[][] getLogMeasuresMatrix() {
+        return logMeasuresMatrix;
     }
 
-    public void setNeuConstraintLogMeasures(float[][] neuConstraintLogMeasures) {
-        this.neuConstraintLogMeasures = neuConstraintLogMeasures;
+    public byte[][][] getEventsEvaluationMatrix() {
+        return eventsEvaluationMatrix;
     }
 
-    public byte[][][] getMatrix() {
-        return matrix;
-    }
-
-    public void setMatrix(byte[][][] matrix) {
-        this.matrix = matrix;
-    }
-
-    public int[][][] getMatrixLite() {
-        return matrixLite;
-    }
-
-    public void setMatrixLite(int[][][] matrixLite) {
-        this.matrixLite = matrixLite;
+    public int[][][] getEventsEvaluationMatrixLite() {
+        return eventsEvaluationMatrixLite;
     }
 
     public LogParser getLog() {
@@ -212,8 +197,8 @@ public class MegaMatrixMonster {
         return automata;
     }
 
-    public float[][][] getMeasures() {
-        return measures;
+    public float[][][] getTraceMeasuresMatrix() {
+        return traceMeasuresMatrix;
     }
 
     /**
@@ -221,11 +206,11 @@ public class MegaMatrixMonster {
      *
      * @return
      */
-    public int getConstraintsNumber(){
-        if (matrixLite==null){
-            return matrix[0].length;
-        }else{
-            return matrixLite[0].length;
+    public int getConstraintsNumber() {
+        if (eventsEvaluationMatrixLite == null) {
+            return eventsEvaluationMatrix[0].length;
+        } else {
+            return eventsEvaluationMatrixLite[0].length;
         }
     }
 
@@ -239,7 +224,7 @@ public class MegaMatrixMonster {
      * @return
      */
     public double getSpecificMeasure(int trace, int constraint, int measureIndex) {
-        return measures[trace][constraint][measureIndex];
+        return traceMeasuresMatrix[trace][constraint][measureIndex];
     }
 
     /**
@@ -254,24 +239,22 @@ public class MegaMatrixMonster {
 
         //		TRACE MEASURES
         logger.info("Retrieving Trace Measures...");
-        if (matrixLite == null) {
-            measures = new float[matrix.length][automata.size()+1][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
-            computeTraceMeasuresMonster(nanTraceSubstituteFlag, nanTraceSubstituteValue, nanLogSkipFlag);
+        if (eventsEvaluationMatrixLite == null) {
+            traceMeasuresMatrix = new float[eventsEvaluationMatrix.length][automata.size() + 1][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
+            computeTraceMeasuresMonster(nanTraceSubstituteFlag, nanTraceSubstituteValue);
         } else {
-            measures = new float[matrixLite.length][automata.size()+1][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
-            computeTraceMeasuresLite(nanTraceSubstituteFlag, nanTraceSubstituteValue, nanLogSkipFlag);
+            traceMeasuresMatrix = new float[eventsEvaluationMatrixLite.length][automata.size() + 1][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
+            computeTraceMeasuresLite(nanTraceSubstituteFlag, nanTraceSubstituteValue);
         }
 
         System.gc();
         logger.info("Retrieving Trace measures log statistics...");
         //		trace measure LOG STATISTICS
-        int constraintsNum = automata.size()+1;
-        for (int constraint = 0; constraint < (automata.size()+1); constraint++) {
+        int constraintsNum = automata.size() + 1;
+        for (int constraint = 0; constraint < (automata.size() + 1); constraint++) {
             System.out.print("\rConstraint: " + constraint + "/" + constraintsNum);  // Status counter "current trace/total trace"
             for (int measure = 0; measure < Measures.MEASURE_NUM; measure++) {
-//				constraintLogMeasures[constraint][measure] = Measures.getMeasureAverage(constraint, measure, measures);
-                constraintLogMeasures[constraint][measure] = Measures.getMeasureDistributionObject(constraint, measure, measures, nanLogSkipFlag);
-//				constraintLogMeasures[constraint][measure] = Measures.getLogDuckTapeMeasures(constraint, measure, matrix);
+                traceMeasuresDescriptiveStatistics[constraint][measure] = Measures.getMeasureDistributionObject(constraint, measure, traceMeasuresMatrix, nanLogSkipFlag);
             }
         }
         System.out.print("\rConstraint: " + constraintsNum + "/" + constraintsNum);  // Status counter "current trace/total trace"
@@ -280,9 +263,52 @@ public class MegaMatrixMonster {
         System.gc();
         logger.info("Retrieving NEW Log Measures...");
         //		LOG MEASURES
-        neuConstraintLogMeasures = new float[automata.size()+1][Measures.MEASURE_NUM];
-        computeNeuLogMeasures(nanTraceSubstituteFlag, nanTraceSubstituteValue, nanLogSkipFlag);
+        logMeasuresMatrix = new float[automata.size() + 1][Measures.MEASURE_NUM];
+        computeAllLogMeasures();
 
+    }
+
+    /**
+     * retrieve the measurements for the current matrix/matrixLite
+     *
+     * @param nanTraceSubstituteFlag
+     * @param nanTraceSubstituteValue
+     */
+    public void computeAllTraceMeasures(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
+        logger.info("Initializing measures matrix...");
+
+        //		TRACE MEASURES
+        logger.info("Retrieving Trace Measures...");
+        if (eventsEvaluationMatrixLite == null) {
+            traceMeasuresMatrix = new float[eventsEvaluationMatrix.length][automata.size() + 1][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
+            computeTraceMeasuresMonster(nanTraceSubstituteFlag, nanTraceSubstituteValue);
+        } else {
+            traceMeasuresMatrix = new float[eventsEvaluationMatrixLite.length][automata.size() + 1][Measures.MEASURE_NUM];  //the space problem is here, not in the byte matrix
+            computeTraceMeasuresLite(nanTraceSubstituteFlag, nanTraceSubstituteValue);
+        }
+        System.gc();
+    }
+
+    /**
+     * retrieve the measurements for the current matrix/matrixLite
+     *
+     * @param nanLogSkipFlag
+     */
+    public void computeAllTraceMeasuresStats(boolean nanLogSkipFlag) {
+        logger.info("Retrieving Trace measures log statistics...");
+        traceMeasuresDescriptiveStatistics = new SummaryStatistics[automata.size() + 1][Measures.MEASURE_NUM];
+        //		trace measure LOG STATISTICS
+        int constraintsNum = automata.size() + 1;
+        for (int constraint = 0; constraint < (automata.size() + 1); constraint++) {
+            System.out.print("\rConstraint: " + constraint + "/" + constraintsNum);  // Status counter "current trace/total trace"
+            for (int measure = 0; measure < Measures.MEASURE_NUM; measure++) {
+                traceMeasuresDescriptiveStatistics[constraint][measure] = Measures.getMeasureDistributionObject(constraint, measure, traceMeasuresMatrix, nanLogSkipFlag);
+            }
+        }
+        System.out.print("\rConstraint: " + constraintsNum + "/" + constraintsNum);  // Status counter "current trace/total trace"
+        System.out.println();
+
+        System.gc();
     }
 
     /**
@@ -307,31 +333,31 @@ public class MegaMatrixMonster {
      */
     public float[][] computeTracesSingleMeasure(int measureIndex, boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
         logger.info("Initializing traces measure matrix...");
-        float[][] measureResult = new float[matrix.length][automata.size()+1];  //the space problem is here, not in the byte matrix
+        float[][] measureResult = new float[eventsEvaluationMatrix.length][automata.size() + 1];  //the space problem is here, not in the byte matrix
 
         logger.info("Retrieving Trace Measures...");
-        if (matrixLite == null) {
+        if (eventsEvaluationMatrixLite == null) {
             //        for the entire log
-            for (int trace = 0; trace < matrix.length; trace++) {
-                System.out.print("\rTraces: " + trace + "/" + matrix.length);  // Status counter "current trace/total trace"
+            for (int trace = 0; trace < eventsEvaluationMatrix.length; trace++) {
+                System.out.print("\rTraces: " + trace + "/" + eventsEvaluationMatrix.length);  // Status counter "current trace/total trace"
 //              for each trace
-                for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
-                    measureResult[trace][constraint] = Measures.getTraceMeasure(matrix[trace][constraint], measureIndex, nanTraceSubstituteFlag, nanTraceSubstituteValue);
+                for (int constraint = 0; constraint < eventsEvaluationMatrix[trace].length; constraint++) {
+                    measureResult[trace][constraint] = Measures.getTraceMeasure(eventsEvaluationMatrix[trace][constraint], measureIndex, nanTraceSubstituteFlag, nanTraceSubstituteValue);
                 }
             }
-            System.out.print("\rTraces: " + matrix.length + "/" + matrix.length);  // Status counter "current trace/total trace"
+            System.out.print("\rTraces: " + eventsEvaluationMatrix.length + "/" + eventsEvaluationMatrix.length);  // Status counter "current trace/total trace"
             System.out.println();
         } else {
             //        for the entire log
-            for (int trace = 0; trace < matrixLite.length; trace++) {
-                System.out.print("\rTraces: " + trace + "/" + matrix.length);  // Status counter "current trace/total trace"
+            for (int trace = 0; trace < eventsEvaluationMatrixLite.length; trace++) {
+                System.out.print("\rTraces: " + trace + "/" + eventsEvaluationMatrix.length);  // Status counter "current trace/total trace"
 //              for each trace
-                for (int constraint = 0; constraint < matrixLite[trace].length; constraint++) {
+                for (int constraint = 0; constraint < eventsEvaluationMatrixLite[trace].length; constraint++) {
 //                  for each constraint
-                    measureResult[trace][constraint] = Measures.getTraceMeasure(matrixLite[trace][constraint], measureIndex, nanTraceSubstituteFlag, nanTraceSubstituteValue);
+                    measureResult[trace][constraint] = Measures.getTraceMeasure(eventsEvaluationMatrixLite[trace][constraint], measureIndex, nanTraceSubstituteFlag, nanTraceSubstituteValue);
                 }
             }
-            System.out.print("\rTraces: " + matrix.length + "/" + matrix.length);  // Status counter "current trace/total trace"
+            System.out.print("\rTraces: " + eventsEvaluationMatrix.length + "/" + eventsEvaluationMatrix.length);  // Status counter "current trace/total trace"
             System.out.println();
         }
         return measureResult;
@@ -345,7 +371,7 @@ public class MegaMatrixMonster {
      */
     public SummaryStatistics[] computeSingleMeasureLog(float[][] traceMeasures, boolean nanLogSkipFlag) {
         logger.info("Initializing log measure matrix...");
-        int constraintsNum = automata.size()+1;
+        int constraintsNum = automata.size() + 1;
         SummaryStatistics[] logMeasuresresult = new SummaryStatistics[constraintsNum];
 
         logger.info("Retrieving Log Measures...");
@@ -363,26 +389,32 @@ public class MegaMatrixMonster {
      *
      * @param nanTraceSubstituteFlag
      * @param nanTraceSubstituteValue
-     * @param nanLogSkipFlag
      */
-    private void computeTraceMeasuresMonster(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
+    private void computeTraceMeasuresMonster(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
         //        for the entire log
-        for (int trace = 0; trace < matrix.length; trace++) {
-            System.out.print("\rTraces: " + trace + "/" + matrix.length);  // Status counter "current trace/total trace"
+        for (int trace = 0; trace < eventsEvaluationMatrix.length; trace++) {
+            System.out.print("\rTraces: " + trace + "/" + eventsEvaluationMatrix.length);  // Status counter "current trace/total trace"
 //              for each trace
-            for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
+            for (int constraint = 0; constraint < eventsEvaluationMatrix[trace].length; constraint++) {
 //                  for each constraint
                 for (int measure = 0; measure < Measures.MEASURE_NUM; measure++) {
-                    measures[trace][constraint][measure] = Measures.getTraceMeasure(matrix[trace][constraint], measure, nanTraceSubstituteFlag, nanTraceSubstituteValue);
+                    traceMeasuresMatrix[trace][constraint][measure] = Measures.getTraceMeasure(eventsEvaluationMatrix[trace][constraint], measure, nanTraceSubstituteFlag, nanTraceSubstituteValue);
                 }
             }
         }
-        System.out.print("\rTraces: " + matrix.length + "/" + matrix.length);  // Status counter "current trace/total trace"
+        System.out.print("\rTraces: " + eventsEvaluationMatrix.length + "/" + eventsEvaluationMatrix.length);  // Status counter "current trace/total trace"
         System.out.println();
     }
 
-    private void computeNeuLogMeasures(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
-        int constraintsNum = automata.size()+1;
+    /**
+     * retrieve the measurements for the current matrix/matrixLite
+     */
+    public void computeAllLogMeasures() {
+        logger.info("Retrieving Log Measures...");
+
+        logMeasuresMatrix = new float[automata.size() + 1][Measures.MEASURE_NUM];
+
+        int constraintsNum = automata.size() + 1;
         int tracesNum = log.wholeLength();
 
 //        for each constraint
@@ -401,10 +433,10 @@ public class MegaMatrixMonster {
                 // result {8: trace length}
 //                    A/n	-A/n	T/n	    -T/n	AT/n	A-T/n	-AT/n	-A-T/n  N
 //                    0	    2	    1   	3   	7   	6   	5   	4       8
-                if (matrixLite==null) {
-                    currentTraceProbabilities = Measures.getTraceProbabilities(matrix[trace][constraint]);
-                }else{
-                    currentTraceProbabilities = Measures.getTraceProbabilities(matrixLite[trace][constraint]);
+                if (eventsEvaluationMatrixLite == null) {
+                    currentTraceProbabilities = Measures.getTraceProbabilities(eventsEvaluationMatrix[trace][constraint]);
+                } else {
+                    currentTraceProbabilities = Measures.getTraceProbabilities(eventsEvaluationMatrixLite[trace][constraint]);
                 }
 //                    AT|A	A-T|A	-AT|-A	-A-T|-A
                 if (Float.isNaN(currentTraceProbabilities[7] / currentTraceProbabilities[0])) {
@@ -435,11 +467,13 @@ public class MegaMatrixMonster {
 //            float pAT = p[7];
             float[] currentLogProbabilities = {A, T, notA, notT, notAnotTgivenNotA, notATgivenNotA, AnotTgivenA, ATgivenA, n};
             for (int measure = 0; measure < Measures.MEASURE_NUM; measure++) {
-                neuConstraintLogMeasures[constraint][measure] = Measures.getLogMeasure(currentLogProbabilities, measure);
+                logMeasuresMatrix[constraint][measure] = Measures.getLogMeasure(currentLogProbabilities, measure);
             }
         }
         System.out.print("\rConstraint: " + constraintsNum + "/" + constraintsNum);  // Status counter "current trace/total trace"
         System.out.println();
+
+        System.gc();
     }
 
 
@@ -448,24 +482,23 @@ public class MegaMatrixMonster {
      *
      * @param nanTraceSubstituteFlag
      * @param nanTraceSubstituteValue
-     * @param nanLogSkipFlag
      */
-    private void computeTraceMeasuresLite(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
+    private void computeTraceMeasuresLite(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue) {
         //        for the entire log
-        for (int trace = 0; trace < matrixLite.length; trace++) {
+        for (int trace = 0; trace < eventsEvaluationMatrixLite.length; trace++) {
 //              for each trace
-            for (int constraint = 0; constraint < matrixLite[trace].length; constraint++) {
+            for (int constraint = 0; constraint < eventsEvaluationMatrixLite[trace].length; constraint++) {
 //                  for each constraint
                 for (int measure = 0; measure < Measures.MEASURE_NUM; measure++) {
-                    measures[trace][constraint][measure] = Measures.getTraceMeasure(matrixLite[trace][constraint], measure, nanTraceSubstituteFlag, nanTraceSubstituteValue);
+                    traceMeasuresMatrix[trace][constraint][measure] = Measures.getTraceMeasure(eventsEvaluationMatrixLite[trace][constraint], measure, nanTraceSubstituteFlag, nanTraceSubstituteValue);
                 }
             }
         }
     }
 
 
-    public SummaryStatistics[][] getConstraintLogMeasures() {
-        return constraintLogMeasures;
+    public SummaryStatistics[][] getTraceMeasuresDescriptiveStatistics() {
+        return traceMeasuresDescriptiveStatistics;
     }
 
     /**

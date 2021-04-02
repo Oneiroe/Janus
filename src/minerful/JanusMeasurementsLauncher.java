@@ -73,6 +73,7 @@ public class JanusMeasurementsLauncher {
      * Check the input model against the input log.
      */
     public MegaMatrixMonster checkModel() {
+        // the events evaluation must be computed in any case
         processSpecification.bag.initAutomataBag();
         ReactiveMeasurementsOfflineQueryingCore reactiveMeasurementsOfflineQueryingCore = new ReactiveMeasurementsOfflineQueryingCore(
                 0, eventLog, janusParams, null, eventLog.getTaskCharArchive(), null, processSpecification.bag);
@@ -80,10 +81,31 @@ public class JanusMeasurementsLauncher {
         MegaMatrixMonster result = reactiveMeasurementsOfflineQueryingCore.check();
         double after = System.currentTimeMillis();
 
-        logger.info("Total KB checking time: " + (after - before));
+        logger.info("Total events evaluation time: " + (after - before));
 
+//        Compute the measures at the detail level selected in input
         before = System.currentTimeMillis();
-        result.computeAllMeasures(janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue, janusParams.nanLogSkipFlag);
+        switch (janusParams.detailsLevel) {
+            case event:
+                break;
+            case trace:
+                result.computeAllTraceMeasures(janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue);
+                break;
+            case allTrace:
+            case traceStats:
+                result.computeAllTraceMeasures(janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue);
+                result.computeAllTraceMeasuresStats(janusParams.nanLogSkipFlag);
+                break;
+            case log:
+                result.computeAllLogMeasures();
+                break;
+            case allLog:
+            case all:
+                result.computeAllTraceMeasures(janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue);
+                result.computeAllTraceMeasuresStats(janusParams.nanLogSkipFlag);
+                result.computeAllLogMeasures();
+                break;
+        }
         after = System.currentTimeMillis();
 
         logger.info("Total measurement retrieval time: " + (after - before));

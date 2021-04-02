@@ -2470,7 +2470,7 @@ public class Measures {
      */
 //	@Deprecated
     public static float getLogSupport(int constraintIndex, MegaMatrixMonster matrix) {
-        return getMeasureAverage(constraintIndex, 0, matrix.getMeasures());
+        return getMeasureAverage(constraintIndex, 0, matrix.getTraceMeasuresMatrix());
 //		return getLogDuckTapeMeasures(constraintIndex, 0, matrix.getMatrix());
     }
 
