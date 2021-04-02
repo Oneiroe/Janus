@@ -19,10 +19,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NavigableMap;
+import java.util.*;
 
 /**
  * Class to handle the output of Janus
@@ -496,12 +493,9 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
         List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
 
 //		header row
-//		TODO make the columns parametric, not hard-coded
-        String[] header = new String[]{
+        String[] header = ArrayUtils.addAll(new String[]{
                 "Constraint",
-                "Quality-Measure",
-                "Measure-Value"
-        };
+        }, Measures.MEASURE_NAMES);
 
         try {
             FileWriter fw = new FileWriter(outputAggregatedMeasuresFile);
@@ -521,15 +515,12 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                 }
 
 
+                LinkedList<String> row = new LinkedList();
+                row.add(constraintName);
                 for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
-//                    System.out.print("\rConstraints: " + constraint + "/" + constraintsLogMeasure.length+" Measure: " + measureIndex + "/" +  megaMatrix.getMeasureNames().length);
-                    String[] row = new String[]{
-                            constraintName,
-                            megaMatrix.getMeasureName(measureIndex),
-                            String.valueOf(neuConstraintsLogMeasure[constraint][measureIndex])
-                    };
-                    printer.printRecord(row);
+                    row.add(String.valueOf(neuConstraintsLogMeasure[constraint][measureIndex]));
                 }
+                printer.printRecord(row);
             }
             fw.close();
         } catch (IOException e) {
@@ -545,7 +536,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
         JsonObject constraintJson = new JsonObject();
 
         for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
-            JsonObject measure = new JsonObject();
+//            JsonObject measure = new JsonObject();
 
             JsonObject stats = new JsonObject();
 
@@ -559,10 +550,10 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
             stats.addProperty("Min", constraintLogMeasure[measureIndex].getMin());
 
 
-            measure.add("stats", stats);
+//            measure.add("stats", stats);
 //            measure.addProperty("duck tape", Measures.getLogDuckTapeMeasures(constraintIndex, measureIndex, megaMatrix.getMatrix()));
 
-            constraintJson.add(megaMatrix.getMeasureName(measureIndex), measure);
+            constraintJson.add(megaMatrix.getMeasureName(measureIndex), stats);
         }
 
         return constraintJson;
