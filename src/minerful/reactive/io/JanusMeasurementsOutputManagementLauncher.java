@@ -37,15 +37,15 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
      * @param alphabet
      */
     public void manageMeasurementsOutput(MegaMatrixMonster matrix, NavigableMap<Constraint, String> additionalCnsIndexedInfo, OutputModelParameters outParams, ViewCmdParameters viewParams, SystemCmdParameters systemParams, JanusMeasurementsCmdParameters measurementsParams, TaskCharArchive alphabet) {
-        File outputFile = null;
-        File outputAggregatedMeasuresFile = null;
-        File outputNeuLogMeasuresFile = null;
+        String baseOutputPath;
+        File outputFile;
         System.gc();
 
         // ************* CSV
         if (outParams.fileToSaveConstraintsAsCSV != null) {
-            outputFile = retrieveFile(outParams.fileToSaveConstraintsAsCSV);
-            logger.info("Saving the measures as CSV in " + outputFile + "...");
+            baseOutputPath=outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().substring(0, outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().indexOf(".csv"));
+//            outputFile = retrieveFile(outParams.fileToSaveConstraintsAsCSV);
+            logger.info("Saving the measures as CSV in " + baseOutputPath + "...");
             double before = System.currentTimeMillis();
 
 
@@ -55,6 +55,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                             measurementsParams.detailsLevel.equals(DetailLevel.all)
             ) {
                 logger.info("Events Evaluation...");
+                outputFile=new File(baseOutputPath.concat("[eventsEvaluation].csv"));
                 if (matrix.getMatrixLite() == null) {
                     exportEventsEvaluationToCSV(matrix, outputFile, outParams.encodeOutputTasks, alphabet);
                 } else {
@@ -68,9 +69,8 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                             measurementsParams.detailsLevel.equals(DetailLevel.all)
             ) {
                 logger.info("Traces Measures...");
-//                String fileNameBestOf = outputFile.getAbsolutePath().substring(0, outputFile.getAbsolutePath().indexOf(".csv")).concat("[Best-" + varParams.bestNresults + "].txt");
-                outputAggregatedMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("TraceMeasures.CSV")); //TODO improve
-                exportTracesMeasuresToCSV(matrix, outputAggregatedMeasuresFile, outParams.encodeOutputTasks, alphabet);
+                outputFile=new File(baseOutputPath.concat("[tracesMeasures].csv"));
+                exportTracesMeasuresToCSV(matrix, outputFile, outParams.encodeOutputTasks, alphabet);
             }
             // Trace Measures descriptive statistics
             if (
@@ -80,8 +80,8 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                             measurementsParams.detailsLevel.equals(DetailLevel.all)
             ) {
                 logger.info("Traces Measures Stats...");
-                outputAggregatedMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("AggregatedMeasures.CSV")); //TODO improve
-                exportTracesMeasuresStatisticsToCSV(matrix, outputAggregatedMeasuresFile, outParams.encodeOutputTasks, alphabet);
+                outputFile=new File(baseOutputPath.concat("[tracesMeasuresStats].csv"));
+                exportTracesMeasuresStatisticsToCSV(matrix, outputFile, outParams.encodeOutputTasks, alphabet);
             }
             // Log Measures
             if (
@@ -90,8 +90,8 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                             measurementsParams.detailsLevel.equals(DetailLevel.all)
             ) {
                 logger.info("Log Measures...");
-                outputNeuLogMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("NeuLogMeasures.CSV")); //TODO improve
-                exportLogMeasuresToCSV(matrix, outputNeuLogMeasuresFile, outParams.encodeOutputTasks, alphabet);
+                outputFile=new File(baseOutputPath.concat("[logMeasures].csv"));
+                exportLogMeasuresToCSV(matrix, outputFile, outParams.encodeOutputTasks, alphabet);
             }
 
             double after = System.currentTimeMillis();
@@ -110,8 +110,9 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
 
         // ************* JSON
         if (outParams.fileToSaveAsJSON != null) {
-            outputFile = retrieveFile(outParams.fileToSaveAsJSON);
-            logger.info("Saving the measures as JSON in " + outputFile + "...");
+            baseOutputPath=outParams.fileToSaveAsJSON.getAbsolutePath().substring(0, outParams.fileToSaveAsJSON.getAbsolutePath().indexOf(".json"));
+//            outputFile = retrieveFile(outParams.fileToSaveAsJSON);
+            logger.info("Saving the measures as JSON in " + baseOutputPath + "...");
 
             double before = System.currentTimeMillis();
 
@@ -122,6 +123,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                             measurementsParams.detailsLevel.equals(DetailLevel.all)
             ) {
                 logger.info("Events Evaluation...");
+                outputFile=new File(baseOutputPath.concat("[eventsEvaluation].json"));
                 if (matrix.getMatrixLite() == null) {
                     exportEventsEvaluationToJson(matrix, outputFile, outParams.encodeOutputTasks, alphabet);
                 } else {
@@ -135,8 +137,8 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                             measurementsParams.detailsLevel.equals(DetailLevel.all)
             ) {
                 logger.info("Traces Measures...");
-                outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("TraceMeasures.json")); // TODO improve
-                exportTracesMeasuresToJson(matrix, outputAggregatedMeasuresFile, outParams.encodeOutputTasks, alphabet);
+                outputFile=new File(baseOutputPath.concat("[tracesMeasures].json"));
+                exportTracesMeasuresToJson(matrix, outputFile, outParams.encodeOutputTasks, alphabet);
 
             }
             // Trace Measures descriptive statistics
@@ -147,8 +149,8 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                             measurementsParams.detailsLevel.equals(DetailLevel.all)
             ) {
                 logger.info("Traces Measures Stats...");
-                outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("AggregatedMeasures.json")); // TODO improve
-                exportTracesMeasuresStatisticsToJson(matrix, outputAggregatedMeasuresFile, outParams.encodeOutputTasks, alphabet);
+                outputFile=new File(baseOutputPath.concat("[tracesMeasuresStats].json"));
+                exportTracesMeasuresStatisticsToJson(matrix, outputFile, outParams.encodeOutputTasks, alphabet);
             }
             // Log Measures
             if (
@@ -157,8 +159,8 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                             measurementsParams.detailsLevel.equals(DetailLevel.all)
             ) {
                 logger.info("Log Measures...");
-                outputAggregatedMeasuresFile = new File(outParams.fileToSaveAsJSON.getAbsolutePath().concat("NeuLogMeasures.json")); //TODO improve
-                exportLogMeasuresToJson(matrix, outputAggregatedMeasuresFile, outParams.encodeOutputTasks, alphabet);
+                outputFile=new File(baseOutputPath.concat("[logMeasures].json"));
+                exportLogMeasuresToJson(matrix, outputFile, outParams.encodeOutputTasks, alphabet);
 
             }
 
