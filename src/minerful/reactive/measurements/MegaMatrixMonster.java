@@ -217,6 +217,20 @@ public class MegaMatrixMonster {
     }
 
     /**
+     * Return the number of constraints in the matrix
+     *
+     * @return
+     */
+    public int getConstraintsNumber(){
+        if (matrixLite==null){
+            return matrix[0].length;
+        }else{
+            return matrixLite[0].length;
+        }
+    }
+
+
+    /**
      * Get the specific measure of a specific trace for a specific constraint
      *
      * @param trace

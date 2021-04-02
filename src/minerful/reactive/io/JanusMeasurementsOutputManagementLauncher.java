@@ -73,7 +73,10 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                             measurementsParams.detailsLevel.equals(DetailLevel.allTrace) ||
                             measurementsParams.detailsLevel.equals(DetailLevel.all)
             ) {
-                logger.info("Traces Measures...into event file for now");
+                logger.info("Traces Measures...");
+//                String fileNameBestOf = outputFile.getAbsolutePath().substring(0, outputFile.getAbsolutePath().indexOf(".csv")).concat("[Best-" + varParams.bestNresults + "].txt");
+                outputAggregatedMeasuresFile = new File(outParams.fileToSaveConstraintsAsCSV.getAbsolutePath().concat("TraceMeasures.CSV")); //TODO improve
+                exportTracesMeasuresToCSV(matrix, outputAggregatedMeasuresFile, outParams.encodeOutputTasks, alphabet);
             }
             // Trace Measures descriptive statistics
             if (
@@ -191,7 +194,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                 "Trace",
                 "Constraint",
                 "Events-Evaluation"
-        }, Measures.MEASURE_NAMES);
+        });
 
         try {
             FileWriter fw = new FileWriter(outputFile);
@@ -215,10 +218,6 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
 
                 for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
 //                  for each constraint
-                    String[] measurements = new String[Measures.MEASURE_NUM];
-                    for (int measureIndex = 0; measureIndex < Measures.MEASURE_NUM; measureIndex++) {
-                        measurements[measureIndex] = String.valueOf(megaMatrix.getSpecificMeasure(trace, constraint, measureIndex));
-                    }
                     String constraintName;
                     if (constraint == matrix[trace].length - 1) {
                         constraintName = "MODEL";
@@ -234,7 +233,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                                     traceString,
                                     constraintName,
                                     Arrays.toString(matrix[trace][constraint])
-                            }, measurements);
+                            });
                     printer.printRecord(row);
                 }
 
@@ -270,7 +269,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                 "N(A¬T)",
                 "N(AT)",
                 "Lenght"
-        }, Measures.MEASURE_NAMES);
+        });
 
         try {
             FileWriter fw = new FileWriter(outputFile);
@@ -295,11 +294,6 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
 //              for each trace
                 for (int constraint = 0; constraint < matrix[trace].length; constraint++) {
 //                  for each constraint
-                    String[] measurements = new String[Measures.MEASURE_NUM];
-                    for (int measureIndex = 0; measureIndex < Measures.MEASURE_NUM; measureIndex++) {
-                        measurements[measureIndex] = String.valueOf(megaMatrix.getSpecificMeasure(trace, constraint, measureIndex));
-                    }
-
                     String constraintName;
                     if (constraint == matrix[trace].length - 1) {
                         constraintName = "MODEL";
@@ -324,10 +318,81 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                                     String.valueOf(matrix[trace][constraint][6]),
                                     String.valueOf(matrix[trace][constraint][7]),
                                     String.valueOf(matrix[trace][constraint][8])
-                            }, measurements);
+                            });
                     printer.printRecord(row);
 
                 }
+            }
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * Export to CSV the events evaluation.
+     * The output contains the events evaluation for each traces of each constraint (including the entire model) the evaluation
+     *
+     * @param megaMatrix        events evaluation matrix
+     * @param outputFile        CSV output file base
+     * @param encodeOutputTasks if true, the events are encoded, decoded otherwise
+     * @param alphabet          alphabet to decode the events
+     */
+    public void exportTracesMeasuresToCSV(MegaMatrixMonster megaMatrix, File outputFile, boolean encodeOutputTasks, TaskCharArchive alphabet) {
+        logger.debug("CSV trace measures serialization...");
+
+//		header row
+        String[] header = ArrayUtils.addAll(new String[]{
+                "Trace",
+                "Constraint",
+        }, Measures.MEASURE_NAMES);
+
+        try {
+            FileWriter fw = new FileWriter(outputFile);
+            CSVPrinter printer = new CSVPrinter(fw, CSVFormat.DEFAULT.withHeader(header).withDelimiter(';'));
+
+            int contraintsNum = megaMatrix.getConstraintsNumber();
+            Iterator<LogTraceParser> it = megaMatrix.getLog().traceIterator();
+            List<SeparatedAutomatonOfflineRunner> automata = (List) megaMatrix.getAutomata();
+
+            //		Row builder
+//        for the entire log
+            for (int trace = 0; trace < megaMatrix.getLog().wholeLength(); trace++) {
+                LogTraceParser tr = it.next();
+
+                String traceString;
+                if (encodeOutputTasks) {
+                    traceString = tr.encodeTrace();
+                } else {
+                    traceString = tr.printStringTrace();
+                }
+
+
+                for (int constraint = 0; constraint < contraintsNum; constraint++) {
+//                  for each constraint
+                    String[] measurements = new String[Measures.MEASURE_NUM];
+                    for (int measureIndex = 0; measureIndex < Measures.MEASURE_NUM; measureIndex++) {
+                        measurements[measureIndex] = String.valueOf(megaMatrix.getSpecificMeasure(trace, constraint, measureIndex));
+                    }
+                    String constraintName;
+                    if (constraint == contraintsNum - 1) {
+                        constraintName = "MODEL";
+                    } else {
+                        if (encodeOutputTasks) {
+                            constraintName = automata.get(constraint).toString();
+                        } else {
+                            constraintName = automata.get(constraint).toStringDecoded(alphabet.getTranslationMapById());
+                        }
+                    }
+                    String[] row = ArrayUtils.addAll(
+                            new String[]{
+                                    traceString,
+                                    constraintName
+                            }, measurements);
+                    printer.printRecord(row);
+                }
+
             }
             fw.close();
         } catch (IOException e) {
@@ -476,7 +541,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
     /**
      * Builds the json structure for a given constraint
      */
-    private JsonElement tracesMeasuresStatisticsJsonBuilder(MegaMatrixMonster megaMatrix, int constaintIndex, SummaryStatistics[] constraintLogMeasure) {
+    private JsonElement tracesMeasuresStatisticsJsonBuilder(MegaMatrixMonster megaMatrix, SummaryStatistics[] constraintLogMeasure) {
         JsonObject constraintJson = new JsonObject();
 
         for (int measureIndex = 0; measureIndex < megaMatrix.getMeasureNames().length; measureIndex++) {
@@ -495,7 +560,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
 
 
             measure.add("stats", stats);
-//            measure.addProperty("duck tape", Measures.getLogDuckTapeMeasures(constaintIndex, measureIndex, megaMatrix.getMatrix()));
+//            measure.addProperty("duck tape", Measures.getLogDuckTapeMeasures(constraintIndex, measureIndex, megaMatrix.getMatrix()));
 
             constraintJson.add(megaMatrix.getMeasureName(measureIndex), measure);
         }
@@ -551,7 +616,7 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
 
                 jsonOutput.add(
                         constraintName,
-                        tracesMeasuresStatisticsJsonBuilder(megaMatrix, constraint, constraintLogMeasure[constraint])
+                        tracesMeasuresStatisticsJsonBuilder(megaMatrix, constraintLogMeasure[constraint])
                 );
             }
             gson.toJson(jsonOutput, fw);
@@ -653,11 +718,11 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                     fw.write("\t\t{\"" + constraintName + "\": ");
                     fw.write(Arrays.toString(matrix[trace][constraint]));
 
-                    String line = "\n\t\t ";
+                    StringBuilder line = new StringBuilder("\n\t\t ");
                     for (int measureIndex = 0; measureIndex < Measures.MEASURE_NUM; measureIndex++) {
-                        line += " , \"" + Measures.MEASURE_NAMES[measureIndex] + "\": " + megaMatrix.getSpecificMeasure(trace, constraint, measureIndex);
+                        line.append(" , \"").append(Measures.MEASURE_NAMES[measureIndex]).append("\": ").append(megaMatrix.getSpecificMeasure(trace, constraint, measureIndex));
                     }
-                    line += "}";
+                    line.append("}");
 
                     if (constraint == (matrix[trace].length - 1)) {
                         fw.write(line + "\n");
@@ -739,11 +804,11 @@ public class JanusMeasurementsOutputManagementLauncher extends MinerFulOutputMan
                     fw.write("\"N(AT)\": " + matrix[trace][constraint][7] + ",");
                     fw.write("\"Length\": " + matrix[trace][constraint][8]);
 
-                    String line = " \n\t\t ";
+                    StringBuilder line = new StringBuilder(" \n\t\t ");
                     for (int measureIndex = 0; measureIndex < Measures.MEASURE_NUM; measureIndex++) {
-                        line += " , \"" + Measures.MEASURE_NAMES[measureIndex] + "\": " + megaMatrix.getSpecificMeasure(trace, constraint, measureIndex);
+                        line.append(" , \"").append(Measures.MEASURE_NAMES[measureIndex]).append("\": ").append(megaMatrix.getSpecificMeasure(trace, constraint, measureIndex));
                     }
-                    line += "}";
+                    line.append("}");
 
                     if (constraint == (matrix[trace].length - 1)) {
                         fw.write(line + "\n");
