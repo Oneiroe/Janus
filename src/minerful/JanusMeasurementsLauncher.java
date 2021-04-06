@@ -89,21 +89,40 @@ public class JanusMeasurementsLauncher {
             case event:
                 break;
             case trace:
-                result.computeAllTraceMeasures(janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue);
+                if (janusParams.measure.equals("all")) {
+                    result.computeAllTraceMeasures(janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue);
+                }else{
+                    result.computeSingleTraceMeasures(janusParams.measure, janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue);
+                }
                 break;
             case allTrace:
             case traceStats:
-                result.computeAllTraceMeasures(janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue);
-                result.computeAllTraceMeasuresStats(janusParams.nanLogSkipFlag);
+                if (janusParams.measure.equals("all")) {
+                    result.computeAllTraceMeasures(janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue);
+                    result.computeAllTraceMeasuresStats(janusParams.nanLogSkipFlag);
+                }else{
+                    result.computeSingleTraceMeasures(janusParams.measure, janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue);
+                    result.computeSingleTraceMeasuresStats(janusParams.nanLogSkipFlag);
+                }
                 break;
             case log:
-                result.computeAllLogMeasures();
+                if (janusParams.measure.equals("all")) {
+                    result.computeAllLogMeasures();
+                }else{
+                    result.computeSingleLogMeasures(janusParams.measure);
+                }
                 break;
             case allLog:
             case all:
-                result.computeAllTraceMeasures(janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue);
-                result.computeAllTraceMeasuresStats(janusParams.nanLogSkipFlag);
-                result.computeAllLogMeasures();
+                if (janusParams.measure.equals("all")) {
+                    result.computeAllTraceMeasures(janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue);
+                    result.computeAllTraceMeasuresStats(janusParams.nanLogSkipFlag);
+                    result.computeAllLogMeasures();
+                }else{
+                    result.computeSingleTraceMeasures(janusParams.measure, janusParams.nanTraceSubstituteFlag, janusParams.nanTraceSubstituteValue);
+                    result.computeSingleTraceMeasuresStats(janusParams.nanLogSkipFlag);
+                    result.computeSingleLogMeasures(janusParams.measure);
+                }
                 break;
         }
         after = System.currentTimeMillis();

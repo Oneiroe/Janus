@@ -1,6 +1,7 @@
 package minerful.reactive.params;
 
 import minerful.params.ParamsManager;
+import minerful.reactive.measurements.Measures;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -11,6 +12,9 @@ public class JanusMeasurementsCmdParameters extends ParamsManager {
     public static final String NaN_TRACE_SUBSTITUTE_VALUE_PARAM_NAME = "nanTraceValue";
     public static final String NaN_LOG_SKIP_FLAG_PARAM_NAME = "nanLogSkip";
     public static final String LITE_FLAG_PARAM_NAME = "lite";
+
+    public static final String MEASURE_NAME = "measure";  // measure to use for the measurements, default: "all"
+    public static final String DEFAULT_MEASURE = "all";
 
     public static final String DETAILS_LEVEL_PARAM_NAME = "detailsLevel";
     public static final DetailLevel DEFAULT_DETAILS_LEVEL = DetailLevel.all;
@@ -65,6 +69,10 @@ public class JanusMeasurementsCmdParameters extends ParamsManager {
      * parameter to set to output only the traces result, the aggregated measures, or both. default= both
      **/
     public DetailLevel detailsLevel;
+    /**
+     * measure to use for the comparison, default: "Confidence"
+     */
+    public String measure;
 
     public JanusMeasurementsCmdParameters() {
         super();
@@ -73,6 +81,7 @@ public class JanusMeasurementsCmdParameters extends ParamsManager {
         this.nanLogSkipFlag = false;
         this.liteFlag = false;
         this.detailsLevel = DEFAULT_DETAILS_LEVEL;
+        this.measure = DEFAULT_MEASURE;
     }
 
     public JanusMeasurementsCmdParameters(boolean nanTraceSubstituteFlag, double nanTraceSubstituteValue, boolean nanLogSkipFlag) {
@@ -139,6 +148,10 @@ public class JanusMeasurementsCmdParameters extends ParamsManager {
         this.liteFlag = liteFlag;
     }
 
+    public static String getDefaultMeasure() {
+        return DEFAULT_MEASURE;
+    }
+
     @Override
     protected void setup(CommandLine line) {
         this.nanTraceSubstituteFlag = line.hasOption(NaN_TRACE_SUBSTITUTE_FLAG_PARAM_NAME);
@@ -154,6 +167,10 @@ public class JanusMeasurementsCmdParameters extends ParamsManager {
                         DETAILS_LEVEL_PARAM_NAME,
                         this.detailsLevel.toString()
                 )
+        );
+        this.measure = line.getOptionValue(
+                MEASURE_NAME,
+                DEFAULT_MEASURE
         );
     }
 
@@ -205,6 +222,20 @@ public class JanusMeasurementsCmdParameters extends ParamsManager {
                         .longOpt("details-level")
                         .desc(("levels of details of the measures to compute. {event(only events evaluation), trace(only trace measures), traceStats(only trace measures log stats), log(only log measures), allTrace(traces measures and their stats), allLog(log measures and traces measures stats), all}. Default: all")
                                 + printDefault(fromEnumValueToString(DEFAULT_DETAILS_LEVEL)))
+                        .type(String.class)
+                        .build()
+        );
+        StringBuilder allMeasures= new StringBuilder();
+        allMeasures.append("'all'");
+        for (String m:Measures.MEASURE_NAMES) {
+            allMeasures.append(",'"+m+"'");
+        }
+        options.addOption(
+                Option.builder(MEASURE_NAME)
+                        .hasArg().argName("name")
+                        .longOpt("measure")
+                        .desc(("measure to compute, either a specific one or all the supported ones. {"+ allMeasures +"}")
+                                + printDefault(fromEnumValueToString(DEFAULT_MEASURE)))
                         .type(String.class)
                         .build()
         );

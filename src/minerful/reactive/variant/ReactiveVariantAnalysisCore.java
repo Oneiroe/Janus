@@ -428,7 +428,7 @@ public class ReactiveVariantAnalysisCore {
         logger.info("Total KB checking time: " + (after - before));
 
 //      compute only the desired measure
-        float[][] tracesMeasure = measures.computeTracesSingleMeasure(this.measure, janusCheckingParams.nanTraceSubstituteFlag, janusCheckingParams.nanTraceSubstituteValue);
+        float[][] tracesMeasure = measures.retrieveSingleTraceMeasures(this.measure, janusCheckingParams.nanTraceSubstituteFlag, janusCheckingParams.nanTraceSubstituteValue);
 
         int currentTrace = 0;
         for (Iterator<LogTraceParser> it = logParser.traceIterator(); it.hasNext(); ) {
