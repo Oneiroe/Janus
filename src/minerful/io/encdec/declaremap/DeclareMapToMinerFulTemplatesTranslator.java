@@ -9,6 +9,7 @@ import minerful.concept.constraint.existence.End;
 import minerful.concept.constraint.existence.ExactlyOne;
 import minerful.concept.constraint.existence.Init;
 import minerful.concept.constraint.existence.Participation;
+import minerful.concept.constraint.existence.Absence;
 import minerful.concept.constraint.nonDeclare.BeforeThisOrLaterThat;
 import minerful.concept.constraint.relation.AlternatePrecedence;
 import minerful.concept.constraint.relation.AlternateResponse;
@@ -44,6 +45,7 @@ public class DeclareMapToMinerFulTemplatesTranslator {
 		MINERFUL_2_DECLARE_MAP.put(End.class, DeclareMapTemplate.Existence); // Declare does not cover the concept of "End"
 		MINERFUL_2_DECLARE_MAP.put(Participation.class, DeclareMapTemplate.Existence);
 		MINERFUL_2_DECLARE_MAP.put(AtMostOne.class, DeclareMapTemplate.Absence2);
+		MINERFUL_2_DECLARE_MAP.put(Absence.class, DeclareMapTemplate.Absence);
 		// Relation
 		MINERFUL_2_DECLARE_MAP.put(RespondedExistence.class, DeclareMapTemplate.Responded_Existence);
 		MINERFUL_2_DECLARE_MAP.put(Response.class, DeclareMapTemplate.Response);

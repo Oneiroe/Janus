@@ -18,6 +18,7 @@ import minerful.concept.constraint.existence.End;
 import minerful.concept.constraint.existence.ExistenceConstraint;
 import minerful.concept.constraint.existence.Init;
 import minerful.concept.constraint.existence.Participation;
+import minerful.concept.constraint.existence.Absence;
 import minerful.concept.constraint.nonDeclare.NonDeclareConstraint;
 import minerful.concept.constraint.relation.AlternatePrecedence;
 import minerful.concept.constraint.relation.AlternateResponse;
@@ -178,6 +179,7 @@ public class MetaConstraintUtils {
         constraintTemplates.add(Init.class);
         constraintTemplates.add(Participation.class);
         constraintTemplates.add(AtMostOne.class);
+        constraintTemplates.add(Absence.class);
 
         return constraintTemplates;
     }
